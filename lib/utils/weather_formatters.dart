@@ -75,36 +75,36 @@ String weatherIconAsset(String weather) {
 }
 
 Color statusColorForAqi(int aqi) {
-  switch (aqi) {
-    case 1:
-      return Colors.greenAccent;
-    case 2:
-      return Colors.yellowAccent;
-    case 3:
-      return Colors.orangeAccent;
-    case 4:
-      return Colors.redAccent;
-    case 5:
-      return Colors.purpleAccent;
-    default:
-      return Colors.grey;
+  // رنگ‌های استاندارد US AQI
+  if (aqi <= 50) {
+    return const Color(0xFF00E400); // Good - سبز روشن
+  } else if (aqi <= 100) {
+    return const Color(0xFFFFFF00); // Moderate - زرد
+  } else if (aqi <= 150) {
+    return const Color(0xFFFF7E00); // Unhealthy for Sensitive Groups - نارنجی
+  } else if (aqi <= 200) {
+    return const Color(0xFFFF0000); // Unhealthy - قرمز
+  } else if (aqi <= 300) {
+    return const Color(0xFF8F3F97); // Very Unhealthy - بنفش
+  } else {
+    return const Color(0xFF7E0023); // Hazardous - قهوه‌ای/زرشکی
   }
 }
 
 String labelForAqi(int aqi) {
-  switch (aqi) {
-    case 1:
-      return 'خوب';
-    case 2:
-      return 'متوسط';
-    case 3:
-      return 'ناسالم برای گروه‌های حساس';
-    case 4:
-      return 'ناسالم';
-    case 5:
-      return 'خیلی ناسالم';
-    default:
-      return 'نامشخص';
+  // بر اساس استاندارد US AQI
+  if (aqi <= 50) {
+    return 'پاک'; // Good
+  } else if (aqi <= 100) {
+    return 'متوسط'; // Moderate
+  } else if (aqi <= 150) {
+    return 'ناسالم برای گروه‌های حساس'; // Unhealthy for Sensitive Groups
+  } else if (aqi <= 200) {
+    return 'ناسالم'; // Unhealthy
+  } else if (aqi <= 300) {
+    return 'بسیار ناسالم'; // Very Unhealthy
+  } else {
+    return 'خطرناک'; // Hazardous
   }
 }
 

@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 
 import 'package:weatherly_app/utils/weather_formatters.dart';
 import 'package:weatherly_app/weather_store.dart';
-import 'package:weatherly_app/widgets/weather_list_items.dart';
 
 class HomePage extends StatefulWidget {
   final Function(bool) onSearchFocusChange;
@@ -417,15 +416,6 @@ class _HomePageState extends State<HomePage> {
         ],
 
         const SizedBox(height: 24),
-
-        if (store.showHourly && store.hourlyForecast.isNotEmpty) ...[
-          _buildHourlySection(context, store),
-          const SizedBox(height: 24),
-        ],
-
-        if (store.forecast.isNotEmpty) _buildForecastSection(context, store),
-
-        const SizedBox(height: 24),
       ],
     );
   }
@@ -442,97 +432,56 @@ class _HomePageState extends State<HomePage> {
       204,
     ); // (Opacity 0.8)
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: RepaintBoundary(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              toPersianDigits('${temp?.toStringAsFixed(1) ?? '--'}°'),
-              style: textTheme.displayLarge?.copyWith(
-                fontWeight: FontWeight.w300,
-                fontSize: 56,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-            Text(
-              store.location,
-              textAlign: TextAlign.center,
-              style: textTheme.headlineSmall,
-            ),
-
-            const SizedBox(height: 16),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(
-                  weatherIconAsset(
-                    weatherTypeToApiName(store.weatherType),
-                  ),
-                  width: 24,
-                  height: 24,
-                  colorFilter: ColorFilter.mode(
-                    iconColor ?? Colors.white,
-                    BlendMode.srcIn,
-                  ),
-                ),
-                const SizedBox(width: 8),
-
-                Text(
-                  translateWeather(store.weatherType),
-                  style: textTheme.titleLarge?.copyWith(color: iconColor),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 🌫 بخش کیفیت هوا
-  Widget _buildAirQualitySection(BuildContext context, WeatherStore store) {
-    final aqi = store.airQualityIndex ?? 0;
-    final color = statusColorForAqi(aqi);
-    final status = labelForAqi(aqi);
-
     return RepaintBoundary(
       child: Center(
         child: SizedBox(
           width: math.min(MediaQuery.of(context).size.width, 900.0),
           child: Container(
-            padding: const EdgeInsets.all(16.0),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(Icons.air_rounded, color: color, size: 36),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  toPersianDigits('${temp?.toStringAsFixed(1) ?? '--'}°'),
+                  style: textTheme.displayLarge?.copyWith(
+                    fontWeight: FontWeight.w300,
+                    fontSize: 56,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+                Text(
+                  store.location,
+                  textAlign: TextAlign.center,
+                  style: textTheme.headlineSmall,
+                ),
+
+                const SizedBox(height: 16),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'کیفیت هوا: ${toPersianDigits(aqi.toString())}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      status,
-                      style: TextStyle(
-                        color: color,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    SvgPicture.asset(
+                      weatherIconAsset(
+                        weatherTypeToApiName(store.weatherType),
                       ),
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        iconColor ?? Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    Text(
+                      translateWeather(store.weatherType),
+                      style: textTheme.titleLarge?.copyWith(color: iconColor),
                     ),
                   ],
                 ),
@@ -544,123 +493,115 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 📅 پیش‌بینی روزانه
-  Widget _buildForecastSection(BuildContext context, WeatherStore store) {
-    final daysFa = [
-      'دوشنبه',
-      'سه‌شنبه',
-      'چهارشنبه',
-      'پنجشنبه',
-      'جمعه',
-      'شنبه',
-      'یکشنبه',
-    ];
+  // 🌫 بخش کیفیت هوا
+  Widget _buildAirQualitySection(BuildContext context, WeatherStore store) {
+    final aqi = store.airQualityIndex ?? 0;
+    final color = statusColorForAqi(aqi);
+    final status = labelForAqi(aqi);
+    final progress = (aqi / 500.0).clamp(0.0, 1.0);
 
     return RepaintBoundary(
       child: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0, bottom: 10),
-              child: Text(
-                "پیش‌بینی ۵ روز آینده",
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+        child: SizedBox(
+          width: math.min(MediaQuery.of(context).size.width, 900.0),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(20),
             ),
-            SizedBox(
-              height: 120,
-              width: math.min(MediaQuery.of(context).size.width, 900.0),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: store.forecast.length,
-                cacheExtent: 200,
-                itemBuilder: (context, index) {
-                  final day = store.forecast[index];
-                  final date = DateTime.parse(day['dt_txt']);
-                  final dayOfWeek = daysFa[(date.weekday - 1) % 7];
-                  final rawTemp = (day['main']['temp'] as num).toDouble();
-                  final displayedTemp = store.useCelsius
-                      ? rawTemp
-                      : (rawTemp * 9 / 5) + 32;
-                  final temp = displayedTemp.toStringAsFixed(0);
-                  final weatherMain = day['weather'][0]['main'] as String;
-                  final iconPath = weatherIconAsset(weatherMain);
-
-                  return Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 12.0),
-                    child: ForecastItem(
-                      // 👈 استفاده از کلاس عمومی
-                      dayFa: dayOfWeek,
-                      tempText: toPersianDigits('$temp°'),
-                      icon: iconPath,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.air_rounded, color: color, size: 32),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'شاخص کیفیت هوا (AQI)',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            status,
+                            style: TextStyle(
+                              color: color,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 🌡 دمای ساعتی
-  Widget _buildHourlySection(BuildContext context, WeatherStore store) {
-    return RepaintBoundary(
-      child: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0, bottom: 10),
-              child: Text(
-                "دمای ساعتی",
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            SizedBox(
-              height: 120,
-              width: math.min(MediaQuery.of(context).size.width, 900.0),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: store.hourlyForecast.length,
-                cacheExtent: 200,
-                itemBuilder: (context, index) {
-                  final hour = store.hourlyForecast[index];
-                  final date = DateTime.parse(hour['dt_txt']).toUtc();
-                  final rawTemp = (hour['main']['temp'] as num).toDouble();
-                  final displayedTemp = store.useCelsius
-                      ? rawTemp
-                      : (rawTemp * 9 / 5) + 32;
-                  final temp = displayedTemp.toStringAsFixed(0);
-                  final main = hour['weather'][0]['main'] as String;
-                  final iconPath = weatherIconAsset(main);
-
-                  return Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 12.0),
-                    child: HourlyItem(
-                      // 👈 استفاده از کلاس عمومی
-                      hourText: toPersianDigits(
-                        formatLocalHour(
-                          date,
-                          store.hourlyTimezoneOffsetSeconds ?? 0,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: color.withAlpha(51),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        toPersianDigits('AQI $aqi'),
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      tempText: toPersianDigits(
-                        store.useCelsius ? "$temp°" : "$temp°",
-                      ),
-                      icon: iconPath,
                     ),
-                  );
-                },
-              ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 12,
+                    backgroundColor: Colors.grey.withAlpha(51),
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      toPersianDigits('0'),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.color
+                                ?.withAlpha(153),
+                          ),
+                    ),
+                    Text(
+                      toPersianDigits('500'),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.color
+                                ?.withAlpha(153),
+                          ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
+
 }

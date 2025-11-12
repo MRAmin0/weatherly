@@ -126,7 +126,7 @@ class WeatherApiService {
     }
   }
 
-  Future<int?> fetchAirQualityIndex({
+  Future<Map<String, dynamic>?> fetchAirQuality({
     required double lat,
     required double lon,
   }) async {
@@ -140,9 +140,67 @@ class WeatherApiService {
       final response = await _httpClient.get(uri);
       if (response.statusCode != 200) return null;
       final data = await _decodeJson<Map<String, dynamic>>(response.body);
-      return data?['list']?[0]?['main']?['aqi'] as int?;
+      final item = data?['list']?[0] as Map<String, dynamic>?;
+      if (item == null) return null;
+      
+      final aqiIndex = item['main']?['aqi'] as int?;
+      final components = item['components'] as Map<String, dynamic>?;
+      
+      if (aqiIndex == null) return null;
+      
+      // محاسبه AQI واقعی از PM2.5 (معمولاً دقیق‌ترین شاخص)
+      final pm25 = (components?['pm2_5'] as num?)?.toDouble();
+      int? realAqi;
+      
+      if (pm25 != null) {
+        realAqi = _calculateAqiFromPm25(pm25);
+      } else {
+        // اگر PM2.5 موجود نبود، از index به محدوده تبدیل می‌کنیم
+        realAqi = _indexToAqiRange(aqiIndex);
+      }
+      
+      return {
+        'index': aqiIndex,
+        'aqi': realAqi,
+        'components': components,
+      };
     } catch (_) {
       return null;
+    }
+  }
+
+  int _calculateAqiFromPm25(double pm25) {
+    // فرمول محاسبه AQI از PM2.5 بر اساس استاندارد US EPA
+    if (pm25 <= 12.0) {
+      return ((50.0 / 12.0) * pm25).round();
+    } else if (pm25 <= 35.4) {
+      return (((100.0 - 51.0) / (35.4 - 12.1)) * (pm25 - 12.1) + 51.0).round();
+    } else if (pm25 <= 55.4) {
+      return (((150.0 - 101.0) / (55.4 - 35.5)) * (pm25 - 35.5) + 101.0).round();
+    } else if (pm25 <= 150.4) {
+      return (((200.0 - 151.0) / (150.4 - 55.5)) * (pm25 - 55.5) + 151.0).round();
+    } else if (pm25 <= 250.4) {
+      return (((300.0 - 201.0) / (250.4 - 150.5)) * (pm25 - 150.5) + 201.0).round();
+    } else {
+      return (((500.0 - 301.0) / (500.0 - 250.5)) * (pm25 - 250.5) + 301.0).round().clamp(301, 500);
+    }
+  }
+
+  int _indexToAqiRange(int index) {
+    // تبدیل index به میانگین محدوده AQI
+    switch (index) {
+      case 1:
+        return 25; // 0-50
+      case 2:
+        return 75; // 51-100
+      case 3:
+        return 125; // 101-150
+      case 4:
+        return 175; // 151-200
+      case 5:
+        return 250; // 201-300
+      default:
+        return 0;
     }
   }
 

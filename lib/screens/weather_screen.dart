@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-// 👈 ایمپورت ui (برای اطمینان)
-// 👇 آدرس‌دهی مطلق (مطمئن شو 'weatherly_app' اسم پروژه در pubspec.yaml باشه)
 import 'package:weatherly_app/screens/settings_screen.dart';
-import 'package:weatherly_app/screens/home_page.dart'; // 👈 ایمپورت صفحه خانه جدید
+import 'package:weatherly_app/screens/home_page.dart';
+import 'package:weatherly_app/screens/forecast_screen.dart';
 
 class WeatherScreen extends StatefulWidget {
   final ThemeMode currentThemeMode;
@@ -53,11 +52,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 },
               ),
 
-              // --- صفحه ۱: پیش‌بینی (فعلاً خالی) ---
-              Scaffold(
-                key: const ValueKey('forecast_page'),
-                appBar: AppBar(title: const Text('پیش‌بینی')),
-                body: const Center(child: Text('صفحه پیش‌بینی (به زودی)')),
+              // --- صفحه ۱: پیش‌بینی ---
+              const ForecastScreen(
+                key: ValueKey('forecast_page'),
               ),
 
               // --- صفحه ۲: تنظیمات ---

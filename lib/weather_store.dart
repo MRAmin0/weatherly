@@ -422,10 +422,9 @@ class WeatherStore extends ChangeNotifier {
 
   Future<void> fetchAirQuality(double lat, double lon) async {
     if (!_apiReady) return;
-    final value =
-        await _apiService.fetchAirQualityIndex(lat: lat, lon: lon);
-    if (value != null) {
-      _airQualityIndex = value;
+    final data = await _apiService.fetchAirQuality(lat: lat, lon: lon);
+    if (data != null) {
+      _airQualityIndex = data['aqi'] as int?;
       notifyListeners();
     }
   }
