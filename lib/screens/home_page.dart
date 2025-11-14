@@ -427,6 +427,7 @@ class _HomePageState extends State<HomePage> {
     final temp = store.useCelsius
         ? tempC
         : (tempC != null ? (tempC * 9 / 5) + 32 : null);
+    final unitSymbol = store.useCelsius ? '°C' : '°F';
 
     final textTheme = Theme.of(context).textTheme;
     final iconColor = textTheme.bodyMedium?.color?.withAlpha(
@@ -448,14 +449,13 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  toPersianDigits('${temp?.toStringAsFixed(1) ?? '--'}°'),
+                  toPersianDigits('${temp?.toStringAsFixed(0) ?? '--'}$unitSymbol'),
                   style: textTheme.displayLarge?.copyWith(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 56,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 64,
                   ),
                 ),
-
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
                   store.location,
                   textAlign: TextAlign.center,

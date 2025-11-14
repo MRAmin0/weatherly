@@ -121,16 +121,32 @@ class ForecastScreen extends StatelessWidget {
   }
 
   Widget _buildHourlySection(BuildContext context, WeatherStore store) {
+    final unitSymbol = store.useCelsius ? '°C' : '°F';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(right: 8.0, bottom: 12),
-          child: Text(
-            'دمای ساعتی',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+          child: Row(
+            children: [
+              Text(
+                'دمای ساعتی',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '($unitSymbol)',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.color
+                          ?.withAlpha(153),
+                    ),
+              ),
+            ],
           ),
         ),
         SizedBox(
@@ -160,7 +176,7 @@ class ForecastScreen extends StatelessWidget {
                       store.hourlyTimezoneOffsetSeconds ?? 0,
                     ),
                   ),
-                  tempText: toPersianDigits('$temp°'),
+                  tempText: toPersianDigits('$temp$unitSymbol'),
                   icon: iconPath,
                 ),
               );
@@ -181,6 +197,7 @@ class ForecastScreen extends StatelessWidget {
       'شنبه',
       'یک‌شنبه',
     ];
+    final unitSymbol = store.useCelsius ? '°C' : '°F';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,13 +290,15 @@ class ForecastScreen extends StatelessWidget {
                             child: Icon(
                               Icons.arrow_upward,
                               size: 18,
-                              color: Theme.of(context).textTheme.titleLarge?.color,
+                              color: Theme.of(context).textTheme.titleMedium?.color,
                             ),
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            toPersianDigits('${maxDisplayed.toStringAsFixed(0)}°'),
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            toPersianDigits(
+                              '${maxDisplayed.toStringAsFixed(0)}$unitSymbol',
+                            ),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -298,18 +317,21 @@ class ForecastScreen extends StatelessWidget {
                               size: 18,
                               color: Theme.of(context)
                                   .textTheme
-                                  .bodyMedium
+                                  .titleMedium
                                   ?.color
                                   ?.withAlpha(153),
                             ),
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            toPersianDigits('${minDisplayed.toStringAsFixed(0)}°'),
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            toPersianDigits(
+                              '${minDisplayed.toStringAsFixed(0)}$unitSymbol',
+                            ),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.normal,
                                   color: Theme.of(context)
                                       .textTheme
-                                      .bodyMedium
+                                      .titleMedium
                                       ?.color
                                       ?.withAlpha(153),
                                 ),
