@@ -198,10 +198,9 @@ class ForecastScreen extends StatelessWidget {
           final index = entry.key;
           final day = entry.value;
           final date = DateTime.parse(day['dt_txt']);
-          final dayOfWeek = daysFa[(date.weekday - 1) % 7];
+          final dayOfWeek = index == 0 ? null : daysFa[(date.weekday - 1) % 7];
           final weatherMain = day['weather'][0]['main'] as String;
           final iconPath = weatherIconAsset(weatherMain);
-          final description = day['weather'][0]['description'] as String? ?? '';
           final minTemp = (day['main']['temp_min'] as num).toDouble();
           final maxTemp = (day['main']['temp_max'] as num).toDouble();
           final minDisplayed = store.useCelsius
@@ -226,22 +225,24 @@ class ForecastScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        index == 0 ? 'امروز' : dayOfWeek,
+                        index == 0 ? 'امروز' : dayOfWeek!,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        description,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.color
-                                  ?.withAlpha(179),
-                            ),
-                      ),
+                      if (index > 0) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          translateWeatherDescription(weatherMain),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color
+                                    ?.withAlpha(179),
+                              ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -260,23 +261,60 @@ class ForecastScreen extends StatelessWidget {
                   flex: 2,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        toPersianDigits('${maxDisplayed.toStringAsFixed(0)}°'),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 18,
+                            child: Icon(
+                              Icons.arrow_upward,
+                              size: 18,
+                              color: Theme.of(context).textTheme.titleLarge?.color,
                             ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            toPersianDigits('${maxDisplayed.toStringAsFixed(0)}°'),
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        toPersianDigits('${minDisplayed.toStringAsFixed(0)}°'),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 18,
+                            child: Icon(
+                              Icons.arrow_downward,
+                              size: 18,
                               color: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
                                   ?.color
                                   ?.withAlpha(153),
                             ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            toPersianDigits('${minDisplayed.toStringAsFixed(0)}°'),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.color
+                                      ?.withAlpha(153),
+                                ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

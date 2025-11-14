@@ -56,6 +56,42 @@ String translateWeather(WeatherType type) {
   }
 }
 
+String translateWeatherDescription(String weatherMain) {
+  switch (weatherMain.toLowerCase()) {
+    case 'clear':
+      return 'صاف';
+    case 'clouds':
+    case 'few clouds':
+    case 'scattered clouds':
+    case 'broken clouds':
+    case 'overcast clouds':
+      return 'ابری';
+    case 'rain':
+    case 'light rain':
+    case 'moderate rain':
+    case 'heavy rain':
+    case 'shower rain':
+      return 'بارانی';
+    case 'drizzle':
+    case 'light intensity drizzle':
+      return 'باران نم نم';
+    case 'thunderstorm':
+    case 'thunderstorm with light rain':
+    case 'thunderstorm with rain':
+    case 'thunderstorm with heavy rain':
+      return 'رعد و برق';
+    case 'snow':
+    case 'light snow':
+    case 'heavy snow':
+      return 'برفی';
+    case 'mist':
+    case 'fog':
+      return 'مه‌آلود';
+    default:
+      return 'نامشخص';
+  }
+}
+
 String weatherIconAsset(String weather) {
   switch (weather) {
     case 'Clear':
