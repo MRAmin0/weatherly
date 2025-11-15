@@ -11,8 +11,9 @@ import 'utils/city_utils.dart';
 
 class WeatherStore extends ChangeNotifier {
   WeatherStore({WeatherApiService? apiService})
-      : _apiService = apiService ??
-            WeatherApiService(apiKey: ConfigReader.getOpenWeatherApiKey()) {
+    : _apiService =
+          apiService ??
+          WeatherApiService(apiKey: ConfigReader.getOpenWeatherApiKey()) {
     Future.microtask(_init);
   }
 
@@ -178,8 +179,7 @@ class WeatherStore extends ChangeNotifier {
       final weather = await _apiService.fetchCurrentWeather(
         lat: targetLat,
         lon: targetLon,
-        cityName:
-            (targetLat == null || targetLon == null) ? trimmedCity : null,
+        cityName: (targetLat == null || targetLon == null) ? trimmedCity : null,
       );
 
       if (weather == null) {
@@ -200,13 +200,9 @@ class WeatherStore extends ChangeNotifier {
         _location = resolvedLabel;
       } else {
         final apiName = (weather['name'] ?? '').toString();
-        final apiCountry =
-            ((weather['sys'] ?? {})['country'] ?? '').toString();
+        final apiCountry = ((weather['sys'] ?? {})['country'] ?? '').toString();
         if (apiName.isNotEmpty || apiCountry.isNotEmpty) {
-          _location = buildCityLabel({
-            'name': apiName,
-            'country': apiCountry,
-          });
+          _location = buildCityLabel({'name': apiName, 'country': apiCountry});
         } else {
           _location = trimmedCity ?? 'Unknown';
         }
@@ -218,9 +214,7 @@ class WeatherStore extends ChangeNotifier {
       );
       _forecast = forecastList
           .whereType<Map<String, dynamic>>()
-          .where(
-            (item) => item['dt_txt'].toString().contains('12:00:00'),
-          )
+          .where((item) => item['dt_txt'].toString().contains('12:00:00'))
           .toList();
       _currentLat = targetLat;
       _currentLon = targetLon;
@@ -292,8 +286,7 @@ class WeatherStore extends ChangeNotifier {
   }
 
   Future<void> fetchHourlyForecast(double lat, double lon) async {
-    final response =
-        await _apiService.fetchHourlyForecast(lat: lat, lon: lon);
+    final response = await _apiService.fetchHourlyForecast(lat: lat, lon: lon);
     if (response == null) return;
 
     hourlyForecast = response.entries;
@@ -357,28 +350,28 @@ class WeatherStore extends ChangeNotifier {
 
   Future<void> updatePreference(String key, dynamic value) async {
     final prefs = await SharedPreferences.getInstance();
+
     if (value is bool) {
       await prefs.setBool(key, value);
     } else if (value is String) {
       await prefs.setString(key, value);
-    } else if (value is double) {
-      await prefs.setDouble(key, value);
-    } else if (value is int) {
-      await prefs.setInt(key, value);
+    } else if (value is num) {
+      // Covers both int and double → no more WASM warning
+      await prefs.setDouble(key, value.toDouble());
     }
 
     switch (key) {
       case 'showHourly':
-        _showHourly = value;
+        _showHourly = value as bool;
         break;
       case 'showAirQuality':
-        _showAirQuality = value;
+        _showAirQuality = value as bool;
         break;
       case 'useCelsius':
-        _useCelsius = value;
+        _useCelsius = value as bool;
         break;
       case 'defaultCity':
-        _defaultCity = value;
+        _defaultCity = value as String;
         break;
     }
 
