@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A good Weather App with flutter.",
+    "description": "پیش‌بینی دقیق وضعیت هوا با رابط کاربری ساده و جذاب. اپلیکیشن Weatherly، همیشه شما رو از وضعیت آب‌وهوای منطقه‌تان مطلع می‌کند.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

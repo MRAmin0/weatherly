@@ -94,13 +94,6 @@ flutter:
           weight: 700
         - asset: assets/fonts/Vazir-Light.ttf
           weight: 300
-
-    - family: NotoSansTC
-      fonts:
-        - asset: assets/fonts/NotoSansTC-Bold.ttf
-        - asset: assets/fonts/NotoSansTC-Medium.ttf
-        - asset: assets/fonts/NotoSansTC-Regular.ttf
-
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 # تنظیمات پکیج ساخت آیکون
