@@ -7,7 +7,7 @@
 
 | صفحه خانه                  | پیش بینی                  | تنظیمات                        |
 | -------------------------- | ---------------------------- | ------------------------------ |
-| ![Home](Screenshots/1.png) | ![Forecast](Screenshots/2.png) | ![Settings](Screenshots/3.png) |
+| ![Home](Screenshots/1.png) | ![Forecast](Screenshots/22.png) | ![Settings](Screenshots/3.png) |
 
 ## ✨ امکانات
 
