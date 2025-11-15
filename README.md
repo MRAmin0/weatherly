@@ -7,7 +7,7 @@
 
 | صفحه خانه                  | نتایج جستجو                  | تنظیمات                        |
 | -------------------------- | ---------------------------- | ------------------------------ |
-| ![Home](Screenshots/2.png) | ![Search](Screenshots/2.png) | ![Settings](Screenshots/3.png) |
+| ![Home](Screenshots/1.png) | ![Search](Screenshots/2.png) | ![Settings](Screenshots/3.png) |
 
 ## ✨ امکانات
 
