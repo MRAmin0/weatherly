@@ -1,0 +1,78 @@
+{
+  "@@locale": "fa",
+  "appTitle": "هوانما",
+  "settings": "تنظیمات",
+  "language": "زبان",
+  "developer": "توسعه‌دهنده",
+  "reportAnIssue": "گزارش مشکل",
+  "contactViaEmail": "ارتباط با ایمیل",
+  "changelog": "تغییرات نسخه‌ها",
+  "appVersion": "نسخه برنامه",
+  "versionHistory": "تاریخچه نسخه‌ها",
+  "readingVersion": "در حال خواندن نسخه...",
+  "aboutApp": "درباره برنامه",
+  "appDescription": "ویدرلی به شما کمک می‌کند وضعیت آب‌وهوا را با رابط کاربری زیبا مشاهده کنید.",
+  "projectOnGithub": "پروژه در گیت‌هاب",
+  "close": "بستن",
+  "home": "خانه",
+  "forecast": "پیش‌بینی",
+  "persian": "فارسی",
+  "english": "انگلیسی",
+  "displayMode": "حالت نمایش",
+  "system": "مطابق سیستم",
+  "light": "روشن",
+  "dark": "تاریک",
+  "showHourlyTemperature": "نمایش دمای ساعتی",
+  "showAirQuality": "نمایش کیفیت هوا",
+  "temperatureUnitCelsius": "واحد دما (°C)",
+  "celsiusFahrenheit": "تغییر بین سلسیوس و فارنهایت",
+  "defaultCity": "شهر پیش‌فرض",
+  "setCurrentCityAsDefault": "تنظیم شهر فعلی به‌عنوان پیش‌فرض",
+  "currentCity": "شهر فعلی: {city}",
+  "@currentCity": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+  "defaultCitySetTo": "شهر پیش‌فرض روی {city} تنظیم شد",
+  "@defaultCitySetTo": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+  "goToDefaultCity": "رفتن به شهر پیش‌فرض",
+  "currentDefault": "پیش‌فرض فعلی: {city}",
+  "@currentDefault": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+  "recentSearches": "جستجوهای اخیر",
+  "nothingFound": "موردی پیدا نشد",
+  "clearAll": "حذف همه",
+  "locationPermissionDenied": "دسترسی به موقعیت شما غیرفعال است",
+  "requestAgain": "درخواست مجدد",
+  "weatherly": "هوانما",
+  "searching": "در حال جستجو...",
+  "enterCityName": "نام شهر را وارد کنید",
+  "unknown": "نامشخص",
+  "clear": "پاک کردن",
+  "startBySearching": "برای مشاهده وضعیت هوا، نام یک شهر را جستجو کنید.",
+  "forecastSearchPrompt": "برای مشاهده پیش‌بینی، ابتدا شهر مورد نظر را جستجو کنید.",
+  "fiveDayForecast": "پیش‌بینی ۵ روز آینده",
+  "hourlyTemperatureTitle": "دمای ساعتی",
+  "dailyForecastTitle": "پیش‌بینی روزانه",
+  "today": "امروز",
+  "airQualityIndex": "شاخص کیفیت هوا",
+  "airQualityGuide": "راهنمای کیفیت هوا",
+  "aqiStatusVeryGood": "بسیار خوب",
+  "aqiRecommendationNormal": "با خیال راحت فعالیت‌های بیرونی انجام دهید.",
+  "aqiStatusGood": "خوب",
+  "aqiRecommendationCaution": "گروه‌های حساس فعالیت طولانی بیرون را کاهش دهند.",
+  "aqiStatusModerate": "متوسط",
+  "aqiRecommendationAvoid": "فعالیت سنگین بیرون را کمتر کنید.",
+  "aqiStatusPoor": "ضعیف",
+  "aqiRecommendationMask": "در صورت امکان از ماسک هنگام خروج استفاده کنید.",
+  "aqiStatusVeryPoor": "خیلی ضعیف",
+  "aqiRecommendationNoActivity": "از فعالیت‌های بیرونی خودداری کنید."
+}

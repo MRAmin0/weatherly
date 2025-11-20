@@ -1,0 +1,77 @@
+{
+  "appTitle": "Weatherly",
+  "settings": "Settings",
+  "language": "Language",
+  "developer": "Developer",
+  "reportAnIssue": "Report an issue",
+  "contactViaEmail": "Contact via email",
+  "changelog": "Changelog",
+  "appVersion": "App Version",
+  "versionHistory": "Version History",
+  "readingVersion": "Reading version...",
+  "aboutApp": "About the App",
+  "appDescription": "Weatherly helps you check weather conditions with beautiful UI.",
+  "projectOnGithub": "Project on GitHub",
+  "close": "Close",
+  "home": "Home",
+  "forecast": "Forecast",
+  "persian": "Persian",
+  "english": "English",
+  "displayMode": "Display mode",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "showHourlyTemperature": "Show hourly temperature",
+  "showAirQuality": "Show air quality",
+  "temperatureUnitCelsius": "Temperature unit (°C)",
+  "celsiusFahrenheit": "Toggle between Celsius and Fahrenheit",
+  "defaultCity": "Default city",
+  "setCurrentCityAsDefault": "Set current city as default",
+  "currentCity": "Current city: {city}",
+  "@currentCity": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+  "defaultCitySetTo": "Default city set to {city}",
+  "@defaultCitySetTo": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+  "goToDefaultCity": "Go to default city",
+  "currentDefault": "Current default: {city}",
+  "@currentDefault": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+  "recentSearches": "Recent searches",
+  "nothingFound": "Nothing found",
+  "clearAll": "Clear all",
+  "locationPermissionDenied": "Location access is turned off",
+  "requestAgain": "Request again",
+  "weatherly": "Weatherly",
+  "searching": "Searching...",
+  "enterCityName": "Enter city name",
+  "unknown": "Unknown",
+  "clear": "Clear",
+  "startBySearching": "Start by searching for a city to see weather details.",
+  "forecastSearchPrompt": "Search for a city first to see the forecast.",
+  "fiveDayForecast": "5-day outlook",
+  "hourlyTemperatureTitle": "Hourly temperature",
+  "dailyForecastTitle": "Daily forecast",
+  "today": "Today",
+  "airQualityIndex": "Air Quality Index",
+  "airQualityGuide": "Air quality guide",
+  "aqiStatusVeryGood": "Very good",
+  "aqiRecommendationNormal": "Enjoy your outdoor activities.",
+  "aqiStatusGood": "Good",
+  "aqiRecommendationCaution": "Sensitive groups should limit extended outdoor exertion.",
+  "aqiStatusModerate": "Moderate",
+  "aqiRecommendationAvoid": "Consider reducing heavy outdoor activity.",
+  "aqiStatusPoor": "Poor",
+  "aqiRecommendationMask": "Wear a mask outdoors if possible.",
+  "aqiStatusVeryPoor": "Very poor",
+  "aqiRecommendationNoActivity": "Avoid outdoor activities."
+}
