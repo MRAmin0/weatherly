@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.weathely.app"
+    namespace = "com.weatherly.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -30,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.weathely.app"
+        applicationId = "com.weatherly.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
