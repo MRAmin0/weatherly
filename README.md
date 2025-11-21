@@ -31,7 +31,7 @@
 ## 📦 دانلود
 
 <p align="center">
-  <a href="https://github.com/MRAmin0/Weatherly/releases/download/v1.7.0/weatherly-v1.7.0.apk">
+  <a href="https://github.com/MRAmin0/Weatherly/releases/download/v1.8.0/weatherly-v1.8.0.apk">
     <img src="https://img.shields.io/badge/Download-APK-6A5ACD?style=for-the-badge" />
   </a>
 </p>
