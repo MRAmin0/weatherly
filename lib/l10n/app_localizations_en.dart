@@ -75,6 +75,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dark => 'Dark';
 
   @override
+  String get advancedSettings => 'Advanced settings';
+
+  @override
+  String get themeAccentColor => 'Accent color';
+
+  @override
+  String get customizeThemeDescription => 'Pick a color you like to personalize Weatherly.';
+
+  @override
+  String get useSystemColor => 'Follow system color';
+
+  @override
+  String get useSystemColorDescription => 'Use Material You dynamic colors when available.';
+
+  @override
+  String get systemColorNotAvailable => 'Dynamic colors not supported on this device.';
+
+  @override
   String get showHourlyTemperature => 'Show hourly temperature';
 
   @override
@@ -120,10 +138,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearAll => 'Clear all';
 
   @override
-  String get locationPermissionDenied => 'Location access is turned off';
+  String get locationPermissionDenied => 'Location permissions are currently disabled.';
 
   @override
   String get requestAgain => 'Request again';
+
+  @override
+  String get dontShowAgain => 'Don\'t show again';
 
   @override
   String get weatherly => 'Weatherly';

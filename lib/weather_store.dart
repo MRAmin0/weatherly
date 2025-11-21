@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show ChangeNotifier, kDebugMode;
+import 'package:flutter/foundation.dart' show ChangeNotifier, kDebugMode, kIsWeb;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +27,8 @@ class WeatherStore extends ChangeNotifier {
   bool _useCelsius = true;
   String _defaultCity = 'Tehran';
   List<String> _recentSearches = [];
+  int _accentColorValue = 0xFF1976D2;
+  bool _useSystemColor = true;
 
   int? _airQualityIndex;
   String _location = 'Tehran';
@@ -44,6 +46,7 @@ class WeatherStore extends ChangeNotifier {
   String? _errorMessage;
   bool _locationPermissionDenied = false;
   bool _locationPermissionRejected = false;
+  bool _hideLocationPermissionPrompt = false;
 
   // Getters
   String get currentLang => _currentLang;
@@ -63,6 +66,10 @@ class WeatherStore extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   int? get hourlyTimezoneOffsetSeconds => _hourlyTimezoneOffsetSeconds;
   bool get locationPermissionDenied => _locationPermissionDenied;
+  bool get hideLocationPermissionPrompt => _hideLocationPermissionPrompt;
+  int get accentColorValue => _accentColorValue;
+  bool get useSystemColor => _useSystemColor;
+  static bool systemColorAvailable = false;
 
   bool get _apiReady => _apiService.isConfigured;
 
@@ -98,12 +105,16 @@ class WeatherStore extends ChangeNotifier {
 
   Future<bool> _attemptStartupLocation() async {
     try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        _locationPermissionDenied = true;
-        notifyListeners();
-        return false;
+      // در وب، بررسی می‌کنیم که آیا HTTPS فعال است یا نه
+      if (kIsWeb) {
+        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          _locationPermissionDenied = true;
+          notifyListeners();
+          return false;
+        }
       }
+      
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied &&
           !_locationPermissionRejected) {
@@ -119,6 +130,7 @@ class WeatherStore extends ChangeNotifier {
       await _persistLocationPermissionRejected(false);
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 10),
       );
       _locationPermissionDenied = false;
       notifyListeners();
@@ -128,7 +140,10 @@ class WeatherStore extends ChangeNotifier {
       );
       await fetchAirQuality(position.latitude, position.longitude);
       return true;
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) {
+        print('خطا در دریافت موقعیت: $e');
+      }
       _locationPermissionDenied = true;
       await _persistLocationPermissionRejected(true);
       notifyListeners();
@@ -309,12 +324,15 @@ class WeatherStore extends ChangeNotifier {
 
   Future<void> fetchByCurrentLocation() async {
     try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        _errorMessage = 'Location service is disabled.';
-        notifyListeners();
-        return;
+      if (kIsWeb) {
+        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          _errorMessage = 'Location service is disabled.';
+          notifyListeners();
+          return;
+        }
       }
+      
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied &&
           !_locationPermissionRejected) {
@@ -335,6 +353,7 @@ class WeatherStore extends ChangeNotifier {
       await _persistLocationPermissionRejected(false);
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 10),
       );
       await _fetchWeatherAndForecast(
         lat: position.latitude,
@@ -346,7 +365,9 @@ class WeatherStore extends ChangeNotifier {
       if (kDebugMode) {
         print('خطا در دریافت مکان فعلی: $e');
       }
-      _errorMessage = 'Failed to get current location.';
+      _errorMessage = kIsWeb 
+          ? 'Failed to get current location. Please ensure you are using HTTPS and have granted location permissions.'
+          : 'Failed to get current location.';
       notifyListeners();
     }
   }
@@ -358,8 +379,12 @@ class WeatherStore extends ChangeNotifier {
     _useCelsius = prefs.getBool('useCelsius') ?? true;
     _defaultCity = prefs.getString('defaultCity') ?? 'Tehran';
     _recentSearches = prefs.getStringList('recentSearches') ?? [];
+    _accentColorValue = prefs.getInt('accentColor') ?? _accentColorValue;
+    _useSystemColor = prefs.getBool('useSystemColor') ?? true;
     _locationPermissionRejected =
         prefs.getBool('locationPermissionRejected') ?? false;
+    _hideLocationPermissionPrompt =
+        prefs.getBool('hideLocationPermissionPrompt') ?? false;
     notifyListeners();
   }
 
@@ -385,7 +410,18 @@ class WeatherStore extends ChangeNotifier {
       case 'defaultCity':
         _defaultCity = value as String;
         break;
+      case 'useSystemColor':
+        _useSystemColor = value as bool;
+        break;
     }
+    notifyListeners();
+  }
+
+  Future<void> setAccentColor(int colorValue) async {
+    if (_accentColorValue == colorValue) return;
+    _accentColorValue = colorValue;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('accentColor', colorValue);
     notifyListeners();
   }
 
@@ -423,6 +459,14 @@ class WeatherStore extends ChangeNotifier {
     _locationPermissionRejected = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('locationPermissionRejected', value);
+  }
+
+  Future<void> setHideLocationPermissionPrompt(bool value) async {
+    if (_hideLocationPermissionPrompt == value) return;
+    _hideLocationPermissionPrompt = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hideLocationPermissionPrompt', value);
+    notifyListeners();
   }
 
   Future<void> goToDefaultCity() async {

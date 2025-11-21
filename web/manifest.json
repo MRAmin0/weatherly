@@ -1,13 +1,17 @@
 {
-    "name": "Weatherly",
+    "name": "Weatherly - اپلیکیشن هواشناسی",
     "short_name": "Weatherly",
-    "start_url": ".",
+    "start_url": "/",
+    "scope": "/",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
     "description": "پیش‌بینی دقیق وضعیت هوا با رابط کاربری ساده و جذاب. اپلیکیشن Weatherly، همیشه شما رو از وضعیت آب‌وهوای منطقه‌تان مطلع می‌کند.",
-    "orientation": "portrait-primary",
+    "orientation": "any",
     "prefer_related_applications": false,
+    "categories": ["weather", "utilities"],
+    "lang": "fa",
+    "dir": "rtl",
     "icons": [
         {
             "src": "icons/Icon-192.png",

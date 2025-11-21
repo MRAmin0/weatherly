@@ -4,7 +4,6 @@ import 'package:weatherly_app/weather_store.dart';
 import 'package:weatherly_app/screens/about_screen.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 
-
 class SettingsScreen extends StatefulWidget {
   final ThemeMode currentThemeMode;
   final Function(ThemeMode) onThemeChanged;
@@ -26,6 +25,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  static const List<int> _accentColorOptions = [
+    0xFF1E88E5,
+    0xFF00897B,
+    0xFF8E24AA,
+    0xFFF4511E,
+    0xFF6D4C41,
+    0xFF3949AB,
+    0xFFFFB300,
+    0xFF546E7A,
+  ];
   void _showLanguageDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
@@ -60,16 +69,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final store = context.watch<WeatherStore>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings),
-      ),
+      appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
         children: [
@@ -82,7 +88,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ListTile(
               leading: const Icon(Icons.language_outlined),
               title: Text(l10n.language),
-              subtitle: Text(l10n.localeName == 'fa' ? l10n.persian : l10n.english),
+              subtitle: Text(
+                l10n.localeName == 'fa' ? l10n.persian : l10n.english,
+              ),
               onTap: () => _showLanguageDialog(l10n),
             ),
           ),
@@ -96,7 +104,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.displayMode, style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  l10n.displayMode,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const Divider(height: 24),
                 Center(
                   child: ToggleButtons(
@@ -105,13 +116,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       widget.currentThemeMode == ThemeMode.light,
                       widget.currentThemeMode == ThemeMode.dark,
                     ],
-                    onPressed: (index) => widget.onThemeChanged(ThemeMode.values[index]),
+                    onPressed: (index) =>
+                        widget.onThemeChanged(ThemeMode.values[index]),
                     borderRadius: const BorderRadius.all(Radius.circular(12)),
-                    constraints: const BoxConstraints(minHeight: 40, minWidth: 56),
+                    constraints: const BoxConstraints(
+                      minHeight: 40,
+                      minWidth: 56,
+                    ),
                     children: [
-                      Tooltip(message: l10n.system, child: const Icon(Icons.phone_iphone)),
-                      Tooltip(message: l10n.light, child: const Icon(Icons.light_mode)),
-                      Tooltip(message: l10n.dark, child: const Icon(Icons.dark_mode)),
+                      Tooltip(
+                        message: l10n.system,
+                        child: const Icon(Icons.phone_iphone),
+                      ),
+                      Tooltip(
+                        message: l10n.light,
+                        child: const Icon(Icons.light_mode),
+                      ),
+                      Tooltip(
+                        message: l10n.dark,
+                        child: const Icon(Icons.dark_mode),
+                      ),
                     ],
                   ),
                 ),
@@ -135,7 +159,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SwitchListTile(
                   title: Text(l10n.showAirQuality),
                   value: store.showAirQuality,
-                  onChanged: (val) => store.updatePreference('showAirQuality', val),
+                  onChanged: (val) =>
+                      store.updatePreference('showAirQuality', val),
                 ),
                 SwitchListTile(
                   title: Text(l10n.temperatureUnitCelsius),
@@ -158,7 +183,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 8, right: 8, bottom: 8),
-                  child: Text(l10n.defaultCity, style: Theme.of(context).textTheme.titleLarge),
+                  child: Text(
+                    l10n.defaultCity,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                 ),
                 const Divider(),
                 ListTile(
@@ -168,7 +196,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () {
                     store.updatePreference('defaultCity', store.location);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.defaultCitySetTo(store.location))),
+                      SnackBar(
+                        content: Text(l10n.defaultCitySetTo(store.location)),
+                      ),
                     );
                   },
                 ),
@@ -181,6 +211,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     widget.onGoToDefaultCity();
                   },
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ExpansionTile(
+              title: Text(l10n.advancedSettings),
+              childrenPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              children: [
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.useSystemColor),
+                  subtitle: WeatherStore.systemColorAvailable
+                      ? Text(l10n.useSystemColorDescription)
+                      : Text(
+                          l10n.systemColorNotAvailable,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.error.withAlpha(200),
+                              ),
+                        ),
+                  value: store.useSystemColor,
+                  onChanged: WeatherStore.systemColorAvailable
+                      ? (val) => store.updatePreference('useSystemColor', val)
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                _buildAccentPicker(store, l10n),
               ],
             ),
           ),
@@ -214,7 +281,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: ListTile(
                           title: Text(store.recentSearches[i]),
                           onTap: () async {
-                            await store.searchAndFetchByCityName(store.recentSearches[i]);
+                            await store.searchAndFetchByCityName(
+                              store.recentSearches[i],
+                            );
                             widget.onGoToRecentCity();
                           },
                         ),
@@ -224,7 +293,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Divider(height: 1),
                   ListTile(
                     title: Text(l10n.clearAll),
-                    trailing: const Icon(Icons.cleaning_services_outlined, color: Colors.redAccent),
+                    trailing: const Icon(
+                      Icons.cleaning_services_outlined,
+                      color: Colors.redAccent,
+                    ),
                     onTap: store.clearRecentSearches,
                   ),
                 ],
@@ -241,14 +313,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
               leading: const Icon(Icons.info_outline),
               title: Text(l10n.aboutApp),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AboutScreen()),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const AboutScreen()));
               },
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAccentPicker(WeatherStore store, AppLocalizations l10n) {
+    final textTheme = Theme.of(context).textTheme;
+    final disabled = store.useSystemColor;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.themeAccentColor, style: textTheme.titleMedium),
+        const SizedBox(height: 4),
+        Text(
+          l10n.customizeThemeDescription,
+          style: textTheme.bodySmall?.copyWith(
+            color: textTheme.bodySmall?.color?.withAlpha(180),
+          ),
+        ),
+        const SizedBox(height: 16),
+        IgnorePointer(
+          ignoring: disabled,
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            opacity: disabled ? 0.35 : 1,
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: _accentColorOptions.map((value) {
+                final color = Color(value);
+                final isSelected = store.accentColorValue == value;
+                return _AccentColorDot(
+                  color: color,
+                  isSelected: isSelected && !disabled,
+                  onTap: () => store.setAccentColor(value),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -272,15 +384,49 @@ class _LanguageOptionTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ListTile(
-      leading: Text(
-        flag,
-        style: textTheme.headlineSmall,
-      ),
+      leading: Text(flag, style: textTheme.headlineSmall),
       title: Text(label, style: textTheme.titleMedium),
       trailing: isSelected
           ? Icon(Icons.check_circle, color: colorScheme.primary)
           : null,
       onTap: onTap,
+    );
+  }
+}
+
+class _AccentColorDot extends StatelessWidget {
+  const _AccentColorDot({
+    required this.color,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final Color color;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      height: isSelected ? 42 : 36,
+      width: isSelected ? 42 : 36,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isSelected ? color : Colors.transparent,
+          width: 2,
+        ),
+      ),
+      child: Material(
+        color: color,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: const SizedBox.expand(),
+        ),
+      ),
     );
   }
 }

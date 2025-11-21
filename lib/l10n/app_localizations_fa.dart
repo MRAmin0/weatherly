@@ -42,7 +42,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get aboutApp => 'درباره برنامه';
 
   @override
-  String get appDescription => 'ویدرلی به شما کمک می‌کند وضعیت آب‌وهوا را با رابط کاربری زیبا مشاهده کنید.';
+  String get appDescription => 'ودرلی به شما کمک می‌کند وضعیت آب‌وهوا را با رابط کاربری زیبا مشاهده کنید.';
 
   @override
   String get projectOnGithub => 'پروژه در گیت‌هاب';
@@ -73,6 +73,24 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dark => 'تاریک';
+
+  @override
+  String get advancedSettings => 'تنظیمات پیشرفته';
+
+  @override
+  String get themeAccentColor => 'رنگ اصلی رابط';
+
+  @override
+  String get customizeThemeDescription => 'رنگ دلخواهت را برای هوانما انتخاب کن.';
+
+  @override
+  String get useSystemColor => 'استفاده از رنگ سیستم';
+
+  @override
+  String get useSystemColorDescription => 'در صورت پشتیبانی، از رنگ‌های پویا متریال یو استفاده کن.';
+
+  @override
+  String get systemColorNotAvailable => 'رنگ‌های پویا در این دستگاه پشتیبانی نمی‌شوند.';
 
   @override
   String get showHourlyTemperature => 'نمایش دمای ساعتی';
@@ -120,10 +138,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get clearAll => 'حذف همه';
 
   @override
-  String get locationPermissionDenied => 'دسترسی به موقعیت شما غیرفعال است';
+  String get locationPermissionDenied => 'دسترسی به موقعیت مکانی شما غیرفعال می‌باشد';
 
   @override
   String get requestAgain => 'درخواست مجدد';
+
+  @override
+  String get dontShowAgain => 'دیگر نشان نده';
 
   @override
   String get weatherly => 'هوانما';

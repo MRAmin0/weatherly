@@ -94,19 +94,76 @@ class _HomePageState extends State<HomePage> {
     final store = context.watch<WeatherStore>();
     final l10n = AppLocalizations.of(context)!;
 
-    if (store.locationPermissionDenied && !_shownLocationDeniedToast) {
+    if (store.locationPermissionDenied &&
+        !_shownLocationDeniedToast &&
+        !store.hideLocationPermissionPrompt) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
         setState(() => _shownLocationDeniedToast = true);
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context);
+        final colorScheme = Theme.of(context).colorScheme;
+        final snackWidth = math.min(
+          MediaQuery.of(context).size.width * 0.9,
+          360.0,
+        );
+        final snackBackground = colorScheme.surfaceContainerHighest;
+        final snackTextColor = colorScheme.onSurfaceVariant;
+        messenger.showSnackBar(
           SnackBar(
-            content: Text(l10n.locationPermissionDenied),
-            duration: const Duration(seconds: 3),
-            action: SnackBarAction(
-              label: l10n.requestAgain,
-              onPressed: () {
-                store.fetchByCurrentLocation();
-              },
+            behavior: SnackBarBehavior.floating,
+            width: snackWidth,
+            backgroundColor: snackBackground,
+            duration: const Duration(seconds: 5),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.locationPermissionDenied,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: snackTextColor,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          textStyle: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        onPressed: () async {
+                          await store.setHideLocationPermissionPrompt(true);
+                          messenger.hideCurrentSnackBar();
+                        },
+                        child: Text(l10n.dontShowAgain),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: colorScheme.onSurfaceVariant,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          textStyle: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                        onPressed: () {
+                          store.fetchByCurrentLocation();
+                          messenger.hideCurrentSnackBar();
+                        },
+                        child: Text(l10n.requestAgain),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         );

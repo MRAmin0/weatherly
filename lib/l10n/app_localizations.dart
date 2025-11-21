@@ -227,6 +227,42 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get dark;
 
+  /// No description provided for @advancedSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced settings'**
+  String get advancedSettings;
+
+  /// No description provided for @themeAccentColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent color'**
+  String get themeAccentColor;
+
+  /// No description provided for @customizeThemeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a color you like to personalize Weatherly.'**
+  String get customizeThemeDescription;
+
+  /// No description provided for @useSystemColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow system color'**
+  String get useSystemColor;
+
+  /// No description provided for @useSystemColorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Material You dynamic colors when available.'**
+  String get useSystemColorDescription;
+
+  /// No description provided for @systemColorNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamic colors not supported on this device.'**
+  String get systemColorNotAvailable;
+
   /// No description provided for @showHourlyTemperature.
   ///
   /// In en, this message translates to:
@@ -308,7 +344,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationPermissionDenied.
   ///
   /// In en, this message translates to:
-  /// **'Location access is turned off'**
+  /// **'Location permissions are currently disabled.'**
   String get locationPermissionDenied;
 
   /// No description provided for @requestAgain.
@@ -316,6 +352,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request again'**
   String get requestAgain;
+
+  /// No description provided for @dontShowAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t show again'**
+  String get dontShowAgain;
 
   /// No description provided for @weatherly.
   ///
