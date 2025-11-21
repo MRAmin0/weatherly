@@ -78,7 +78,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get advancedSettings => 'تنظیمات پیشرفته';
 
   @override
-  String get themeAccentColor => 'رنگ اصلی رابط';
+  String get themeAccentColor => 'تم رابط کاربری';
 
   @override
   String get customizeThemeDescription => 'رنگ دلخواهت را برای هوانما انتخاب کن.';

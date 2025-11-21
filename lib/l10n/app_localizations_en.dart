@@ -78,7 +78,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advancedSettings => 'Advanced settings';
 
   @override
-  String get themeAccentColor => 'Accent color';
+  String get themeAccentColor => 'UI theme color';
 
   @override
   String get customizeThemeDescription => 'Pick a color you like to personalize Weatherly.';

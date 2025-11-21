@@ -381,6 +381,10 @@ class WeatherStore extends ChangeNotifier {
     _recentSearches = prefs.getStringList('recentSearches') ?? [];
     _accentColorValue = prefs.getInt('accentColor') ?? _accentColorValue;
     _useSystemColor = prefs.getBool('useSystemColor') ?? true;
+    if (!WeatherStore.systemColorAvailable && _useSystemColor) {
+      _useSystemColor = false;
+      await prefs.setBool('useSystemColor', false);
+    }
     _locationPermissionRejected =
         prefs.getBool('locationPermissionRejected') ?? false;
     _hideLocationPermissionPrompt =
@@ -411,7 +415,14 @@ class WeatherStore extends ChangeNotifier {
         _defaultCity = value as String;
         break;
       case 'useSystemColor':
-        _useSystemColor = value as bool;
+        final desired = value as bool;
+        if (!WeatherStore.systemColorAvailable && desired) {
+          await prefs.setBool('useSystemColor', false);
+          _useSystemColor = false;
+          notifyListeners();
+          return;
+        }
+        _useSystemColor = desired;
         break;
     }
     notifyListeners();

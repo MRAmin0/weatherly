@@ -23,7 +23,7 @@
   "light": "روشن",
   "dark": "تاریک",
   "advancedSettings": "تنظیمات پیشرفته",
-  "themeAccentColor": "رنگ اصلی رابط",
+  "themeAccentColor": "تم رابط کاربری",
   "customizeThemeDescription": "رنگ دلخواهت را برای هوانما انتخاب کن.",
   "useSystemColor": "استفاده از رنگ سیستم",
   "useSystemColorDescription": "در صورت پشتیبانی، از رنگ‌های پویا متریال یو استفاده کن.",

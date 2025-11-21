@@ -22,7 +22,7 @@
   "light": "Light",
   "dark": "Dark",
   "advancedSettings": "Advanced settings",
-  "themeAccentColor": "Accent color",
+  "themeAccentColor": "UI theme color",
   "customizeThemeDescription": "Pick a color you like to personalize Weatherly.",
   "useSystemColor": "Follow system color",
   "useSystemColorDescription": "Use Material You dynamic colors when available.",

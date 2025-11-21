@@ -267,10 +267,12 @@ class _HomePageState extends State<HomePage> {
     WeatherStore store,
     AppLocalizations l10n,
   ) {
-    final cardColor = Theme.of(context).cardColor;
-    final textColor = Theme.of(context).textTheme.bodyMedium?.color;
+    final theme = Theme.of(context);
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyMedium?.color;
     final subtitleColor = textColor?.withAlpha(179);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
 
     return Center(
       child: SizedBox(
@@ -293,6 +295,23 @@ class _HomePageState extends State<HomePage> {
               decoration: InputDecoration(
                 hintText: l10n.enterCityName,
                 counterText: "",
+                filled: true,
+                fillColor: colorScheme.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24.0),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24.0),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24.0),
+                  borderSide: BorderSide(
+                    color: colorScheme.primary.withAlpha(180),
+                    width: 1.4,
+                  ),
+                ),
                 prefixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () => _performSearch(store),
@@ -544,11 +563,14 @@ class _HomePageState extends State<HomePage> {
   ) {
     final aqi = store.airQualityIndex ?? 0;
     final status = labelForAqi(aqi, l10n);
-    final color = statusColorForAqi(aqi);
+    final severityColor = statusColorForAqi(aqi);
     final progress = (aqi / 500.0).clamp(0.0, 1.0);
     final aqiString = l10n.localeName == 'fa'
         ? toPersianDigits('AQI $aqi')
         : 'AQI $aqi';
+
+    final scheme = Theme.of(context).colorScheme;
+    final accentColor = scheme.primary;
 
     return RepaintBoundary(
       child: Center(
@@ -563,7 +585,7 @@ class _HomePageState extends State<HomePage> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
+                    color: scheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
@@ -571,7 +593,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.air_rounded, color: color, size: 32),
+                          Icon(Icons.air_rounded, color: accentColor, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -586,7 +608,7 @@ class _HomePageState extends State<HomePage> {
                                 Text(
                                   status,
                                   style: TextStyle(
-                                    color: color,
+                                    color: accentColor,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -595,18 +617,34 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: severityColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 20,
                               vertical: 12,
                             ),
                             decoration: BoxDecoration(
-                              color: color.withAlpha(51),
+                              color: scheme.primaryContainer.withAlpha(230),
                               borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: scheme.primary.withAlpha(40),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
                             ),
                             child: Text(
                               aqiString,
                               style: TextStyle(
-                                color: color,
+                                color: scheme.onPrimaryContainer,
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -627,8 +665,9 @@ class _HomePageState extends State<HomePage> {
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 12,
-                          backgroundColor: Colors.grey.withAlpha(51),
-                          valueColor: AlwaysStoppedAnimation<Color>(color),
+                          backgroundColor: scheme.primary.withOpacity(0.12),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(accentColor),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -641,9 +680,7 @@ class _HomePageState extends State<HomePage> {
                                 : '0',
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.color?.withAlpha(153),
+                                  color: scheme.onSurfaceVariant,
                                 ),
                           ),
                           Text(
@@ -652,9 +689,7 @@ class _HomePageState extends State<HomePage> {
                                 : '500',
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.color?.withAlpha(153),
+                                  color: scheme.onSurfaceVariant,
                                 ),
                           ),
                         ],

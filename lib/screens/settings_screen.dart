@@ -26,14 +26,18 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   static const List<int> _accentColorOptions = [
-    0xFF1E88E5,
-    0xFF00897B,
-    0xFF8E24AA,
-    0xFFF4511E,
-    0xFF6D4C41,
-    0xFF3949AB,
-    0xFFFFB300,
-    0xFF546E7A,
+    0xFF1E88E5, // Blue
+    0xFF00897B, // Teal
+    0xFF8E24AA, // Purple
+    0xFFF4511E, // Deep Orange
+    0xFF6D4C41, // Brown
+    0xFF3949AB, // Indigo
+    0xFFFFB300, // Amber
+    0xFF546E7A, // Blue Grey
+    0xFFD81B60, // Pink
+    0xFF43A047, // Green
+    0xFF039BE5, // Light Blue
+    0xFFFF7043, // Orange
   ];
   void _showLanguageDialog(AppLocalizations l10n) {
     showDialog(
