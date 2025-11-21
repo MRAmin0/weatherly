@@ -555,7 +555,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
+  
   Widget _buildAirQualitySection(
     BuildContext context,
     WeatherStore store,

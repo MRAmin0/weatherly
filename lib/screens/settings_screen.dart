@@ -349,9 +349,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
             opacity: disabled ? 0.35 : 1,
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
+            child: GridView.count(
+              crossAxisCount: 6,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
               children: _accentColorOptions.map((value) {
                 final color = Color(value);
                 final isSelected = store.accentColorValue == value;
@@ -413,8 +416,8 @@ class _AccentColorDot extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      height: isSelected ? 42 : 36,
-      width: isSelected ? 42 : 36,
+      height: isSelected ? 38 : 32,
+      width: isSelected ? 38 : 32,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
