@@ -301,14 +301,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.4"
-  internet_connection_checker:
+  internet_connection_checker_plus:
     dependency: "direct main"
     description:
-      name: internet_connection_checker
-      sha256: "1c683e63e89c9ac66a40748b1b20889fd9804980da732bf2b58d6d5456c8e876"
+      name: internet_connection_checker_plus
+      sha256: "66dc124f9b58a630844f61c1ae6f01f100f5fe63d9410506218d81d93d86ead3"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0+1"
+    version: "2.9.1"
   intl:
     dependency: "direct main"
     description:
