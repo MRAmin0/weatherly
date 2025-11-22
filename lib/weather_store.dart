@@ -33,6 +33,8 @@ class WeatherStore extends ChangeNotifier {
   int? _airQualityIndex;
   String _location = 'Tehran';
   double? _temperature;
+  int _humidity = 0;
+  double _windSpeed = 0.0;
   WeatherType _weatherType = WeatherType.unknown;
   String _weatherDescription = '';
   bool _isLoading = false;
@@ -58,6 +60,8 @@ class WeatherStore extends ChangeNotifier {
   int? get airQualityIndex => _airQualityIndex;
   String get location => _location;
   double? get temperature => _temperature;
+  int get humidity => _humidity;
+  double get windSpeed => _windSpeed;
   WeatherType get weatherType => _weatherType;
   String get weatherDescription => _weatherDescription;
   bool get isLoading => _isLoading;
@@ -232,6 +236,8 @@ class WeatherStore extends ChangeNotifier {
         _location = buildCityLabel(weather, lang: _currentLang);
       }
       _temperature = (weather['main']?['temp'] as num?)?.toDouble();
+      _humidity = (weather['main']?['humidity'] as num?)?.toInt() ?? 0;
+      _windSpeed = (weather['wind']?['speed'] as num?)?.toDouble() ?? 0.0;
       final weatherInfo = weather['weather']?[0];
       if (weatherInfo != null) {
         _weatherType = _stringToWeatherType(weatherInfo['main'] ?? '');

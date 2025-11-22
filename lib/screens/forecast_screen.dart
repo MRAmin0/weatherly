@@ -7,6 +7,8 @@ import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/weather_store.dart';
 import 'package:weatherly_app/widgets/weather_list_items.dart';
 import 'package:weatherly_app/utils/weather_formatters.dart';
+// 1. اضافه کردن ایمپورت کارت کیفیت هوا
+import 'package:weatherly_app/widgets/air_quality_card.dart';
 
 class ForecastScreen extends StatelessWidget {
   const ForecastScreen({super.key});
@@ -94,10 +96,10 @@ class ForecastScreen extends StatelessWidget {
   }
 
   Widget _buildLocationHeader(
-    BuildContext context,
-    WeatherStore store,
-    AppLocalizations l10n,
-  ) {
+      BuildContext context,
+      WeatherStore store,
+      AppLocalizations l10n,
+      ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -135,11 +137,11 @@ class ForecastScreen extends StatelessWidget {
   }
 
   Widget _buildHourlySection(
-    BuildContext context,
-    WeatherStore store,
-    AppLocalizations l10n,
-    bool isPersian,
-  ) {
+      BuildContext context,
+      WeatherStore store,
+      AppLocalizations l10n,
+      bool isPersian,
+      ) {
     final unitSymbol = store.useCelsius ? '°C' : '°F';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,11 +207,11 @@ class ForecastScreen extends StatelessWidget {
   }
 
   Widget _buildDailyForecastSection(
-    BuildContext context,
-    WeatherStore store,
-    AppLocalizations l10n,
-    bool isPersian,
-  ) {
+      BuildContext context,
+      WeatherStore store,
+      AppLocalizations l10n,
+      bool isPersian,
+      ) {
     final unitSymbol = store.useCelsius ? '°C' : '°F';
     final dayFormatter = DateFormat('EEEE', store.currentLang);
 
@@ -247,101 +249,111 @@ class ForecastScreen extends StatelessWidget {
             lang: store.currentLang,
           );
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
+          // دریافت AQI فعلی (چون پیش‌بینی روزانه AQI نداریم)
+          final currentAqi = store.airQualityIndex ?? 0;
+
+          // 2. اضافه کردن InkWell برای قابلیت کلیک
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: InkWell(
+              onTap: () {
+                _showDayDetails(context, day, currentAqi, l10n, isPersian, dayOfWeek, description);
+              },
               borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        index == 0 ? l10n.today : dayOfWeek,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      if (index > 0) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          description,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            index == 0 ? l10n.today : dayOfWeek,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          if (index > 0) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              description,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
                                 color: Theme.of(
                                   context,
                                 ).textTheme.bodyMedium?.color?.withAlpha(179),
                               ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                SvgPicture.asset(
-                  iconPath,
-                  width: 48,
-                  height: 48,
-                  colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.primary,
-                    BlendMode.srcIn,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 18,
-                            child: Icon(
-                              Icons.arrow_upward,
-                              size: 18,
-                              color: Theme.of(
-                                context,
-                              ).textTheme.titleMedium?.color,
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isPersian ? toPersianDigits(maxText) : maxText,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
+                          ],
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                    ),
+                    const SizedBox(width: 12),
+                    SvgPicture.asset(
+                      iconPath,
+                      width: 48,
+                      height: 48,
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.primary,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
-                            width: 18,
-                            child: Icon(
-                              Icons.arrow_downward,
-                              size: 18,
-                              color: Theme.of(
-                                context,
-                              ).textTheme.titleMedium?.color?.withAlpha(153),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 18,
+                                child: Icon(
+                                  Icons.arrow_upward,
+                                  size: 18,
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.color,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isPersian ? toPersianDigits(maxText) : maxText,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isPersian ? toPersianDigits(minText) : minText,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 18,
+                                child: Icon(
+                                  Icons.arrow_downward,
+                                  size: 18,
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.color?.withAlpha(153),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isPersian ? toPersianDigits(minText) : minText,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
                                   fontWeight: FontWeight.normal,
                                   color: Theme.of(context)
                                       .textTheme
@@ -349,17 +361,146 @@ class ForecastScreen extends StatelessWidget {
                                       ?.color
                                       ?.withAlpha(153),
                                 ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           );
         }),
       ],
+    );
+  }
+
+  // 3. تابع نمایش جزئیات و AQI
+  void _showDayDetails(
+      BuildContext context,
+      dynamic dayData,
+      int aqi,
+      AppLocalizations l10n,
+      bool isPersian,
+      String dayTitle,
+      String description,
+      ) {
+    // استخراج رطوبت و باد از داده‌های روز
+    final humidityVal = dayData['main']['humidity'];
+    final windVal = (dayData['wind']['speed'] as num).toDouble();
+
+    final humidity = isPersian
+        ? toPersianDigits("$humidityVal%")
+        : "$humidityVal%";
+
+    final wind = isPersian
+        ? toPersianDigits("${windVal.toStringAsFixed(1)} km/h")
+        : "${windVal.toStringAsFixed(1)} km/h";
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          builder: (_, controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: ListView(
+                controller: controller,
+                padding: const EdgeInsets.all(24),
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withAlpha(100),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    "$dayTitle - $description",
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ویجت AQI
+                  AirQualityCard(aqi: aqi),
+
+                  const SizedBox(height: 24),
+
+                  // نمایش رطوبت و باد برای آن روز خاص
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildDetailBox(
+                            context,
+                            Icons.water_drop_outlined,
+                            Colors.lightBlue,
+                            l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
+                            humidity
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildDetailBox(
+                            context,
+                            Icons.wind_power,
+                            Colors.blueAccent,
+                            l10n.localeName == 'fa' ? "باد" : "Wind",
+                            wind
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailBox(BuildContext context, IconData icon, Color color, String title, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withAlpha(30),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 }

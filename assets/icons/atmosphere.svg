@@ -1,0 +1,7 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- خطوط افقی نشان‌دهنده مه یا گردوغبار -->
+    <path d="M10 22H54" stroke="#90A4AE" stroke-width="4" stroke-linecap="round"/>
+    <path d="M16 32H48" stroke="#B0BEC5" stroke-width="4" stroke-linecap="round"/>
+    <path d="M8 42H56" stroke="#90A4AE" stroke-width="4" stroke-linecap="round"/>
+    <path d="M20 52H44" stroke="#B0BEC5" stroke-width="4" stroke-linecap="round"/>
+</svg>

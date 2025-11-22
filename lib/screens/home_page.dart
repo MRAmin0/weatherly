@@ -19,27 +19,32 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late final ScrollController _mainScrollController;
   late final TextEditingController _searchController;
   late final FocusNode _searchFocusNode;
   late final VoidCallback _focusListener;
 
+  late final AnimationController _sunController;
+
   bool _showSearchLoading = false;
   DateTime? _searchLoadingStartedAt;
   bool _shownLocationDeniedToast = false;
-  bool _showAqiGuide = false;
 
   @override
   void initState() {
     super.initState();
-    // چک کردن اینترنت بعد از ساخت ویجت
     WidgetsBinding.instance.addPostFrameCallback((_) {
       checkInternetOnStart();
     });
     _mainScrollController = ScrollController();
     _searchController = TextEditingController();
     _searchFocusNode = FocusNode();
+
+    _sunController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 12),
+    )..repeat();
 
     _focusListener = () {
       widget.onSearchFocusChange(_searchFocusNode.hasFocus);
@@ -56,6 +61,7 @@ class _HomePageState extends State<HomePage> {
     _searchController.dispose();
     _searchFocusNode.removeListener(_focusListener);
     _searchFocusNode.dispose();
+    _sunController.dispose();
     super.dispose();
   }
 
@@ -103,16 +109,13 @@ class _HomePageState extends State<HomePage> {
         final messenger = ScaffoldMessenger.of(context);
         final colorScheme = Theme.of(context).colorScheme;
 
-        // --- قسمت اصلاح شده: تشخیص رنگ انتخابی کاربر ---
         final buttonColor = store.useSystemColor
             ? colorScheme.primary
             : Color(store.accentColorValue);
 
-        // برای رنگ متن دکمه، اگر کاستوم بود سفید می‌گذاریم، اگر سیستم بود از تم می‌گیریم
         final buttonTextColor = store.useSystemColor
             ? colorScheme.onPrimary
             : Colors.white;
-        // -----------------------------------------------
 
         final snackWidth = math.min(
           MediaQuery.of(context).size.width * 0.9,
@@ -125,11 +128,9 @@ class _HomePageState extends State<HomePage> {
             behavior: SnackBarBehavior.floating,
             width: snackWidth,
             backgroundColor: snackBackground,
-            duration: const Duration(
-              seconds: 10,
-            ), // زمان را کمی بیشتر کردم تا کاربر ببیند
+            duration: const Duration(seconds: 10),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16), // گردی گوشه خود اسنک‌بار
+              borderRadius: BorderRadius.circular(16),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -145,7 +146,6 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    // دکمه اول: دیگر نشان نده
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -167,7 +167,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // دکمه دوم: درخواست مجدد
                     Expanded(
                       child: TextButton(
                         style: TextButton.styleFrom(
@@ -186,7 +185,6 @@ class _HomePageState extends State<HomePage> {
                         child: Text(l10n.requestAgain),
                       ),
                     ),
-                    // --- بخش تکراری حذف شد ---
                   ],
                 ),
               ],
@@ -244,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                           _buildWeatherContent(context, store, l10n),
                       ],
 
-                      const SizedBox(height: 120), // Safe bottom space
+                      const SizedBox(height: 120),
                     ],
                   ),
                 ),
@@ -289,10 +287,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildSearchSection(
-    BuildContext context,
-    WeatherStore store,
-    AppLocalizations l10n,
-  ) {
+      BuildContext context,
+      WeatherStore store,
+      AppLocalizations l10n,
+      ) {
     final theme = Theme.of(context);
     final cardColor = theme.cardColor;
     final textColor = theme.textTheme.bodyMedium?.color;
@@ -301,8 +299,9 @@ class _HomePageState extends State<HomePage> {
     final colorScheme = theme.colorScheme;
 
     return Center(
-      child: SizedBox(
-        width: math.min(MediaQuery.of(context).size.width * 0.9, 720.0),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 800),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -361,9 +360,9 @@ class _HomePageState extends State<HomePage> {
                       final suggestion = store.suggestions[index];
                       final name = store.currentLang == 'fa'
                           ? (suggestion['local_names']?['fa'] ??
-                                    suggestion['name'] ??
-                                    l10n.unknown)
-                                .toString()
+                          suggestion['name'] ??
+                          l10n.unknown)
+                          .toString()
                           : (suggestion['name'] ?? l10n.unknown).toString();
                       final country = (suggestion['country'] ?? '').toString();
                       final state = (suggestion['state'] ?? '').toString();
@@ -456,36 +455,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildWeatherContent(
-    BuildContext context,
-    WeatherStore store,
-    AppLocalizations l10n,
-  ) {
+      BuildContext context,
+      WeatherStore store,
+      AppLocalizations l10n,
+      ) {
     if (store.errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 100),
-          child: Text(
-            store.errorMessage!,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.redAccent,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      );
+      return Center(child: Text(store.errorMessage!));
     }
     if (store.location.isEmpty && !store.isLoading) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 100),
-          child: Text(
-            l10n.startBySearching,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ),
-      );
+      return Center(child: Text(l10n.startBySearching));
     }
     if (store.location.isEmpty) {
       return const Padding(
@@ -498,20 +476,18 @@ class _HomePageState extends State<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildCurrentWeatherSection(context, store, l10n),
-        if (store.showAirQuality) ...[
-          const SizedBox(height: 16),
-          _buildAirQualitySection(context, store, l10n),
-        ],
+        const SizedBox(height: 16),
+        _buildDetailsRow(context, store, l10n),
         const SizedBox(height: 24),
       ],
     );
   }
 
   Widget _buildCurrentWeatherSection(
-    BuildContext context,
-    WeatherStore store,
-    AppLocalizations l10n,
-  ) {
+      BuildContext context,
+      WeatherStore store,
+      AppLocalizations l10n,
+      ) {
     final tempC = store.temperature;
     final temp = store.useCelsius
         ? tempC
@@ -522,10 +498,13 @@ class _HomePageState extends State<HomePage> {
     final textTheme = Theme.of(context).textTheme;
     final iconColor = textTheme.bodyMedium?.color?.withAlpha(204);
 
+    final isClear = store.weatherType == WeatherType.clear;
+
     return RepaintBoundary(
       child: Center(
-        child: SizedBox(
-          width: math.min(MediaQuery.of(context).size.width, 900.0),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 800),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -555,17 +534,25 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // اینجا اگر نوع هوا مشخص بود (حتی ریزگرد)، آیکون نمایش داده می‌شود
                     if (store.weatherType != WeatherType.unknown)
-                      SvgPicture.asset(
+                      isClear
+                          ? RotationTransition(
+                        turns: _sunController,
+                        child: SvgPicture.asset(
+                          weatherIconAsset(
+                            weatherTypeToApiName(store.weatherType),
+                          ),
+                          width: 42, // آیکون بزرگتر شد (سایز ایموجی)
+                          height: 42,
+                        ),
+                      )
+                          : SvgPicture.asset(
                         weatherIconAsset(
                           weatherTypeToApiName(store.weatherType),
                         ),
-                        width: 24,
-                        height: 24,
-                        colorFilter: ColorFilter.mode(
-                          iconColor ?? Colors.white,
-                          BlendMode.srcIn,
-                        ),
+                        width: 42, // آیکون بزرگتر شد
+                        height: 42,
                       ),
                     const SizedBox(width: 8),
                     Text(
@@ -582,325 +569,152 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildAirQualitySection(
-    BuildContext context,
-    WeatherStore store,
-    AppLocalizations l10n,
-  ) {
+  Widget _buildDetailsRow(
+      BuildContext context,
+      WeatherStore store,
+      AppLocalizations l10n,
+      ) {
     final aqi = store.airQualityIndex ?? 0;
-    final status = labelForAqi(aqi, l10n);
-    final severityColor = statusColorForAqi(aqi);
-    final progress = (aqi / 500.0).clamp(0.0, 1.0);
-    final aqiString = l10n.localeName == 'fa'
-        ? toPersianDigits('AQI $aqi')
-        : 'AQI $aqi';
+    final aqiColor = statusColorForAqi(aqi);
+    final aqiText = labelForAqi(aqi, l10n);
 
-    final scheme = Theme.of(context).colorScheme;
-    final accentColor = scheme.primary;
+    final humidity = l10n.localeName == 'fa'
+        ? toPersianDigits("${store.humidity}%")
+        : "${store.humidity}%";
 
-    return RepaintBoundary(
-      child: Center(
-        child: SizedBox(
-          width: math.min(MediaQuery.of(context).size.width, 900.0),
-          child: Column(
-            children: [
-              InkWell(
-                onTap: () => setState(() => _showAqiGuide = !_showAqiGuide),
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20.0),
+    final windVal = store.windSpeed.toStringAsFixed(1);
+    final windUnit = l10n.localeName == 'fa' ? "کیلومتر/ساعت" : "km/h";
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 800),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            // کارت ۱ (سمت راست در فارسی): کیفیت هوا
+            Expanded(
+              child: _buildDetailItem(
+                context,
+                icon: Icons.air,
+                iconColor: aqiColor,
+                title: l10n.airQualityIndex,
+                value: l10n.localeName == 'fa' ? toPersianDigits('$aqi') : '$aqi',
+                footer: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(20),
+                    color: aqiColor.withAlpha(35),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.air_rounded, color: accentColor, size: 32),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.airQualityIndex,
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  status,
-                                  style: TextStyle(
-                                    color: accentColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: severityColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: scheme.primaryContainer.withAlpha(230),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: scheme.primary.withAlpha(40),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              aqiString,
-                              style: TextStyle(
-                                color: scheme.onPrimaryContainer,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            _showAqiGuide
-                                ? Icons.keyboard_arrow_up
-                                : Icons.keyboard_arrow_down,
-                            color: Theme.of(context).iconTheme.color,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          minHeight: 12,
-                          backgroundColor: scheme.primary.withValues(
-                            alpha: 0.12,
-                          ),
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            accentColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            l10n.localeName == 'fa'
-                                ? toPersianDigits('0')
-                                : '0',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: scheme.onSurfaceVariant),
-                          ),
-                          Text(
-                            l10n.localeName == 'fa'
-                                ? toPersianDigits('500')
-                                : '500',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: scheme.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    ],
+                  child: Text(
+                    aqiText,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: aqiColor,
+                    ),
+                    maxLines: 1,
                   ),
                 ),
               ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                child: _showAqiGuide
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: _buildAqiGuideTable(context, l10n),
-                      )
-                    : const SizedBox.shrink(),
+            ),
+            const SizedBox(width: 8),
+            // کارت ۲ (وسط): باد
+            Expanded(
+              child: _buildDetailItem(
+                context,
+                icon: Icons.wind_power,
+                iconColor: Colors.blueAccent,
+                title: l10n.localeName == 'fa' ? "باد" : "Wind",
+                value: l10n.localeName == 'fa' ? toPersianDigits(windVal) : windVal,
+                footer: Text(
+                  windUnit,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            // کارت ۳ (چپ در فارسی): رطوبت
+            Expanded(
+              child: _buildDetailItem(
+                context,
+                icon: Icons.water_drop_outlined,
+                iconColor: Colors.lightBlue,
+                title: l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
+                value: humidity,
+                footer: const SizedBox(height: 18),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildAqiGuideTable(BuildContext context, AppLocalizations l10n) {
-    final aqiRanges = [
-      {
-        'label': l10n.aqiStatusVeryGood,
-        'range': '0 - 25',
-        'color': const Color(0xFF00E400),
-        'recommendation': l10n.aqiRecommendationNormal,
-      },
-      {
-        'label': l10n.aqiStatusGood,
-        'range': '26 - 37',
-        'color': const Color(0xFF7CB342),
-        'recommendation': l10n.aqiRecommendationCaution,
-      },
-      {
-        'label': l10n.aqiStatusModerate,
-        'range': '38 - 50',
-        'color': const Color(0xFFFFC107),
-        'recommendation': l10n.aqiRecommendationAvoid,
-      },
-      {
-        'label': l10n.aqiStatusPoor,
-        'range': '51 - 90',
-        'color': const Color(0xFFFF7E00),
-        'recommendation': l10n.aqiRecommendationMask,
-      },
-      {
-        'label': l10n.aqiStatusVeryPoor,
-        'range': '90+',
-        'color': const Color(0xFFFF0000),
-        'recommendation': l10n.aqiRecommendationNoActivity,
-      },
-    ];
-
+  Widget _buildDetailItem(
+      BuildContext context, {
+        required IconData icon,
+        required Color iconColor,
+        required String title,
+        required String value,
+        required Widget footer,
+      }) {
+    final theme = Theme.of(context);
     return Container(
+      height: 140,
       width: double.infinity,
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withAlpha(51),
+          color: theme.dividerColor.withAlpha(15),
           width: 1,
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            l10n.airQualityGuide,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          Column(
+            children: [
+              Icon(icon, color: iconColor, size: 28),
+              const SizedBox(height: 6),
+              Text(
+                title,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.textTheme.bodyMedium?.color?.withAlpha(130),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          ...aqiRanges.map((item) {
-            final color = item['color'] as Color;
-            final label = item['label'] as String;
-            final range = l10n.localeName == 'fa'
-                ? toPersianDigits(item['range'] as String)
-                : item['range'] as String;
-            final recommendation = item['recommendation'] as String;
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: color.withAlpha(25),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withAlpha(102), width: 1.5),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                fontSize: 26,
+                height: 1.0,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: Icon(
-                      _getAqiEmoji(color),
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  label,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                range,
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            recommendation,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.color?.withAlpha(179),
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
+            ),
+          ),
+          SizedBox(
+            height: 24,
+            child: Center(child: footer),
+          ),
         ],
       ),
     );
   }
-
-  IconData _getAqiEmoji(Color color) {
-    if (color == const Color(0xFF00E400) || color == const Color(0xFF7CB342)) {
-      return Icons.sentiment_very_satisfied;
-    } else if (color == const Color(0xFFFFC107)) {
-      return Icons.sentiment_neutral;
-    } else {
-      return Icons.sentiment_very_dissatisfied;
-    }
-  }
-}
-
-// توابع کمکی که باید به فایل weather_formatters.dart منتقل شوند
-String labelForAqi(int aqi, AppLocalizations l10n) {
-  if (aqi <= 25) return l10n.aqiStatusVeryGood;
-  if (aqi <= 37) return l10n.aqiStatusGood;
-  if (aqi <= 50) return l10n.aqiStatusModerate;
-  if (aqi <= 90) return l10n.aqiStatusPoor;
-  return l10n.aqiStatusVeryPoor;
 }
