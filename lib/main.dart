@@ -5,28 +5,13 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/screens/weather_screen.dart';
 import 'package:weatherly_app/weather_store.dart';
-import 'package:weatherly_app/config_reader.dart';
+// import 'package:weatherly_app/config_reader.dart'; // این ایمپورت حذف شد
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await ConfigReader.initialize();
 
-  if (ConfigReader.getOpenWeatherApiKey() == 'API_KEY_NOT_FOUND') {
-    runApp(
-      const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: Text(
-              'خطا: کلید API در keys.json پیدا نشد.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ),
-      ),
-    );
-    return;
-  }
+  // ❌ حذف: await ConfigReader.initialize();
+  // ❌ حذف: بخش چک کردن API Key حذف شد
 
   final themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
   final localeNotifier = ValueNotifier<Locale>(const Locale('fa'));
@@ -45,6 +30,7 @@ void main() async {
                 valueListenable: localeNotifier,
                 builder: (context, locale, _) {
                   final weatherStore = context.read<WeatherStore>();
+                  // اگر زبان سیستم با زبان استور هماهنگ نبود، آن را آپدیت کن
                   if (weatherStore.currentLang != locale.languageCode) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       weatherStore.setLanguage(locale.languageCode);
@@ -55,12 +41,14 @@ void main() async {
                     builder: (context, store, _) {
                       final seedColor = Color(store.accentColorValue);
                       final bool preferDynamic = store.useSystemColor;
+
                       final lightScheme = _resolveColorScheme(
                         dynamicScheme: lightDynamic,
                         brightness: Brightness.light,
                         seedColor: seedColor,
                         useDynamic: preferDynamic,
                       );
+
                       final darkScheme = _resolveColorScheme(
                         dynamicScheme: darkDynamic,
                         brightness: Brightness.dark,
@@ -72,19 +60,22 @@ void main() async {
                         title: 'Weatherly',
                         debugShowCheckedModeBanner: false,
 
+                        // تنظیمات زبان و راست‌چین/چپ‌چین
                         locale: locale,
                         supportedLocales: AppLocalizations.supportedLocales,
                         localizationsDelegates:
-                            AppLocalizations.localizationsDelegates,
+                        AppLocalizations.localizationsDelegates,
 
+                        // تنظیمات تم
                         themeMode: themeMode,
                         theme: _buildTheme(lightScheme),
                         darkTheme: _buildTheme(darkScheme),
 
+                        // مدیریت جهت متن (RTL/LTR)
                         builder: (context, child) {
                           final currentLocale = Localizations.localeOf(context);
                           final textDirection =
-                              currentLocale.languageCode == 'fa'
+                          currentLocale.languageCode == 'fa'
                               ? TextDirection.rtl
                               : TextDirection.ltr;
                           return Directionality(
@@ -96,9 +87,9 @@ void main() async {
                         home: WeatherScreen(
                           currentThemeMode: themeMode,
                           onThemeChanged: (newMode) =>
-                              themeNotifier.value = newMode,
+                          themeNotifier.value = newMode,
                           onLocaleChanged: (newLocale) =>
-                              localeNotifier.value = newLocale,
+                          localeNotifier.value = newLocale,
                         ),
                       );
                     },
@@ -129,12 +120,13 @@ ThemeData _buildTheme(ColorScheme colorScheme) {
   final isDark = colorScheme.brightness == Brightness.dark;
   return ThemeData(
     useMaterial3: true,
-    fontFamily: 'Vazir',
+    fontFamily: 'Vazir', // یا هر فونتی که استفاده می‌کنید
     brightness: colorScheme.brightness,
     colorScheme: colorScheme,
-    // پس‌زمینه و کارت‌ها را بر اساس ColorScheme تنظیم می‌کنیم تا کل برنامه یک‌دست شود
+    // یک‌دست‌سازی پس‌زمینه و کارت‌ها
     scaffoldBackgroundColor: colorScheme.surface,
     cardColor: colorScheme.surfaceContainerHighest,
+
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -150,6 +142,7 @@ ThemeData _buildTheme(ColorScheme colorScheme) {
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
     ),
+
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: isDark ? const Color(0xFF1E1F2C) : Colors.white,
@@ -167,6 +160,7 @@ ThemeData _buildTheme(ColorScheme colorScheme) {
             : BorderSide(color: Colors.grey.shade300),
       ),
     ),
+
     textTheme: TextTheme(
       bodyMedium: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
       titleMedium: TextStyle(color: isDark ? Colors.white : Colors.black),

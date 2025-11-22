@@ -4,16 +4,14 @@ import 'package:flutter/foundation.dart' show ChangeNotifier, kDebugMode, kIsWeb
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'config_reader.dart';
 import 'models/weather_models.dart';
 import 'services/weather_api_service.dart';
 import 'utils/city_utils.dart';
 
 class WeatherStore extends ChangeNotifier {
+  // تغییر مهم: حذف apiKey و ConfigReader از سازنده
   WeatherStore({WeatherApiService? apiService})
-    : _apiService =
-          apiService ??
-          WeatherApiService(apiKey: ConfigReader.getOpenWeatherApiKey()) {
+      : _apiService = apiService ?? WeatherApiService() {
     Future.microtask(_init);
   }
 
@@ -35,6 +33,7 @@ class WeatherStore extends ChangeNotifier {
   double? _temperature;
   int _humidity = 0;
   double _windSpeed = 0.0;
+
   WeatherType _weatherType = WeatherType.unknown;
   String _weatherDescription = '';
   bool _isLoading = false;
@@ -75,7 +74,7 @@ class WeatherStore extends ChangeNotifier {
   bool get useSystemColor => _useSystemColor;
   static bool systemColorAvailable = false;
 
-  bool get _apiReady => _apiService.isConfigured;
+  // حذف _apiReady چون سرویس جدید همیشه آماده است
 
   Future<void> setLanguage(String lang) async {
     if (lang == _currentLang) return;
@@ -92,24 +91,11 @@ class WeatherStore extends ChangeNotifier {
     }
     if (_currentLat != null && _currentLon != null) {
       await fetchHourlyForecast(_currentLat!, _currentLon!);
-    } else {
-      final resolved = await _apiService.resolveCity(
-        _location,
-        lang: _currentLang,
-      );
-      if (resolved != null) {
-        final lat = (resolved['lat'] as num?)?.toDouble();
-        final lon = (resolved['lon'] as num?)?.toDouble();
-        if (lat != null && lon != null) {
-          await fetchHourlyForecast(lat, lon);
-        }
-      }
     }
   }
 
   Future<bool> _attemptStartupLocation() async {
     try {
-      // در وب، بررسی می‌کنیم که آیا HTTPS فعال است یا نه
       if (kIsWeb) {
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
@@ -118,14 +104,12 @@ class WeatherStore extends ChangeNotifier {
           return false;
         }
       }
-      
+
       var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied &&
-          !_locationPermissionRejected) {
+      if (permission == LocationPermission.denied && !_locationPermissionRejected) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
         _locationPermissionDenied = true;
         await _persistLocationPermissionRejected(true);
         notifyListeners();
@@ -162,20 +146,14 @@ class WeatherStore extends ChangeNotifier {
 
   WeatherType _stringToWeatherType(String weatherMain) {
     switch (weatherMain) {
-      case 'Clear':
-        return WeatherType.clear;
-      case 'Clouds':
-        return WeatherType.clouds;
-      case 'Rain':
-        return WeatherType.rain;
-      case 'Snow':
-        return WeatherType.snow;
-      case 'Drizzle':
-        return WeatherType.drizzle;
-      case 'Thunderstorm':
-        return WeatherType.thunderstorm;
-      default:
-        return WeatherType.unknown;
+      case 'Clear': return WeatherType.clear;
+      case 'Clouds': return WeatherType.clouds;
+      case 'Rain': return WeatherType.rain;
+      case 'Snow': return WeatherType.snow;
+      case 'Drizzle': return WeatherType.drizzle;
+      case 'Thunderstorm': return WeatherType.thunderstorm;
+      case 'Atmosphere': return WeatherType.atmosphere;
+      default: return WeatherType.unknown;
     }
   }
 
@@ -184,11 +162,8 @@ class WeatherStore extends ChangeNotifier {
     double? lat,
     double? lon,
   }) async {
-    if (!_apiReady) {
-      _errorMessage = 'API Key is missing. Check keys.json.';
-      notifyListeners();
-      return;
-    }
+    // حذف چک کردن _apiReady و ConfigReader
+
     _setLoading(true);
     _errorMessage = null;
     try {
@@ -196,60 +171,65 @@ class WeatherStore extends ChangeNotifier {
       double? targetLon = lon;
       String? resolvedLabel;
       final trimmedCity = cityName?.trim();
-      if ((targetLat == null || targetLon == null) &&
-          trimmedCity != null &&
-          trimmedCity.isNotEmpty) {
+
+      if ((targetLat == null || targetLon == null) && trimmedCity != null && trimmedCity.isNotEmpty) {
         final resolved = await _apiService.resolveCity(
           trimmedCity,
           lang: _currentLang,
         );
         if (resolved != null) {
-          targetLat = (resolved['lat'] as num?)?.toDouble();
-          targetLon = (resolved['lon'] as num?)?.toDouble();
+          targetLat = resolved['lat'];
+          targetLon = resolved['lon'];
           resolvedLabel = buildCityLabel(resolved, lang: _currentLang);
         }
       }
+
       final weather = await _apiService.fetchCurrentWeather(
         lat: targetLat,
         lon: targetLon,
         cityName: (targetLat == null || targetLon == null) ? trimmedCity : null,
         lang: _currentLang,
       );
+
       if (weather == null) {
         _errorMessage = 'City not found or server error.';
         _temperature = null;
         _forecast = [];
         return;
       }
+
       targetLat ??= (weather['coord']?['lat'] as num?)?.toDouble();
       targetLon ??= (weather['coord']?['lon'] as num?)?.toDouble();
+
       final forecastList = (targetLat != null && targetLon != null)
           ? await _apiService.fetchForecast(
-              lat: targetLat,
-              lon: targetLon,
-              lang: _currentLang,
-            )
+        lat: targetLat,
+        lon: targetLon,
+        lang: _currentLang,
+      )
           : const <dynamic>[];
+
       if (resolvedLabel != null) {
         _location = resolvedLabel;
       } else {
         _location = buildCityLabel(weather, lang: _currentLang);
       }
+
       _temperature = (weather['main']?['temp'] as num?)?.toDouble();
       _humidity = (weather['main']?['humidity'] as num?)?.toInt() ?? 0;
       _windSpeed = (weather['wind']?['speed'] as num?)?.toDouble() ?? 0.0;
+
       final weatherInfo = weather['weather']?[0];
       if (weatherInfo != null) {
         _weatherType = _stringToWeatherType(weatherInfo['main'] ?? '');
         _weatherDescription = weatherInfo['description'] ?? '';
       }
-      _forecast = forecastList
-          .whereType<Map<String, dynamic>>()
-          .where((item) => item['dt_txt'].toString().contains('12:00:00'))
-          .toList();
+
+      _forecast = forecastList;
       _currentLat = targetLat;
       _currentLon = targetLon;
       _suggestions = [];
+
       if (_currentLat != null && _currentLon != null) {
         await fetchAirQuality(_currentLat!, _currentLon!);
       }
@@ -285,7 +265,6 @@ class WeatherStore extends ChangeNotifier {
   }
 
   Future<void> _fetchCitySuggestions(String query) async {
-    if (!_apiReady) return;
     final results = await _apiService.fetchCitySuggestions(
       query,
       lang: _currentLang,
@@ -311,6 +290,7 @@ class WeatherStore extends ChangeNotifier {
     if (_currentLat != null && _currentLon != null) {
       await _fetchWeatherAndForecast(lat: _currentLat, lon: _currentLon);
       await fetchAirQuality(_currentLat!, _currentLon!);
+      await fetchHourlyForecast(_currentLat!, _currentLon!);
     } else {
       await _fetchWeatherAndForecast(cityName: _location);
     }
@@ -338,10 +318,9 @@ class WeatherStore extends ChangeNotifier {
           return;
         }
       }
-      
+
       var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied &&
-          !_locationPermissionRejected) {
+      if (permission == LocationPermission.denied && !_locationPermissionRejected) {
         permission = await Geolocator.requestPermission();
       }
       if (permission == LocationPermission.denied) {
@@ -371,9 +350,7 @@ class WeatherStore extends ChangeNotifier {
       if (kDebugMode) {
         print('خطا در دریافت مکان فعلی: $e');
       }
-      _errorMessage = kIsWeb 
-          ? 'Failed to get current location. Please ensure you are using HTTPS and have granted location permissions.'
-          : 'Failed to get current location.';
+      _errorMessage = 'Failed to get current location.';
       notifyListeners();
     }
   }
@@ -391,10 +368,8 @@ class WeatherStore extends ChangeNotifier {
       _useSystemColor = false;
       await prefs.setBool('useSystemColor', false);
     }
-    _locationPermissionRejected =
-        prefs.getBool('locationPermissionRejected') ?? false;
-    _hideLocationPermissionPrompt =
-        prefs.getBool('hideLocationPermissionPrompt') ?? false;
+    _locationPermissionRejected = prefs.getBool('locationPermissionRejected') ?? false;
+    _hideLocationPermissionPrompt = prefs.getBool('hideLocationPermissionPrompt') ?? false;
     notifyListeners();
   }
 
@@ -408,18 +383,10 @@ class WeatherStore extends ChangeNotifier {
       await prefs.setDouble(key, value.toDouble());
     }
     switch (key) {
-      case 'showHourly':
-        _showHourly = value as bool;
-        break;
-      case 'showAirQuality':
-        _showAirQuality = value as bool;
-        break;
-      case 'useCelsius':
-        _useCelsius = value as bool;
-        break;
-      case 'defaultCity':
-        _defaultCity = value as String;
-        break;
+      case 'showHourly': _showHourly = value as bool; break;
+      case 'showAirQuality': _showAirQuality = value as bool; break;
+      case 'useCelsius': _useCelsius = value as bool; break;
+      case 'defaultCity': _defaultCity = value as String; break;
       case 'useSystemColor':
         final desired = value as bool;
         if (!WeatherStore.systemColorAvailable && desired) {
@@ -447,7 +414,7 @@ class WeatherStore extends ChangeNotifier {
     final normalized = label.trim();
     if (normalized.isEmpty) return;
     _recentSearches.removeWhere(
-      (entry) => entry.toLowerCase() == normalized.toLowerCase(),
+          (entry) => entry.toLowerCase() == normalized.toLowerCase(),
     );
     _recentSearches.insert(0, normalized);
     if (_recentSearches.length > _recentMax) {
@@ -491,7 +458,7 @@ class WeatherStore extends ChangeNotifier {
   }
 
   Future<void> fetchAirQuality(double lat, double lon) async {
-    if (!_apiReady) return;
+    // حذف چک کردن _apiReady
     final data = await _apiService.fetchAirQuality(lat: lat, lon: lon);
     if (data != null) {
       _airQualityIndex = data['aqi'] as int?;

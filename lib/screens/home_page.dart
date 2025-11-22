@@ -19,13 +19,19 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late final ScrollController _mainScrollController;
   late final TextEditingController _searchController;
   late final FocusNode _searchFocusNode;
   late final VoidCallback _focusListener;
 
-  late final AnimationController _sunController;
+  // کنترلر برای چرخش (خورشید و پره‌های توربین)
+  late final AnimationController _rotationController;
+
+  // کنترلر برای پالس (قطره آب) و حرکت رفت و برگشتی (AQI)
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseAnimation;
+  late final Animation<Offset> _slideAnimation;
 
   bool _showSearchLoading = false;
   DateTime? _searchLoadingStartedAt;
@@ -41,10 +47,28 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _searchController = TextEditingController();
     _searchFocusNode = FocusNode();
 
-    _sunController = AnimationController(
+    // ۱. تنظیم انیمیشن چرخش (مداوم)
+    _rotationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 12),
+      duration: const Duration(seconds: 4), // سرعت چرخش توربین
     )..repeat();
+
+    // ۲. تنظیم انیمیشن رفت و برگشتی (برای پالس و اسلاید)
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    // انیمیشن تغییر سایز برای قطره آب (تپش)
+    _pulseAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    // انیمیشن حرکت افقی ملایم برای آیکون هوا (تکون خوردن)
+    _slideAnimation = Tween<Offset>(
+        begin: const Offset(-0.1, 0.0),
+        end: const Offset(0.1, 0.0)
+    ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOutQuad));
 
     _focusListener = () {
       widget.onSearchFocusChange(_searchFocusNode.hasFocus);
@@ -61,7 +85,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _searchController.dispose();
     _searchFocusNode.removeListener(_focusListener);
     _searchFocusNode.dispose();
-    _sunController.dispose();
+    _rotationController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -534,27 +559,26 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // اینجا اگر نوع هوا مشخص بود (حتی ریزگرد)، آیکون نمایش داده می‌شود
                     if (store.weatherType != WeatherType.unknown)
                       isClear
                           ? RotationTransition(
-                        turns: _sunController,
+                        turns: _rotationController,
                         child: SvgPicture.asset(
                           weatherIconAsset(
                             weatherTypeToApiName(store.weatherType),
                           ),
-                          width: 42, // آیکون بزرگتر شد (سایز ایموجی)
-                          height: 42,
+                          width: 56,
+                          height: 56,
                         ),
                       )
                           : SvgPicture.asset(
                         weatherIconAsset(
                           weatherTypeToApiName(store.weatherType),
                         ),
-                        width: 42, // آیکون بزرگتر شد
-                        height: 42,
+                        width: 56,
+                        height: 56,
                       ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Text(
                       store.weatherDescription,
                       style: textTheme.titleLarge?.copyWith(color: iconColor),
@@ -591,12 +615,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Row(
           children: [
-            // کارت ۱ (سمت راست در فارسی): کیفیت هوا
+            // کارت ۱: کیفیت هوا (با انیمیشن حرکت افقی ملایم)
             Expanded(
               child: _buildDetailItem(
                 context,
-                icon: Icons.air,
-                iconColor: aqiColor,
+                icon: SlideTransition(
+                  position: _slideAnimation,
+                  child: Icon(Icons.air, color: aqiColor, size: 28),
+                ),
+                iconColor: aqiColor, // اضافه کردن رنگ
                 title: l10n.airQualityIndex,
                 value: l10n.localeName == 'fa' ? toPersianDigits('$aqi') : '$aqi',
                 footer: Container(
@@ -618,12 +645,41 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
             const SizedBox(width: 8),
-            // کارت ۲ (وسط): باد
+            // کارت ۲: باد (توربین ۳ پره چرخان با پایه ثابت)
             Expanded(
               child: _buildDetailItem(
                 context,
-                icon: Icons.wind_power,
-                iconColor: Colors.blueAccent,
+                icon: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // پایه ثابت توربین
+                    Padding(
+                      padding: const EdgeInsets.only(top: 14.0),
+                      child: Container(
+                        width: 3,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withAlpha(150),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    // پره چرخان (استفاده از فایل SVG توربین ۳ پره)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: RotationTransition(
+                        turns: _rotationController,
+                        child: SvgPicture.asset(
+                          '/icons/turbine.svg',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(Colors.blueAccent, BlendMode.srcIn),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                iconColor: Colors.blueAccent, // رنگ
                 title: l10n.localeName == 'fa' ? "باد" : "Wind",
                 value: l10n.localeName == 'fa' ? toPersianDigits(windVal) : windVal,
                 footer: Text(
@@ -640,12 +696,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
             const SizedBox(width: 8),
-            // کارت ۳ (چپ در فارسی): رطوبت
+            // کارت ۳: رطوبت (با انیمیشن پالس)
             Expanded(
               child: _buildDetailItem(
                 context,
-                icon: Icons.water_drop_outlined,
-                iconColor: Colors.lightBlue,
+                icon: ScaleTransition(
+                  scale: _pulseAnimation,
+                  child: const Icon(
+                      Icons.water_drop_outlined,
+                      color: Colors.lightBlue,
+                      size: 28
+                  ),
+                ),
+                iconColor: Colors.lightBlue, // رنگ
                 title: l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
                 value: humidity,
                 footer: const SizedBox(height: 18),
@@ -659,8 +722,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildDetailItem(
       BuildContext context, {
-        required IconData icon,
-        required Color iconColor,
+        required Widget icon,
+        required Color iconColor, // دریافت رنگ برای استفاده در متن
         required String title,
         required String value,
         required Widget footer,
@@ -683,7 +746,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         children: [
           Column(
             children: [
-              Icon(icon, color: iconColor, size: 28),
+              SizedBox(height: 32, width: 32, child: Center(child: icon)),
               const SizedBox(height: 6),
               Text(
                 title,
