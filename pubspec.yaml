@@ -73,7 +73,7 @@ flutter:
   generate: true
 
   assets:
-    - keys.json
+    #- keys.json
     - assets/icons/
 
   fonts:
