@@ -119,6 +119,12 @@ abstract class AppLocalizations {
   /// **'Developer'**
   String get developer;
 
+  /// No description provided for @developerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Amin Monajati'**
+  String get developerName;
+
   /// No description provided for @reportAnIssue.
   ///
   /// In en, this message translates to:
@@ -236,7 +242,7 @@ abstract class AppLocalizations {
   /// No description provided for @themeAccentColor.
   ///
   /// In en, this message translates to:
-  /// **'Accent color'**
+  /// **'UI theme color'**
   String get themeAccentColor;
 
   /// No description provided for @customizeThemeDescription.

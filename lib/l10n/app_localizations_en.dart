@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get developer => 'Developer';
 
   @override
+  String get developerName => 'Amin Monajati';
+
+  @override
   String get reportAnIssue => 'Report an issue';
 
   @override

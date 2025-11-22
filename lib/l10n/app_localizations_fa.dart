@@ -21,6 +21,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get developer => 'توسعه‌دهنده';
 
   @override
+  String get developerName => 'امین مناجاتی';
+
+  @override
   String get reportAnIssue => 'گزارش مشکل';
 
   @override

@@ -7,7 +7,7 @@ import 'package:weatherly_app/l10n/app_localizations.dart';
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  final String developerName = "امین مناجاتی";
+  //final String developerName = "امین مناجاتی";
   final String developerEmail = "aminmonajati9@gmail.com";
   final String githubProject = "https://github.com/MRAmin0/Weatherly";
   final String githubProfile = "https://github.com/MRAmin0";
@@ -132,7 +132,9 @@ ISSUE DESCRIPTION
           ListTile(
             leading: const Icon(Icons.person_outline),
             title: Text(l10n.developer),
-            subtitle: Text(developerName),
+            subtitle: Text(
+              l10n.developerName,
+            ), // ✅ اصلاح شد: خواندن از فایل ترجمه
             onTap: () => _openUrl(githubProfile),
           ),
           ListTile(
