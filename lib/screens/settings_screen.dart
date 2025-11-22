@@ -39,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     0xFF039BE5, // Light Blue
     0xFFFF7043, // Orange
   ];
+
   void _showLanguageDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
@@ -240,9 +241,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           l10n.systemColorNotAvailable,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.error.withAlpha(200),
+                                color: Theme.of(context).colorScheme.error
+                                    .withValues(
+                                      alpha: 0.8,
+                                    ), // اصلاح شده برای نسخه جدید
                               ),
                         ),
                   value: store.useSystemColor,
@@ -328,19 +330,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // --- تغییر اصلی در این متد انجام شده است ---
   Widget _buildAccentPicker(WeatherStore store, AppLocalizations l10n) {
     final textTheme = Theme.of(context).textTheme;
     final disabled = store.useSystemColor;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start, // ۱. ستون باید از راست شروع شود
       children: [
         Text(l10n.themeAccentColor, style: textTheme.titleMedium),
         const SizedBox(height: 4),
         Text(
           l10n.customizeThemeDescription,
           style: textTheme.bodySmall?.copyWith(
-            color: textTheme.bodySmall?.color?.withAlpha(180),
+            color: textTheme.bodySmall?.color?.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 16),
@@ -349,21 +353,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
             opacity: disabled ? 0.35 : 1,
-            child: GridView.count(
-              crossAxisCount: 6,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              children: _accentColorOptions.map((value) {
-                final color = Color(value);
-                final isSelected = store.accentColorValue == value;
-                return _AccentColorDot(
-                  color: color,
-                  isSelected: isSelected && !disabled,
-                  onTap: () => store.setAccentColor(value),
-                );
-              }).toList(),
+            child: SizedBox(
+              width:
+                  double.infinity, // ۲. این خط باعث می‌شود حتما کل عرض را بگیرد
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                alignment:
+                    WrapAlignment.start, // ۳. آیتم‌ها در سمت راست چیده شوند
+                children: _accentColorOptions.map((value) {
+                  final color = Color(value);
+                  final isSelected = store.accentColorValue == value;
+                  return _AccentColorDot(
+                    color: color,
+                    isSelected: isSelected && !disabled,
+                    onTap: () => store.setAccentColor(value),
+                  );
+                }).toList(),
+              ),
             ),
           ),
         ),
@@ -416,8 +423,9 @@ class _AccentColorDot extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      height: isSelected ? 38 : 32,
-      width: isSelected ? 38 : 32,
+      // اندازه ثابت در همه پلتفرم‌ها (وب و موبایل)
+      height: isSelected ? 40 : 34,
+      width: isSelected ? 40 : 34,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(

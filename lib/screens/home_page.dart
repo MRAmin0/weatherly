@@ -102,6 +102,18 @@ class _HomePageState extends State<HomePage> {
         setState(() => _shownLocationDeniedToast = true);
         final messenger = ScaffoldMessenger.of(context);
         final colorScheme = Theme.of(context).colorScheme;
+
+        // --- قسمت اصلاح شده: تشخیص رنگ انتخابی کاربر ---
+        final buttonColor = store.useSystemColor
+            ? colorScheme.primary
+            : Color(store.accentColorValue);
+
+        // برای رنگ متن دکمه، اگر کاستوم بود سفید می‌گذاریم، اگر سیستم بود از تم می‌گیریم
+        final buttonTextColor = store.useSystemColor
+            ? colorScheme.onPrimary
+            : Colors.white;
+        // -----------------------------------------------
+
         final snackWidth = math.min(
           MediaQuery.of(context).size.width * 0.9,
           360.0,
@@ -113,7 +125,12 @@ class _HomePageState extends State<HomePage> {
             behavior: SnackBarBehavior.floating,
             width: snackWidth,
             backgroundColor: snackBackground,
-            duration: const Duration(seconds: 5),
+            duration: const Duration(
+              seconds: 10,
+            ), // زمان را کمی بیشتر کردم تا کاربر ببیند
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16), // گردی گوشه خود اسنک‌بار
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,12 +145,16 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
+                    // دکمه اول: دیگر نشان نده
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
+                          backgroundColor: buttonColor,
+                          foregroundColor: buttonTextColor,
                           elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           textStyle: Theme.of(context).textTheme.labelLarge
                               ?.copyWith(fontWeight: FontWeight.w700),
@@ -146,11 +167,15 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(width: 12),
+                    // دکمه دوم: درخواست مجدد
                     Expanded(
                       child: TextButton(
                         style: TextButton.styleFrom(
                           foregroundColor: colorScheme.onSurfaceVariant,
                           padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           textStyle: Theme.of(context).textTheme.labelLarge
                               ?.copyWith(fontWeight: FontWeight.w500),
                         ),
@@ -161,6 +186,7 @@ class _HomePageState extends State<HomePage> {
                         child: Text(l10n.requestAgain),
                       ),
                     ),
+                    // --- بخش تکراری حذف شد ---
                   ],
                 ),
               ],
@@ -555,7 +581,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-  
+
   Widget _buildAirQualitySection(
     BuildContext context,
     WeatherStore store,
@@ -665,9 +691,12 @@ class _HomePageState extends State<HomePage> {
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 12,
-                          backgroundColor: scheme.primary.withOpacity(0.12),
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(accentColor),
+                          backgroundColor: scheme.primary.withValues(
+                            alpha: 0.12,
+                          ),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            accentColor,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -679,18 +708,14 @@ class _HomePageState extends State<HomePage> {
                                 ? toPersianDigits('0')
                                 : '0',
                             style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
+                                ?.copyWith(color: scheme.onSurfaceVariant),
                           ),
                           Text(
                             l10n.localeName == 'fa'
                                 ? toPersianDigits('500')
                                 : '500',
                             style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
+                                ?.copyWith(color: scheme.onSurfaceVariant),
                           ),
                         ],
                       ),
