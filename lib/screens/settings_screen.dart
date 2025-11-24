@@ -133,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   context,
                   Padding(
                     padding: const EdgeInsets.all(14),
-                    child: _buildThemeModeSelector(l10n),
+                    child: Center(child: _buildThemeModeSelector(l10n)),
                   ),
                 ),
 

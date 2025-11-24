@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 
-// --- FIX: Explicitly import the separate screen files ---
 import 'package:weatherly_app/screens/home_page.dart';
 import 'package:weatherly_app/screens/forecast_screen.dart';
 import 'package:weatherly_app/screens/settings_screen.dart';
@@ -46,16 +45,19 @@ class _WeatherScreenState extends State<WeatherScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      // Prevents the bottom nav from jumping up when keyboard opens
+      // جلوگیری از بالا پریدن نوار پایین هنگام باز شدن کیبورد
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           PageView(
             controller: _pageController,
-            // Disable swiping so it feels like a standard tab app
-            physics: const NeverScrollableScrollPhysics(),
+            // --- تغییر اصلی اینجاست ---
+            // قبلاً NeverScrollableScrollPhysics بود که جلوی حرکت دست را می‌گرفت.
+            // الان BouncingScrollPhysics گذاشتیم تا هم حرکت کند و هم حس نرمی داشته باشد.
+            physics: const BouncingScrollPhysics(),
             onPageChanged: (index) {
               if (mounted) {
+                // این قسمت باعث می‌شود وقتی با دست اسکرول می‌کنید، دکمه پایین هم آپدیت شود
                 setState(() => _selectedTabIndex = index);
               }
             },
@@ -85,7 +87,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           ),
 
           // Custom Bottom Navigation Bar
-          // Hidden when searching to give keyboard space
+          // مخفی شدن نوار پایین هنگام جستجو
           if (!_isSearchFocused)
             Positioned(
               bottom: 0,
@@ -104,7 +106,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     // M3 Colors
     final backgroundColor = theme.colorScheme.surfaceContainer;
     final primaryColor = theme.colorScheme.primary;
-    // Updated: withValues for Flutter 3.27+
+
     final unselectedColor = theme.textTheme.bodyMedium?.color?.withValues(
       alpha: 0.6,
     );
@@ -157,7 +159,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             ],
           ),
         ),
-        // Space for gesture bar on newer phones
+        // فضای خالی برای جسچر بار در گوشی‌های جدید
         if (systemBottomPadding > 0)
           Container(height: systemBottomPadding, color: backgroundColor),
       ],
@@ -211,11 +213,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   void _goToTab(int index) {
     if (index == _selectedTabIndex) return;
-    setState(() => _selectedTabIndex = index);
+    // وقتی روی دکمه کلیک می‌کنیم، با انیمیشن صفحه را عوض می‌کنیم
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeOutQuart,
     );
+    // نکته: نیازی به setState اینجا نیست چون animateToPage باعث تریگر شدن
+    // onPageChanged می‌شود و آنجا setState داریم.
   }
 }
