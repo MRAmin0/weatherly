@@ -25,7 +25,7 @@
 
 | صفحه اصلی | پیش‌بینی هفتگی | تنظیمات |
 |:---:|:---:|:---:|
-| ![Home](Screenshots/) | ![Forecast](Screenshots/) | ![Settings](Screenshots/) |
+| ![Home](Screenshots/1.png) | ![Forecast](Screenshots/2.png) | ![Settings](Screenshots/3.png) |
 
 </div>
 
