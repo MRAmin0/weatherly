@@ -1,4 +1,15 @@
-<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-<path d="M24 40h32a12 12 0 0 0 0-24h-1a18 18 0 0 0-35.1 4.8A10 10 0 0 0 24 40z" fill="#B0BEC5"/>
-<polygon points="36,44 30,60 40,60 34,76 52,54 42,54 48,44" fill="#FFC107"/>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- مقیاس 0.8 برای تبدیل مختصات 80 به 64 -->
+    <g transform="scale(0.8)">
+        <!-- ابر -->
+        <path
+            d="M24 40h32a12 12 0 0 0 0-24h-1a18 18 0 0 0-35.1 4.8A10 10 0 0 0 24 40z"
+            fill="#B0BEC5"
+        />
+        <!-- رعد (صاعقه) -->
+        <polygon
+            points="36,44 30,60 40,60 34,76 52,54 42,54 48,44"
+            fill="#FFC107"
+        />
+    </g>
 </svg>

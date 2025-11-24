@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/utils/weather_formatters.dart';
+// FIX: Import city_utils to use toPersianDigits
+import 'package:weatherly_app/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/widgets/air_quality_card.dart';
 
@@ -52,10 +54,7 @@ class _ForecastScreenState extends State<ForecastScreen>
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.forecast),
-        centerTitle: true, // Ensures title is centered
-      ),
+      appBar: AppBar(title: Text(l10n.forecast), centerTitle: true),
       body: Consumer<WeatherViewModel>(
         builder: (context, vm, _) {
           final isPersian = vm.lang == 'fa';

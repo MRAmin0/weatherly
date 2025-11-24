@@ -3,7 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/models/weather_type.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
-import 'package:weatherly_app/utils/weather_formatters.dart';
+// FIX: Add this import so toPersianDigits is found
+import 'package:weatherly_app/utils/city_utils.dart';
 import 'package:weatherly_app/widgets/animations/weather_animator.dart';
 
 class DetailsRow extends StatelessWidget {
@@ -38,7 +39,7 @@ class DetailsRow extends StatelessWidget {
         ? toPersianDigits(aqiValue.toString())
         : aqiValue.toString();
 
-    // تعیین رنگ و آیکون بر اساس میزان آلودگی (اختیاری برای زیبایی بیشتر)
+    // تعیین رنگ و آیکون بر اساس شدت آلودگی (اختیاری برای زیبایی بیشتر)
     Color aqiColor = Colors.greenAccent;
     if (aqiValue > 100) aqiColor = Colors.orangeAccent;
     if (aqiValue > 150) aqiColor = Colors.redAccent;

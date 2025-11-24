@@ -1,13 +1,16 @@
-<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-    <!-- Cloud -->
-    <path
-        d="M24 40h32a12 12 0 0 0 0-24h-1a18 18 0 0 0-35.1 4.8A10 10 0 0 0 24 40z"
-        fill="#B0BEC5"
-    />
-    <!-- Mist lines -->
-    <g stroke="#90CAF9" stroke-width="3" stroke-linecap="round">
-        <line x1="18" y1="50" x2="62" y2="50" />
-        <line x1="12" y1="58" x2="56" y2="58" />
-        <line x1="20" y1="66" x2="60" y2="66" />
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- مقیاس 0.8 برای تبدیل 80 به 64 -->
+    <g transform="scale(0.8)">
+        <!-- ابر با رنگ طوسی -->
+        <path
+            d="M24 40h32a12 12 0 0 0 0-24h-1a18 18 0 0 0-35.1 4.8A10 10 0 0 0 24 40z"
+            fill="#B0BEC5"
+        />
+        <!-- خطوط مه با رنگ آبی روشن -->
+        <g stroke="#90CAF9" stroke-width="4" stroke-linecap="round">
+            <line x1="18" y1="50" x2="62" y2="50" />
+            <line x1="12" y1="58" x2="56" y2="58" />
+            <line x1="20" y1="66" x2="60" y2="66" />
+        </g>
     </g>
 </svg>

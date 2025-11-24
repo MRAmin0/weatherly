@@ -4,6 +4,8 @@ import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/utils/weather_formatters.dart';
 import 'package:weatherly_app/widgets/animations/weather_animator.dart';
+// FIX: Import city_utils to use toPersianDigits
+import 'package:weatherly_app/utils/city_utils.dart';
 
 class CurrentWeatherSection extends StatelessWidget {
   final WeatherViewModel viewModel;
@@ -32,7 +34,6 @@ class CurrentWeatherSection extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // دما
         Text(
           isPersian ? toPersianDigits(tempText) : tempText,
           style: theme.textTheme.displayLarge?.copyWith(
@@ -42,20 +43,14 @@ class CurrentWeatherSection extends StatelessWidget {
             color: theme.textTheme.displayLarge?.color,
           ),
         ),
-
         const SizedBox(height: 8),
-
-        // نام شهر
         Text(
           viewModel.location,
           style: theme.textTheme.headlineSmall?.copyWith(
             color: theme.textTheme.bodyLarge?.color,
           ),
         ),
-
         const SizedBox(height: 16),
-
-        // وضعیت هوا و آیکون متحرک
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -68,10 +63,7 @@ class CurrentWeatherSection extends StatelessWidget {
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
-
             const SizedBox(width: 12),
-
-            // انیمیشن آیکون
             WeatherAnimator(
               weatherType: current.weatherType,
               child: SvgPicture.asset(
