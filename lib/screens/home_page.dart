@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:weatherly_app/l10n/app_localizations.dart';
@@ -7,6 +6,7 @@ import 'package:weatherly_app/services/network_service.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
 import 'package:weatherly_app/widgets/home/home_search_section.dart';
+// This import MUST exist for CurrentWeatherSection to be found
 import 'package:weatherly_app/widgets/home/current_weather_section.dart';
 import 'package:weatherly_app/widgets/home/details_row.dart';
 
@@ -24,9 +24,6 @@ class _HomePageState extends State<HomePage> {
   late final TextEditingController _searchController;
   late final FocusNode _searchFocusNode;
   late final VoidCallback _focusListener;
-
-  // Note: AnimationControllers for weather icons have been removed
-  // as they are now handled internally by the WeatherAnimator widget.
 
   bool _showSearchLoading = false;
   DateTime? _searchLoadingStartedAt;
@@ -214,6 +211,8 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Column(
         children: [
+          // This is the line causing the error.
+          // Ensure CurrentWeatherSection class is defined in the imported file.
           CurrentWeatherSection(viewModel: vm, l10n: l10n),
           const SizedBox(height: 16),
           Padding(

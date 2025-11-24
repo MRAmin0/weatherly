@@ -3,23 +3,22 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:weatherly_app/config/config_reader.dart'; // 1. Import ConfigReader
 
 import '../models/hourly_forecast.dart';
 
 /// سرویس مخصوص OpenWeatherMap
 class WeatherApiService {
-  WeatherApiService({http.Client? httpClient, String apiKey = _defaultApiKey})
-    : _httpClient = httpClient ?? http.Client(),
-      _apiKey = apiKey;
-
-  // ⛔️ حتماً این مقدار رو با API KEY خودت عوض کن
-  static const String _defaultApiKey = 'c8e625fdc3cd4adeb397b580575fc287';
+  WeatherApiService({http.Client? httpClient})
+    : _httpClient = httpClient ?? http.Client();
 
   final http.Client _httpClient;
-  final String _apiKey;
 
-  // اگر کلید را درست ست کنی، این true می‌شود
-  bool get isConfigured => _apiKey.isNotEmpty && _apiKey != _defaultApiKey;
+  // 2. دریافت کلید از ConfigReader به جای مقدار ثابت
+  String get _apiKey => ConfigReader.openWeatherApiKey;
+
+  // چک کردن اینکه آیا کلید خوانده شده معتبر است (خالی نیست)
+  bool get isConfigured => _apiKey.isNotEmpty;
 
   // ---------------------------------------------------------------------------
   // ۱. جستجوی شهر (Geocoding - OpenWeatherMap)
@@ -59,7 +58,6 @@ class WeatherApiService {
           'lon': m['lon'],
           'country': m['country'] ?? '',
           'state': m['state'] ?? '',
-          // اگر local_names نبود، یک نقشه خالی برمی‌گردانیم
           'local_names': (m['local_names'] as Map<String, dynamic>?) ?? {},
         };
       }).toList();
@@ -81,7 +79,6 @@ class WeatherApiService {
     String lang = 'en',
   }) async {
     try {
-      // اگر lat/lon نداریم، از نام شهر مختصات می‌گیریم
       if (lat == null || lon == null) {
         if (cityName == null) return null;
         final city = await resolveCity(cityName, lang: lang);
@@ -118,7 +115,6 @@ class WeatherApiService {
 
   // ---------------------------------------------------------------------------
   // ۳. پیش‌بینی ۵ روزه / ساعتی (5 day / 3h forecast - /data/2.5/forecast)
-  //    این خروجی شبیه همون فرمتیه که قبلاً برای forecast استفاده می‌کردیم
   // ---------------------------------------------------------------------------
   Future<List<dynamic>> fetchForecast({
     required double lat,
@@ -156,8 +152,7 @@ class WeatherApiService {
   }
 
   // ---------------------------------------------------------------------------
-  // ۴. پیش‌بینی ساعتی برای View جدید (از همان /data/2.5/forecast)
-  //    اینجا فقط n تا آیتم اول را به HourlyForecastResponse تبدیل می‌کنیم
+  // ۴. پیش‌بینی ساعتی برای View جدید
   // ---------------------------------------------------------------------------
   Future<HourlyForecastResponse?> fetchHourlyForecast({
     required double lat,
@@ -192,8 +187,6 @@ class WeatherApiService {
 
       for (var i = 0; i < limit; i++) {
         final item = list[i] as Map<String, dynamic>;
-        // خود OpenWeather فیلد dt_txt، main.temp و weather[0] را دارد،
-        // بنابراین همان را پاس می‌دهیم
         entries.add(item);
       }
 
@@ -210,8 +203,7 @@ class WeatherApiService {
   }
 
   // ---------------------------------------------------------------------------
-  // ۵. کیفیت هوا (Air Quality - /data/2.5/air_pollution)
-  //    توجه: مقیاس OpenWeather بین ۱ تا ۵ است، نه ۰ تا ۵۰۰
+  // ۵. کیفیت هوا (Air Quality)
   // ---------------------------------------------------------------------------
   Future<Map<String, dynamic>?> fetchAirQuality({
     required double lat,
@@ -241,7 +233,6 @@ class WeatherApiService {
       final first = list.first as Map<String, dynamic>;
       final main = first['main'] as Map<String, dynamic>?;
 
-      // aqi بین 1 و 5
       final aqi = (main?['aqi'] as num?)?.toInt() ?? 0;
 
       return {'aqi': aqi};
