@@ -1,8 +1,12 @@
+// lib/screens/weather_screen.dart
+
 import 'package:flutter/material.dart';
-import 'package:weatherly_app/screens/settings_screen.dart';
+import 'package:weatherly_app/l10n/app_localizations.dart';
+
+// --- FIX: Explicitly import the separate screen files ---
 import 'package:weatherly_app/screens/home_page.dart';
 import 'package:weatherly_app/screens/forecast_screen.dart';
-import 'package:weatherly_app/l10n/app_localizations.dart';
+import 'package:weatherly_app/screens/settings_screen.dart';
 
 class WeatherScreen extends StatefulWidget {
   final ThemeMode currentThemeMode;
@@ -42,16 +46,21 @@ class _WeatherScreenState extends State<WeatherScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
+      // Prevents the bottom nav from jumping up when keyboard opens
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           PageView(
             controller: _pageController,
+            // Disable swiping so it feels like a standard tab app
+            physics: const NeverScrollableScrollPhysics(),
             onPageChanged: (index) {
               if (mounted) {
                 setState(() => _selectedTabIndex = index);
               }
             },
             children: [
+              // Tab 0: Home
               HomePage(
                 key: const ValueKey('weather_page'),
                 onSearchFocusChange: (hasFocus) {
@@ -60,17 +69,23 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   }
                 },
               ),
+              // Tab 1: Forecast
               const ForecastScreen(key: ValueKey('forecast_page')),
+              // Tab 2: Settings
               SettingsScreen(
                 key: const ValueKey('settings_page'),
                 currentThemeMode: widget.currentThemeMode,
                 onThemeChanged: widget.onThemeChanged,
                 onLocaleChanged: widget.onLocaleChanged,
+                // Both redirect to Home (Tab 0)
                 onGoToDefaultCity: () => _goToTab(0),
                 onGoToRecentCity: () => _goToTab(0),
               ),
             ],
           ),
+
+          // Custom Bottom Navigation Bar
+          // Hidden when searching to give keyboard space
           if (!_isSearchFocused)
             Positioned(
               bottom: 0,
@@ -84,59 +99,68 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   Widget _buildCustomBottomNav(BuildContext context, AppLocalizations l10n) {
-    final cardColor = Theme.of(context).cardColor;
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final unselectedColor = Theme.of(
-      context,
-    ).textTheme.bodyMedium?.color?.withAlpha(153);
+    final theme = Theme.of(context);
+
+    // M3 Colors
+    final backgroundColor = theme.colorScheme.surfaceContainer;
+    final primaryColor = theme.colorScheme.primary;
+    // Updated: withValues for Flutter 3.27+
+    final unselectedColor = theme.textTheme.bodyMedium?.color?.withValues(
+      alpha: 0.6,
+    );
+    final borderColor = theme.colorScheme.outlineVariant.withValues(alpha: 0.2);
+
     final double systemBottomPadding = MediaQuery.of(
       context,
     ).viewPadding.bottom;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: cardColor,
-              border: Border(
-                top: BorderSide(color: Colors.grey.withAlpha(51), width: 0.5),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border(top: BorderSide(color: borderColor, width: 1)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                  Icons.home_filled,
-                  l10n.home,
-                  0,
-                  primaryColor,
-                  unselectedColor,
-                ),
-                _buildNavItem(
-                  Icons.bar_chart_rounded,
-                  l10n.forecast,
-                  1,
-                  primaryColor,
-                  unselectedColor,
-                ),
-                _buildNavItem(
-                  Icons.settings_outlined,
-                  l10n.settings,
-                  2,
-                  primaryColor,
-                  unselectedColor,
-                ),
-              ],
-            ),
+            ],
           ),
-          if (systemBottomPadding > 0)
-            Container(height: systemBottomPadding, color: cardColor),
-        ],
-      ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                Icons.home_filled,
+                l10n.home,
+                0,
+                primaryColor,
+                unselectedColor,
+              ),
+              _buildNavItem(
+                Icons.bar_chart_rounded,
+                l10n.forecast,
+                1,
+                primaryColor,
+                unselectedColor,
+              ),
+              _buildNavItem(
+                Icons.settings_outlined,
+                l10n.settings,
+                2,
+                primaryColor,
+                unselectedColor,
+              ),
+            ],
+          ),
+        ),
+        // Space for gesture bar on newer phones
+        if (systemBottomPadding > 0)
+          Container(height: systemBottomPadding, color: backgroundColor),
+      ],
     );
   }
 
@@ -152,18 +176,30 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return InkWell(
       onTap: () => _goToTab(index),
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+        decoration: BoxDecoration(
+          // M3 Pill shape highlight
+          color: isSelected
+              ? activeColor.withValues(alpha: 0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: isSelected ? activeColor : inactiveColor),
-            const SizedBox(height: 2),
+            Icon(
+              icon,
+              color: isSelected ? activeColor : inactiveColor,
+              size: 26,
+            ),
+            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 color: isSelected ? activeColor : inactiveColor,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 fontSize: 12,
               ),
             ),
@@ -178,8 +214,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     setState(() => _selectedTabIndex = index);
     _pageController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOutQuart,
     );
   }
 }

@@ -1,8 +1,10 @@
+// lib/screens/settings_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:weatherly_app/weather_store.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/screens/about_screen.dart';
+import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ThemeMode currentThemeMode;
@@ -28,27 +30,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
   double _scrollOffset = 0;
   double _maxScroll = 0;
 
-  static const List<int> _accentColorOptions = [
-    0xFF1E88E5,
-    0xFF00897B,
-    0xFF8E24AA,
-    0xFFF4511E,
-    0xFF6D4C41,
-    0xFF3949AB,
-    0xFFFFB300,
-    0xFF546E7A,
-    0xFFD81B60,
-    0xFF43A047,
-    0xFF039BE5,
-    0xFFFF7043,
+  // Material 3 Seed Colors
+  static const List<Color> _seedColorOptions = [
+    Colors.deepPurple,
+    Colors.indigo,
+    Colors.blue,
+    Colors.teal,
+    Colors.green,
+    Colors.lime,
+    Colors.orange,
+    Colors.deepOrange,
+    Colors.red,
+    Colors.pink,
+    Color(0xFF6750A4), // M3 Baseline Purple
+    Color(0xFF006C4C), // M3 Baseline Green
   ];
 
-  void _showLanguageDialog(AppLocalizations l10n) {
+  void _showLanguageDialog(AppLocalizations l10n, WeatherViewModel vm) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(l10n.language),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -56,18 +61,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _LanguageOptionTile(
                 flag: '🇮🇷',
                 label: l10n.persian,
-                isSelected: l10n.localeName == 'fa',
+                isSelected: vm.lang == 'fa',
                 onTap: () {
                   widget.onLocaleChanged(const Locale('fa'));
+                  vm.setLang('fa');
                   Navigator.pop(context);
                 },
               ),
               _LanguageOptionTile(
                 flag: '🇬🇧',
                 label: l10n.english,
-                isSelected: l10n.localeName == 'en',
+                isSelected: vm.lang == 'en',
                 onTap: () {
                   widget.onLocaleChanged(const Locale('en'));
+                  vm.setLang('en');
                   Navigator.pop(context);
                 },
               ),
@@ -81,14 +88,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final store = context.watch<WeatherStore>();
     final theme = Theme.of(context);
+    final vm = context.watch<WeatherViewModel>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.settings), centerTitle: true),
       body: Stack(
         children: [
           NotificationListener<ScrollNotification>(
@@ -114,8 +118,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.language_outlined),
                     title: Text(l10n.language),
-                    subtitle: Text(l10n.localeName == 'fa' ? l10n.persian : l10n.english),
-                    onTap: () => _showLanguageDialog(l10n),
+                    subtitle: Text(
+                      vm.lang == 'fa' ? l10n.persian : l10n.english,
+                    ),
+                    onTap: () => _showLanguageDialog(l10n, vm),
                   ),
                 ),
 
@@ -133,27 +139,110 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: 24),
 
-                // ---------------- SWITCHES ----------------
-                _buildSectionTitle(l10n.showHourlyTemperature),
+                // ---------------- THEME COLOR ----------------
+                _buildSectionTitle(l10n.themeColor),
+                _buildSectionCard(
+                  context,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. System Color Toggle
+                      SwitchListTile(
+                        title: Text(l10n.useSystemColor),
+                        subtitle: Text(l10n.systemColorSubtitle),
+                        value: vm.useSystemColor,
+                        onChanged: (val) => vm.setUseSystemColor(val),
+                      ),
+
+                      const Divider(height: 1, indent: 16, endIndent: 16),
+
+                      // 2. Static Color Picker
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 300),
+                        opacity: vm.useSystemColor ? 0.4 : 1.0,
+                        child: IgnorePointer(
+                          ignoring: vm.useSystemColor,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.chooseStaticColor,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.textTheme.bodyMedium?.color
+                                        ?.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: _seedColorOptions.map((color) {
+                                    // --- FIX IS HERE: Use toARGB32() ---
+                                    final isSelected =
+                                        vm.seedColor.toARGB32() ==
+                                        color.toARGB32();
+
+                                    return GestureDetector(
+                                      onTap: () => vm.setSeedColor(color),
+                                      child: Container(
+                                        width: 42,
+                                        height: 42,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                          border: isSelected
+                                              ? Border.all(
+                                                  color: theme
+                                                      .colorScheme
+                                                      .onSurface,
+                                                  width: 2.5,
+                                                )
+                                              : null,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.15,
+                                              ),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: isSelected
+                                            ? const Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 20,
+                                              )
+                                            : null,
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // ---------------- UNITS ----------------
+                _buildSectionTitle(l10n.temperatureUnitCelsius),
                 _buildSectionCard(
                   context,
                   Column(
                     children: [
                       SwitchListTile(
-                        title: Text(l10n.showHourlyTemperature),
-                        value: store.showHourly,
-                        onChanged: (v) => store.updatePreference('showHourly', v),
-                      ),
-                      SwitchListTile(
-                        title: Text(l10n.showAirQuality),
-                        value: store.showAirQuality,
-                        onChanged: (v) => store.updatePreference('showAirQuality', v),
-                      ),
-                      SwitchListTile(
                         title: Text(l10n.temperatureUnitCelsius),
                         subtitle: Text(l10n.celsiusFahrenheit),
-                        value: store.useCelsius,
-                        onChanged: (v) => store.updatePreference('useCelsius', v),
+                        value: vm.useCelsius,
+                        onChanged: (v) => vm.setUseCelsius(v),
                       ),
                     ],
                   ),
@@ -168,107 +257,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Column(
                     children: [
                       ListTile(
-                        title: Text(l10n.setCurrentCityAsDefault),
-                        subtitle: Text(l10n.currentCity(store.location)),
-                        trailing: const Icon(Icons.push_pin_outlined),
-                        onTap: () {
-                          store.updatePreference('defaultCity', store.location);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.defaultCitySetTo(store.location))),
-                          );
-                        },
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
                         title: Text(l10n.goToDefaultCity),
-                        subtitle: Text(l10n.currentDefault(store.defaultCity)),
+                        subtitle: Text(l10n.currentDefault(vm.defaultCity)),
                         trailing: const Icon(Icons.location_city_outlined),
                         onTap: () async {
-                          await store.goToDefaultCity();
+                          await vm.fetchByDefaultCity();
                           widget.onGoToDefaultCity();
                         },
                       ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // ---------------- ADVANCED ----------------
-                _buildSectionTitle(l10n.advancedSettings),
-                _buildSectionCard(
-                  context,
-                  ExpansionTile(
-                    title: Text(l10n.advancedSettings),
-                    childrenPadding: const EdgeInsets.all(16),
-                    children: [
-                      SwitchListTile.adaptive(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.useSystemColor),
-                        subtitle: WeatherStore.systemColorAvailable
-                            ? Text(l10n.useSystemColorDescription)
-                            : Text(
-                          l10n.systemColorNotAvailable,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.error.withOpacity(0.8),
-                          ),
-                        ),
-                        value: store.useSystemColor,
-                        onChanged: WeatherStore.systemColorAvailable
-                            ? (v) => store.updatePreference('useSystemColor', v)
-                            : null,
-                      ),
-                      const SizedBox(height: 12),
-                      _buildAccentPicker(store, l10n),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // ---------------- RECENT SEARCHES ----------------
-                _buildSectionTitle(l10n.recentSearches),
-                _buildSectionCard(
-                  context,
-                  ExpansionTile(
-                    title: Text(l10n.recentSearches),
-                    childrenPadding: const EdgeInsets.all(16),
-                    children: [
-                      if (store.recentSearches.isEmpty)
-                        ListTile(title: Text(l10n.nothingFound))
-                      else ...[
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 200),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: store.recentSearches.length,
-                            itemBuilder: (context, i) => Dismissible(
-                              key: ValueKey(store.recentSearches[i]),
-                              direction: DismissDirection.endToStart,
-                              background: Container(
-                                color: Colors.redAccent,
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.only(right: 16),
-                                child: const Icon(Icons.delete, color: Colors.white),
-                              ),
-                              onDismissed: (_) => store.removeRecentAt(i),
-                              child: ListTile(
-                                title: Text(store.recentSearches[i]),
-                                onTap: () async {
-                                  await store.searchAndFetchByCityName(store.recentSearches[i]);
-                                  widget.onGoToRecentCity();
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        const Divider(height: 1),
-                        ListTile(
-                          title: Text(l10n.clearAll),
-                          trailing: const Icon(Icons.cleaning_services_outlined, color: Colors.redAccent),
-                          onTap: store.clearRecentSearches,
-                        ),
-                      ],
                     ],
                   ),
                 ),
@@ -311,8 +307,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        theme.scaffoldBackgroundColor.withOpacity(0),
-                        theme.scaffoldBackgroundColor.withOpacity(0.5),
+                        theme.scaffoldBackgroundColor.withValues(alpha: 0),
+                        theme.scaffoldBackgroundColor.withValues(alpha: 0.5),
                         theme.scaffoldBackgroundColor,
                       ],
                     ),
@@ -335,10 +331,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.25)),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -356,7 +354,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title,
         style: textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.bold,
-          color: textTheme.bodyMedium?.color?.withOpacity(0.85),
+          color: textTheme.bodyMedium?.color?.withValues(alpha: 0.85),
         ),
       ),
     );
@@ -372,56 +370,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return ToggleButtons(
       isSelected: selected,
-      onPressed: (i) => widget.onThemeChanged([ThemeMode.system, ThemeMode.light, ThemeMode.dark][i]),
+      onPressed: (i) => widget.onThemeChanged(
+        [ThemeMode.system, ThemeMode.light, ThemeMode.dark][i],
+      ),
       borderRadius: BorderRadius.circular(20),
       constraints: const BoxConstraints(minHeight: 40, minWidth: 90),
-      fillColor: theme.colorScheme.primary.withOpacity(0.12),
+      fillColor: theme.colorScheme.primary.withValues(alpha: 0.12),
       selectedColor: theme.colorScheme.primary,
-      borderColor: theme.dividerColor.withOpacity(0.4),
+      borderColor: theme.dividerColor.withValues(alpha: 0.4),
       children: [
-        Row(children: [const Icon(Icons.phone_iphone), const SizedBox(width: 6), Text(l10n.system)]),
-        Row(children: [const Icon(Icons.light_mode), const SizedBox(width: 6), Text(l10n.light)]),
-        Row(children: [const Icon(Icons.dark_mode), const SizedBox(width: 6), Text(l10n.dark)]),
-      ],
-    );
-  }
-
-  Widget _buildAccentPicker(WeatherStore store, AppLocalizations l10n) {
-    final disabled = store.useSystemColor;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l10n.themeAccentColor, style: textTheme.titleMedium),
-        const SizedBox(height: 6),
-        Text(
-          l10n.customizeThemeDescription,
-          style: textTheme.bodySmall?.copyWith(
-            color: textTheme.bodySmall?.color?.withOpacity(0.6),
-          ),
+        Row(
+          children: [
+            const Icon(Icons.phone_iphone),
+            const SizedBox(width: 6),
+            Text(l10n.system),
+          ],
         ),
-        const SizedBox(height: 16),
-
-        IgnorePointer(
-          ignoring: disabled,
-          child: AnimatedOpacity(
-            duration: const Duration(milliseconds: 250),
-            opacity: disabled ? 0.3 : 1,
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: _accentColorOptions.map((v) {
-                final color = Color(v);
-                final selected = store.accentColorValue == v;
-                return _AccentColorDot(
-                  color: color,
-                  isSelected: selected && !disabled,
-                  onTap: () => store.setAccentColor(v),
-                );
-              }).toList(),
-            ),
-          ),
+        Row(
+          children: [
+            const Icon(Icons.light_mode),
+            const SizedBox(width: 6),
+            Text(l10n.light),
+          ],
+        ),
+        Row(
+          children: [
+            const Icon(Icons.dark_mode),
+            const SizedBox(width: 6),
+            Text(l10n.dark),
+          ],
         ),
       ],
     );
@@ -447,44 +424,10 @@ class _LanguageOptionTile extends StatelessWidget {
     return ListTile(
       leading: Text(flag, style: theme.textTheme.headlineSmall),
       title: Text(label, style: theme.textTheme.titleMedium),
-      trailing: isSelected ? Icon(Icons.check_circle, color: theme.colorScheme.primary) : null,
+      trailing: isSelected
+          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+          : null,
       onTap: onTap,
-    );
-  }
-}
-
-class _AccentColorDot extends StatelessWidget {
-  final Color color;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _AccentColorDot({
-    required this.color,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      height: isSelected ? 40 : 34,
-      width: isSelected ? 40 : 34,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isSelected ? color : Colors.transparent,
-          width: 2,
-        ),
-      ),
-      child: Material(
-        color: color,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-        ),
-      ),
     );
   }
 }

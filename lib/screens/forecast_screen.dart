@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import 'package:weatherly_app/l10n/app_localizations.dart';
-import 'package:weatherly_app/weather_store.dart';
 import 'package:weatherly_app/utils/weather_formatters.dart';
-import 'package:weatherly_app/widgets/air_quality_card.dart'; // آدرس کامل
+import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
+import 'package:weatherly_app/widgets/air_quality_card.dart';
 
 class ForecastScreen extends StatefulWidget {
   const ForecastScreen({super.key});
@@ -51,26 +52,24 @@ class _ForecastScreenState extends State<ForecastScreen>
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.forecast)),
-      body: Consumer<WeatherStore?>(
-        builder: (context, store, _) {
-          // اگر به هر دلیلی هنوز استور آماده نیست
-          if (store == null) {
+      appBar: AppBar(
+        title: Text(l10n.forecast),
+        centerTitle: true, // Ensures title is centered
+      ),
+      body: Consumer<WeatherViewModel>(
+        builder: (context, vm, _) {
+          final isPersian = vm.lang == 'fa';
+
+          if (vm.isLoading && vm.location.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final isPersian = store.currentLang == 'fa';
-
-          if (store.isLoading && store.location.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (store.errorMessage != null) {
+          if (vm.error != null) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Text(
-                  store.errorMessage!,
+                  vm.error!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Colors.redAccent,
@@ -82,7 +81,7 @@ class _ForecastScreenState extends State<ForecastScreen>
             );
           }
 
-          if (store.location.isEmpty) {
+          if (vm.location.isEmpty || vm.currentWeather == null) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -96,28 +95,23 @@ class _ForecastScreenState extends State<ForecastScreen>
           }
 
           return RefreshIndicator(
-            onRefresh: store.handleRefresh,
+            onRefresh: vm.refresh,
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildLocationHeader(context, store, l10n),
+                  _buildLocationHeader(context, vm, l10n),
                   const SizedBox(height: 24),
 
-                  if (store.showHourly && store.hourlyForecast.isNotEmpty) ...[
-                    _buildHourlySection(context, store, l10n, isPersian),
+                  if (vm.hourly.isNotEmpty) ...[
+                    _buildHourlySection(context, vm, l10n, isPersian),
                     const SizedBox(height: 24),
                   ],
 
-                  if (store.forecast.isNotEmpty) ...[
-                    _buildDailyForecastSection(
-                      context,
-                      store,
-                      l10n,
-                      isPersian,
-                    ),
+                  if (vm.daily5.isNotEmpty) ...[
+                    _buildDailyForecastSection(context, vm, l10n, isPersian),
                   ],
 
                   const SizedBox(height: 120),
@@ -130,11 +124,13 @@ class _ForecastScreenState extends State<ForecastScreen>
     );
   }
 
+  // ---------------- Location Header ----------------
+
   Widget _buildLocationHeader(
-      BuildContext context,
-      WeatherStore store,
-      AppLocalizations l10n,
-      ) {
+    BuildContext context,
+    WeatherViewModel vm,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 800),
@@ -148,31 +144,24 @@ class _ForecastScreenState extends State<ForecastScreen>
           ),
           child: Column(
             children: [
-              const Icon(
-                Icons.location_on,
-                color: Colors.redAccent,
-                size: 36,
-              ),
+              const Icon(Icons.location_on, color: Colors.redAccent, size: 36),
               const SizedBox(height: 8),
               Text(
-                store.location,
+                vm.location,
                 textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 l10n.localeName == 'fa'
-                    ? "پیش‌بینی ۷ روز آینده"
-                    : "Next 7 Days Forecast",
+                    ? "پیش‌بینی ۵ روز آینده"
+                    : "Next 5 Days Forecast",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.color
-                      ?.withAlpha(179),
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                 ),
               ),
             ],
@@ -182,13 +171,15 @@ class _ForecastScreenState extends State<ForecastScreen>
     );
   }
 
+  // ---------------- Hourly Section ----------------
+
   Widget _buildHourlySection(
-      BuildContext context,
-      WeatherStore store,
-      AppLocalizations l10n,
-      bool isPersian,
-      ) {
-    final unitSymbol = store.useCelsius ? '°C' : '°F';
+    BuildContext context,
+    WeatherViewModel vm,
+    AppLocalizations l10n,
+    bool isPersian,
+  ) {
+    final unitSymbol = vm.useCelsius ? '°C' : '°F';
 
     return Center(
       child: Container(
@@ -203,20 +194,17 @@ class _ForecastScreenState extends State<ForecastScreen>
                 children: [
                   Text(
                     l10n.hourlyTemperatureTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '($unitSymbol)',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.color
-                          ?.withAlpha(153),
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -226,22 +214,26 @@ class _ForecastScreenState extends State<ForecastScreen>
               height: 130,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: store.hourlyForecast.length,
+                itemCount: vm.hourly.length,
                 cacheExtent: 200,
                 itemBuilder: (context, index) {
-                  final hour = store.hourlyForecast[index];
-                  final date = DateTime.parse(hour['dt_txt']).toUtc();
-                  final rawTemp = (hour['main']['temp'] as num).toDouble();
-                  final displayedTemp =
-                  store.useCelsius ? rawTemp : (rawTemp * 9 / 5) + 32;
-                  final temp = displayedTemp.toStringAsFixed(0);
-                  final main = hour['weather'][0]['main'] as String;
-                  final iconPath = weatherIconAsset(main);
+                  final hour = vm.hourly[index];
+
                   final hourText = formatLocalHour(
-                    date,
-                    store.hourlyTimezoneOffsetSeconds ?? 0,
+                    hour.time,
+                    vm.hourlyOffset ?? 0,
                   );
-                  final tempText = '$temp$unitSymbol';
+
+                  final rawTemp = hour.temperature;
+                  final displayedTemp = vm.useCelsius
+                      ? rawTemp
+                      : (rawTemp * 9 / 5) + 32;
+                  final tempText =
+                      '${displayedTemp.toStringAsFixed(0)}$unitSymbol';
+
+                  final iconPath = weatherIconAsset(
+                    weatherTypeToApiName(hour.weatherType),
+                  );
 
                   return Padding(
                     padding: const EdgeInsetsDirectional.only(end: 12.0),
@@ -252,7 +244,9 @@ class _ForecastScreenState extends State<ForecastScreen>
                         color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Theme.of(context).dividerColor.withAlpha(15),
+                          color: Theme.of(
+                            context,
+                          ).dividerColor.withValues(alpha: 0.06),
                         ),
                       ),
                       child: Column(
@@ -260,27 +254,17 @@ class _ForecastScreenState extends State<ForecastScreen>
                         children: [
                           Text(
                             isPersian ? toPersianDigits(hourText) : hourText,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
                           ),
-                          SvgPicture.asset(
-                            iconPath,
-                            width: 32,
-                            height: 32,
-                          ),
+                          SvgPicture.asset(iconPath, width: 32, height: 32),
                           Text(
                             isPersian ? toPersianDigits(tempText) : tempText,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -295,14 +279,16 @@ class _ForecastScreenState extends State<ForecastScreen>
     );
   }
 
+  // ---------------- Daily 5-day Section ----------------
+
   Widget _buildDailyForecastSection(
-      BuildContext context,
-      WeatherStore store,
-      AppLocalizations l10n,
-      bool isPersian,
-      ) {
-    final unitSymbol = store.useCelsius ? '°C' : '°F';
-    final dayFormatter = DateFormat('EEEE', store.currentLang);
+    BuildContext context,
+    WeatherViewModel vm,
+    AppLocalizations l10n,
+    bool isPersian,
+  ) {
+    final unitSymbol = vm.useCelsius ? '°C' : '°F';
+    final dayFormatter = DateFormat('EEEE', vm.lang);
 
     return Center(
       child: Container(
@@ -315,50 +301,49 @@ class _ForecastScreenState extends State<ForecastScreen>
               padding: const EdgeInsets.only(bottom: 12),
               child: Text(
                 l10n.dailyForecastTitle,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
-            ...store.forecast.asMap().entries.map((entry) {
+            ...vm.daily5.asMap().entries.map((entry) {
               final index = entry.key;
               final day = entry.value;
-              final date = DateTime.parse(day['dt_txt']);
-              final dayOfWeek = dayFormatter.format(date);
-              final weatherMain = day['weather'][0]['main'] as String;
+
+              final dayOfWeek = dayFormatter.format(day.date);
+              final weatherMain = day.main;
               final iconPath = weatherIconAsset(weatherMain);
 
-              final minTemp = (day['main']['temp_min'] as num).toDouble();
-              final maxTemp = (day['main']['temp_max'] as num).toDouble();
-
-              final minDisplayed =
-              store.useCelsius ? minTemp : (minTemp * 9 / 5) + 32;
-              final maxDisplayed =
-              store.useCelsius ? maxTemp : (maxTemp * 9 / 5) + 32;
+              final minDisplayed = vm.useCelsius
+                  ? day.minTemp
+                  : (day.minTemp * 9 / 5) + 32;
+              final maxDisplayed = vm.useCelsius
+                  ? day.maxTemp
+                  : (day.maxTemp * 9 / 5) + 32;
 
               final maxText = '${maxDisplayed.toStringAsFixed(0)}$unitSymbol';
               final minText = '${minDisplayed.toStringAsFixed(0)}$unitSymbol';
 
               final description = translateWeatherDescription(
                 weatherMain,
-                lang: store.currentLang,
+                lang: vm.lang,
               );
 
-              final currentAqi = store.airQualityIndex ?? 0;
+              final currentAqi = vm.aqi ?? 0;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: InkWell(
                   onTap: () {
                     _showDayDetails(
-                      context,
-                      day,
-                      currentAqi,
-                      l10n,
-                      isPersian,
-                      dayOfWeek,
-                      description,
+                      context: context,
+                      dayTitle: index == 0 ? l10n.today : dayOfWeek,
+                      description: description,
+                      dayHumidity: day.humidity,
+                      dayWindSpeed: day.windSpeed,
+                      aqi: currentAqi,
+                      l10n: l10n,
+                      isPersian: isPersian,
                     );
                   },
                   borderRadius: BorderRadius.circular(16),
@@ -377,37 +362,27 @@ class _ForecastScreenState extends State<ForecastScreen>
                             children: [
                               Text(
                                 index == 0 ? l10n.today : dayOfWeek,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
+                                style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
-                              if (index > 0) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  description,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.color
-                                        ?.withAlpha(179),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                              const SizedBox(height: 4),
+                              Text(
+                                description,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.color
+                                          ?.withValues(alpha: 0.7),
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ],
                           ),
                         ),
-                        SvgPicture.asset(
-                          iconPath,
-                          width: 40,
-                          height: 40,
-                        ),
+                        SvgPicture.asset(iconPath, width: 40, height: 40),
                         const SizedBox(width: 12),
                         Expanded(
                           flex: 2,
@@ -432,9 +407,7 @@ class _ForecastScreenState extends State<ForecastScreen>
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
-                                        ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -457,13 +430,13 @@ class _ForecastScreenState extends State<ForecastScreen>
                                         .textTheme
                                         .titleMedium
                                         ?.copyWith(
-                                      fontWeight: FontWeight.normal,
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.color
-                                          ?.withAlpha(150),
-                                    ),
+                                          fontWeight: FontWeight.normal,
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color
+                                              ?.withValues(alpha: 0.6),
+                                        ),
                                   ),
                                 ],
                               ),
@@ -482,24 +455,25 @@ class _ForecastScreenState extends State<ForecastScreen>
     );
   }
 
-  void _showDayDetails(
-      BuildContext context,
-      dynamic dayData,
-      int aqi,
-      AppLocalizations l10n,
-      bool isPersian,
-      String dayTitle,
-      String description,
-      ) {
-    final humidityVal = dayData['main']['humidity'];
-    final windVal = (dayData['wind']['speed'] as num).toDouble();
+  // ---------------- Bottom Sheet (Day Details) ----------------
 
-    final humidity =
-    isPersian ? toPersianDigits("$humidityVal%") : "$humidityVal%";
+  void _showDayDetails({
+    required BuildContext context,
+    required String dayTitle,
+    required String description,
+    required int dayHumidity,
+    required double dayWindSpeed,
+    required int aqi,
+    required AppLocalizations l10n,
+    required bool isPersian,
+  }) {
+    final humidity = isPersian
+        ? toPersianDigits("$dayHumidity%")
+        : "$dayHumidity%";
 
     final windSpeedText = isPersian
-        ? toPersianDigits(windVal.toStringAsFixed(1))
-        : windVal.toStringAsFixed(1);
+        ? toPersianDigits(dayWindSpeed.toStringAsFixed(1))
+        : dayWindSpeed.toStringAsFixed(1);
 
     final windUnit = l10n.localeName == 'fa' ? "کیلومتر/ساعت" : "km/h";
 
@@ -516,8 +490,9 @@ class _ForecastScreenState extends State<ForecastScreen>
             return Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
               child: ListView(
                 controller: controller,
@@ -528,7 +503,7 @@ class _ForecastScreenState extends State<ForecastScreen>
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey.withAlpha(100),
+                        color: Colors.grey.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -536,10 +511,9 @@ class _ForecastScreenState extends State<ForecastScreen>
                   const SizedBox(height: 24),
                   Text(
                     "$dayTitle - $description",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
@@ -558,8 +532,7 @@ class _ForecastScreenState extends State<ForecastScreen>
                               size: 28,
                             ),
                           ),
-                          title:
-                          l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
+                          title: l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
                           value: humidity,
                         ),
                       ),
@@ -576,7 +549,9 @@ class _ForecastScreenState extends State<ForecastScreen>
                                   width: 3,
                                   height: 14,
                                   decoration: BoxDecoration(
-                                    color: Colors.blueAccent.withAlpha(150),
+                                    color: Colors.blueAccent.withValues(
+                                      alpha: 0.6,
+                                    ),
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
@@ -603,7 +578,7 @@ class _ForecastScreenState extends State<ForecastScreen>
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             );
@@ -625,7 +600,7 @@ class _ForecastScreenState extends State<ForecastScreen>
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withAlpha(30),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.12),
         ),
       ),
       child: Column(
@@ -635,20 +610,17 @@ class _ForecastScreenState extends State<ForecastScreen>
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.color
-                  ?.withAlpha(150),
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
         ],

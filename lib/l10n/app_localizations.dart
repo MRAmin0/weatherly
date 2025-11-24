@@ -254,7 +254,7 @@ abstract class AppLocalizations {
   /// No description provided for @useSystemColor.
   ///
   /// In en, this message translates to:
-  /// **'Follow system color'**
+  /// **'Use System Color'**
   String get useSystemColor;
 
   /// No description provided for @useSystemColorDescription.
@@ -502,6 +502,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Avoid outdoor activities.'**
   String get aqiRecommendationNoActivity;
+
+  /// No description provided for @themeColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Color'**
+  String get themeColor;
+
+  /// No description provided for @systemColorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use wallpaper colors (Android 12+)'**
+  String get systemColorSubtitle;
+
+  /// No description provided for @chooseStaticColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Or choose a static color'**
+  String get chooseStaticColor;
+
+  /// No description provided for @menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menu;
+
+  /// No description provided for @pinnedLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned Locations'**
+  String get pinnedLocations;
+
+  /// No description provided for @recentLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Locations'**
+  String get recentLocations;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

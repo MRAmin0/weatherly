@@ -25,7 +25,7 @@
   "advancedSettings": "Advanced settings",
   "themeAccentColor": "UI theme color",
   "customizeThemeDescription": "Pick a color you like to personalize Weatherly.",
-  "useSystemColor": "Follow system color",
+  "useSystemColor": "Use System Color",
   "useSystemColorDescription": "Use Material You dynamic colors when available.",
   "systemColorNotAvailable": "Dynamic colors not supported on this device.",
   "showHourlyTemperature": "Show hourly temperature",
@@ -81,5 +81,11 @@
   "aqiStatusPoor": "Poor",
   "aqiRecommendationMask": "Wear a mask outdoors if possible.",
   "aqiStatusVeryPoor": "Very poor",
-  "aqiRecommendationNoActivity": "Avoid outdoor activities."
+  "aqiRecommendationNoActivity": "Avoid outdoor activities.",
+  "themeColor": "Theme Color",
+  "systemColorSubtitle": "Use wallpaper colors (Android 12+)",
+  "chooseStaticColor": "Or choose a static color",
+  "menu": "Menu",
+  "pinnedLocations": "Pinned Locations",
+  "recentLocations": "Recent Locations"
 }

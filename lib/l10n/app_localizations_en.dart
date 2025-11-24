@@ -87,7 +87,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customizeThemeDescription => 'Pick a color you like to personalize Weatherly.';
 
   @override
-  String get useSystemColor => 'Follow system color';
+  String get useSystemColor => 'Use System Color';
 
   @override
   String get useSystemColorDescription => 'Use Material You dynamic colors when available.';
@@ -217,4 +217,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aqiRecommendationNoActivity => 'Avoid outdoor activities.';
+
+  @override
+  String get themeColor => 'Theme Color';
+
+  @override
+  String get systemColorSubtitle => 'Use wallpaper colors (Android 12+)';
+
+  @override
+  String get chooseStaticColor => 'Or choose a static color';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get pinnedLocations => 'Pinned Locations';
+
+  @override
+  String get recentLocations => 'Recent Locations';
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart'; // برای Color
 import 'package:intl/intl.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
-import 'package:weatherly_app/models/weather_models.dart';
+import '../models/weather_type.dart';
 
 // --- انتخاب آیکون بر اساس نوع هوا ---
 String weatherIconAsset(String weatherMain) {
@@ -115,8 +115,8 @@ Color statusColorForAqi(int aqi) {
 // --- متن وضعیت شاخص کیفیت هوا ---
 String labelForAqi(int aqi, AppLocalizations l10n) {
   if (aqi <= 50) return l10n.aqiStatusVeryGood; // 0-50
-  if (aqi <= 100) return l10n.aqiStatusGood;    // 51-100
-  if (aqi <= 150) return l10n.aqiStatusModerate;// 101-150
-  if (aqi <= 200) return l10n.aqiStatusPoor;    // 151-200
-  return l10n.aqiStatusVeryPoor;                // 200+
+  if (aqi <= 100) return l10n.aqiStatusGood; // 51-100
+  if (aqi <= 150) return l10n.aqiStatusModerate; // 101-150
+  if (aqi <= 200) return l10n.aqiStatusPoor; // 151-200
+  return l10n.aqiStatusVeryPoor; // 200+
 }

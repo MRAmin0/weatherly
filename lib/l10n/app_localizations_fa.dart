@@ -9,7 +9,7 @@ class AppLocalizationsFa extends AppLocalizations {
   AppLocalizationsFa([String locale = 'fa']) : super(locale);
 
   @override
-  String get appTitle => 'هوانما';
+  String get appTitle => 'ودرلی';
 
   @override
   String get settings => 'تنظیمات';
@@ -27,10 +27,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get reportAnIssue => 'گزارش مشکل';
 
   @override
-  String get contactViaEmail => 'ارتباط با ایمیل';
+  String get contactViaEmail => 'تماس از طریق ایمیل';
 
   @override
-  String get changelog => 'تغییرات نسخه‌ها';
+  String get changelog => 'تغییرات';
 
   @override
   String get appVersion => 'نسخه برنامه';
@@ -45,7 +45,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get aboutApp => 'درباره برنامه';
 
   @override
-  String get appDescription => 'ودرلی به شما کمک می‌کند وضعیت آب‌وهوا را با رابط کاربری زیبا مشاهده کنید.';
+  String get appDescription => 'ودرلی به شما کمک می‌کند وضعیت آب‌وهوا را با رابط کاربری زیبا چک کنید.';
 
   @override
   String get projectOnGithub => 'پروژه در گیت‌هاب';
@@ -63,13 +63,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get persian => 'فارسی';
 
   @override
-  String get english => 'انگلیسی';
+  String get english => 'English';
 
   @override
   String get displayMode => 'حالت نمایش';
 
   @override
-  String get system => 'مطابق سیستم';
+  String get system => 'سیستم';
 
   @override
   String get light => 'روشن';
@@ -81,19 +81,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get advancedSettings => 'تنظیمات پیشرفته';
 
   @override
-  String get themeAccentColor => 'تم رابط کاربری';
+  String get themeAccentColor => 'رنگ پوسته';
 
   @override
-  String get customizeThemeDescription => 'رنگ دلخواهت را برای هوانما انتخاب کن.';
+  String get customizeThemeDescription => 'رنگی را برای شخصی‌سازی ودرلی انتخاب کنید.';
 
   @override
   String get useSystemColor => 'استفاده از رنگ سیستم';
 
   @override
-  String get useSystemColorDescription => 'در صورت پشتیبانی، از رنگ‌های پویا متریال یو استفاده کن.';
+  String get useSystemColorDescription => 'استفاده از رنگ‌های متریال Dynamic در صورت موجود بودن.';
 
   @override
-  String get systemColorNotAvailable => 'رنگ‌های پویا در این دستگاه پشتیبانی نمی‌شوند.';
+  String get systemColorNotAvailable => 'رنگ‌های داینامیک در این دستگاه پشتیبانی نمی‌شود.';
 
   @override
   String get showHourlyTemperature => 'نمایش دمای ساعتی';
@@ -111,7 +111,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get defaultCity => 'شهر پیش‌فرض';
 
   @override
-  String get setCurrentCityAsDefault => 'تنظیم شهر فعلی به‌عنوان پیش‌فرض';
+  String get setCurrentCityAsDefault => 'تنظیم شهر فعلی به عنوان پیش‌فرض';
 
   @override
   String currentCity(Object city) {
@@ -135,13 +135,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get recentSearches => 'جستجوهای اخیر';
 
   @override
-  String get nothingFound => 'موردی پیدا نشد';
+  String get nothingFound => 'چیزی پیدا نشد';
 
   @override
-  String get clearAll => 'حذف همه';
+  String get clearAll => 'پاک کردن همه';
 
   @override
-  String get locationPermissionDenied => 'دسترسی به موقعیت مکانی شما غیرفعال می‌باشد';
+  String get locationPermissionDenied => 'دسترسی موقعیت مکانی غیرفعال است.';
 
   @override
   String get requestAgain => 'درخواست مجدد';
@@ -150,7 +150,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dontShowAgain => 'دیگر نشان نده';
 
   @override
-  String get weatherly => 'هوانما';
+  String get weatherly => 'ودرلی';
 
   @override
   String get searching => 'در حال جستجو...';
@@ -165,13 +165,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get clear => 'پاک کردن';
 
   @override
-  String get startBySearching => 'برای مشاهده وضعیت هوا، نام یک شهر را جستجو کنید.';
+  String get startBySearching => 'برای مشاهده جزئیات آب‌وهوا، نام شهری را جستجو کنید.';
 
   @override
-  String get forecastSearchPrompt => 'برای مشاهده پیش‌بینی، ابتدا شهر مورد نظر را جستجو کنید.';
+  String get forecastSearchPrompt => 'برای مشاهده پیش‌بینی، ابتدا یک شهر را جستجو کنید.';
 
   @override
-  String get fiveDayForecast => 'پیش‌بینی ۵ روز آینده';
+  String get fiveDayForecast => 'چشم‌انداز ۵ روزه';
 
   @override
   String get hourlyTemperatureTitle => 'دمای ساعتی';
@@ -192,29 +192,47 @@ class AppLocalizationsFa extends AppLocalizations {
   String get aqiStatusVeryGood => 'بسیار خوب';
 
   @override
-  String get aqiRecommendationNormal => 'با خیال راحت فعالیت‌های بیرونی انجام دهید.';
+  String get aqiRecommendationNormal => 'از فعالیت‌های خارج از منزل لذت ببرید.';
 
   @override
   String get aqiStatusGood => 'خوب';
 
   @override
-  String get aqiRecommendationCaution => 'گروه‌های حساس فعالیت طولانی بیرون را کاهش دهند.';
+  String get aqiRecommendationCaution => 'گروه‌های حساس باید فعالیت طولانی‌مدت در فضای باز را محدود کنند.';
 
   @override
   String get aqiStatusModerate => 'متوسط';
 
   @override
-  String get aqiRecommendationAvoid => 'فعالیت سنگین بیرون را کمتر کنید.';
+  String get aqiRecommendationAvoid => 'بهتر است فعالیت سنگین در فضای باز را کاهش دهید.';
 
   @override
-  String get aqiStatusPoor => 'ضعیف';
+  String get aqiStatusPoor => 'ناسالم';
 
   @override
-  String get aqiRecommendationMask => 'در صورت امکان از ماسک هنگام خروج استفاده کنید.';
+  String get aqiRecommendationMask => 'در صورت امکان در فضای باز از ماسک استفاده کنید.';
 
   @override
-  String get aqiStatusVeryPoor => 'خیلی ضعیف';
+  String get aqiStatusVeryPoor => 'بسیار ناسالم';
 
   @override
-  String get aqiRecommendationNoActivity => 'از فعالیت‌های بیرونی خودداری کنید.';
+  String get aqiRecommendationNoActivity => 'از فعالیت در فضای باز خودداری کنید.';
+
+  @override
+  String get themeColor => 'رنگ پوسته';
+
+  @override
+  String get systemColorSubtitle => 'استفاده از رنگ‌های پس‌زمینه (اندروید ۱۲+)';
+
+  @override
+  String get chooseStaticColor => 'یا یک رنگ ثابت انتخاب کنید';
+
+  @override
+  String get menu => 'منو';
+
+  @override
+  String get pinnedLocations => 'مکان‌های سنجاق‌شده';
+
+  @override
+  String get recentLocations => 'مکان‌های اخیر';
 }
