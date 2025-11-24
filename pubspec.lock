@@ -215,10 +215,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_svg
-      sha256: "055de8921be7b8e8b98a233c7a5ef84b3a6fcc32f46f1ebf5b9bb3576d108355"
+      sha256: "87fbd7c534435b6c5d9d98b01e1fd527812b82e68ddd8bd35fc45ed0fa8f0a95"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.2"
+    version: "2.2.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -505,10 +505,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "07d552dbe8e71ed720e5205e760438ff4ecfb76ec3b32ea664350e2ca4b0c43b"
+      sha256: "46a46fd64659eff15f4638bbe19de43f9483f0e0bf024a9fb6b3582064bacc7b"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.16"
+    version: "2.4.17"
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -630,10 +630,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: "5387615091fb9bcacfe03e140437be22c3a3cd7ac53052ec9a16d2a6a370a994"
+      sha256: "767344bf3063897b5cf0db830e94f904528e6dd50a6dfaf839f0abf509009611"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.27"
+    version: "6.3.28"
   url_launcher_ios:
     dependency: transitive
     description:
