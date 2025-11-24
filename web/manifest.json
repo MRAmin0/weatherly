@@ -9,7 +9,10 @@
     "description": "پیش‌بینی دقیق وضعیت هوا با رابط کاربری ساده و جذاب. اپلیکیشن Weatherly، همیشه شما رو از وضعیت آب‌وهوای منطقه‌تان مطلع می‌کند.",
     "orientation": "any",
     "prefer_related_applications": false,
-    "categories": ["weather", "utilities"],
+    "categories": [
+        "weather",
+        "utilities"
+    ],
     "lang": "fa",
     "dir": "rtl",
     "icons": [

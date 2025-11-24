@@ -94,7 +94,7 @@ l10n:
     - fa
 flutter_launcher_icons:
   android: true
-  ios: true
+  ios: false
   image_path: "assets/icon.png"
   min_sdk_android: 21
 
