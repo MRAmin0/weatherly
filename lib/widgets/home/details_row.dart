@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/models/weather_type.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
-// FIX: Add this import so toPersianDigits is found
 import 'package:weatherly_app/utils/city_utils.dart';
 import 'package:weatherly_app/widgets/animations/weather_animator.dart';
 
@@ -16,38 +15,57 @@ class DetailsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final current = viewModel.currentWeather;
-    // اگر اطلاعات آب و هوا هنوز لود نشده، چیزی نشان نده
     if (current == null) return const SizedBox.shrink();
 
     final isPersian = viewModel.lang == 'fa';
 
-    // --- Humidity Data ---
+    // --- Humidity & Wind ---
     final humidityText = isPersian
         ? toPersianDigits("${current.humidity}%")
         : "${current.humidity}%";
 
-    // --- Wind Data ---
     final windText = isPersian
         ? toPersianDigits(current.windSpeed.toString())
         : current.windSpeed.toString();
     final windUnit = isPersian ? "کیلومتر/ساعت" : "km/h";
 
-    // --- AQI Data ---
-    // خواندن مقدار کیفیت هوا از ویومدل
-    final int aqiValue = viewModel.aqi ?? 0;
-    final aqiText = isPersian
-        ? toPersianDigits(aqiValue.toString())
-        : aqiValue.toString();
+    // --- AQI Logic (Updated) ---
+    // حالا از عدد محاسبه شده (0 تا 500) استفاده می‌کنیم
+    final int aqiScore = viewModel.calculatedAqiScore;
 
-    // تعیین رنگ و آیکون بر اساس شدت آلودگی (اختیاری برای زیبایی بیشتر)
-    Color aqiColor = Colors.greenAccent;
-    if (aqiValue > 100) aqiColor = Colors.orangeAccent;
-    if (aqiValue > 150) aqiColor = Colors.redAccent;
+    String aqiStatusText;
+    Color aqiColor;
+
+    // شرط‌ها بر اساس استاندارد 0 تا 500
+    if (aqiScore <= 50) {
+      aqiStatusText = isPersian ? "پاک" : "Good";
+      aqiColor = const Color(0xFF8BC34A);
+    } else if (aqiScore <= 100) {
+      aqiStatusText = isPersian ? "سالم" : "Moderate";
+      aqiColor = const Color(0xFFFFEB3B);
+    } else if (aqiScore <= 150) {
+      aqiStatusText = isPersian ? "ناسالم (حساس)" : "Unhealthy (Sen.)";
+      aqiColor = const Color(0xFFFF9800);
+    } else if (aqiScore <= 200) {
+      aqiStatusText = isPersian ? "ناسالم" : "Unhealthy";
+      aqiColor = const Color(0xFFF44336);
+    } else if (aqiScore <= 300) {
+      aqiStatusText = isPersian ? "بسیار ناسالم" : "Very Unhealthy";
+      aqiColor = const Color(0xFF9C27B0);
+    } else {
+      aqiStatusText = isPersian ? "خطرناک" : "Hazardous";
+      aqiColor = const Color(0xFF880E4F);
+    }
+
+    // نمایش عدد فارسی یا انگلیسی
+    final String scoreText = isPersian
+        ? toPersianDigits(aqiScore.toString())
+        : aqiScore.toString();
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // ---------------- HUMIDITY CARD ----------------
+        // --- HUMIDITY ---
         Expanded(
           child: _buildDetailBox(
             context: context,
@@ -64,9 +82,9 @@ class DetailsRow extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(width: 12),
 
-        const SizedBox(width: 12), // فاصله بین کارت‌ها
-        // ---------------- WIND CARD ----------------
+        // --- WIND ---
         Expanded(
           child: _buildDetailBox(
             context: context,
@@ -87,22 +105,21 @@ class DetailsRow extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(width: 12),
 
-        const SizedBox(width: 12), // فاصله بین کارت‌ها
-        // ---------------- AIR QUALITY CARD ----------------
+        // --- AQI (Correct Number) ---
         Expanded(
           child: _buildDetailBox(
             context: context,
             title: l10n.localeName == 'fa' ? "کیفیت هوا" : "AQI",
-            value: aqiText,
+            // اینجا هم متن وضعیت و هم عدد را نشان می‌دهیم
+            value: "$aqiStatusText\n($scoreText)",
+            isLongText: true,
+            textColor: aqiColor, // رنگ متن عدد را رنگی می‌کنیم
             icon: WeatherAnimator(
               weatherType: WeatherType.fog,
               isSmallIcon: true,
-              child: Icon(
-                Icons.air,
-                color: aqiColor, // تغییر رنگ بر اساس شدت آلودگی
-                size: 28,
-              ),
+              child: Icon(Icons.air, color: aqiColor, size: 28),
             ),
           ),
         ),
@@ -115,10 +132,12 @@ class DetailsRow extends StatelessWidget {
     required String title,
     required String value,
     required Widget icon,
+    bool isLongText = false,
+    Color? textColor,
   }) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
@@ -144,13 +163,22 @@ class DetailsRow extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: isLongText ? 13 : 14,
+                  // اگر رنگ خاصی دادیم (برای AQI) اعمال کن، وگرنه رنگ پیشفرض
+                  color: textColor ?? theme.textTheme.titleMedium?.color,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+              ),
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

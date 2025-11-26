@@ -1,16 +1,14 @@
+// lib/viewmodels/weather_viewmodel.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// --- FIX 1: Added import for CurrentWeather model ---
 import '../models/current_weather.dart';
 import '../models/daily_forecast.dart';
 import '../models/hourly_forecast.dart';
 import '../models/weather_type.dart';
 import '../services/weather_api_service.dart';
-// Removed unused import: city_utils.dart (unless mapWeatherType is needed, see below)
-// If mapWeatherType is needed, ensure the file exists or uncomment:
 
 class WeatherViewModel extends ChangeNotifier {
   final WeatherApiService _api;
@@ -33,11 +31,17 @@ class WeatherViewModel extends ChangeNotifier {
   int? hourlyOffset;
 
   List<DailyForecastEntry> daily5 = [];
-  int? aqi;
+
+  // متغیرهای مربوط به کیفیت هوا
+  int? aqi; // شاخص ۱ تا ۵ (استاندارد OpenWeather)
+  double? pm2_5; // غلظت ذرات معلق برای محاسبه دقیق
+
   bool isLoading = false;
   String? error;
   bool useCelsius = true;
   String lang = 'fa';
+
+  // متغیرهای مربوط به جستجو
   List<String> recent = [];
   List<Map<String, dynamic>> suggestions = [];
   Timer? _debounce;
@@ -102,7 +106,7 @@ class WeatherViewModel extends ChangeNotifier {
     if (seedColor == color) return;
     seedColor = color;
     // Use .toARGB32() for Color persistence (Flutter 3.27+)
-    await _savePref('seedColor', color.toARGB32());
+    await _savePref('seedColor', color.value);
 
     if (useSystemColor) {
       setUseSystemColor(false);
@@ -166,7 +170,6 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   Future<void> _processWeatherData(Map<String, dynamic> data) async {
-    // Now 'CurrentWeather' is recognized because of the import
     currentWeather = CurrentWeather.fromJson(data);
     location = currentWeather!.cityName;
     error = null;
@@ -176,6 +179,7 @@ class WeatherViewModel extends ChangeNotifier {
     final lat = (coord['lat'] as num).toDouble();
     final lon = (coord['lon'] as num).toDouble();
 
+    // دریافت همزمان اطلاعات تکمیلی (AQI و پیش‌بینی)
     await Future.wait([fetchAqi(lat, lon), fetchHourlyAndDaily(lat, lon)]);
     _setLoading(false);
   }
@@ -248,7 +252,7 @@ class WeatherViewModel extends ChangeNotifier {
     }
   }
 
-  // ------------------------- AQI & SEARCH -------------------------
+  // ------------------------- AQI LOGIC (UPDATED) -------------------------
 
   Future<void> fetchAqi(double lat, double lon) async {
     try {
@@ -257,10 +261,18 @@ class WeatherViewModel extends ChangeNotifier {
           result['list'] is List &&
           (result['list'] as List).isNotEmpty) {
         final list = result['list'] as List;
-        final main = list[0]['main'] as Map<String, dynamic>;
+        final firstItem = list[0] as Map<String, dynamic>;
+
+        // 1. گرفتن شاخص 1 تا 5
+        final main = firstItem['main'] as Map<String, dynamic>;
         aqi = (main['aqi'] as num?)?.toInt();
+
+        // 2. گرفتن غلظت ذرات معلق (PM2.5) برای محاسبه عدد دقیق 0-500
+        final components = firstItem['components'] as Map<String, dynamic>;
+        pm2_5 = (components['pm2_5'] as num?)?.toDouble();
       } else {
         aqi = null;
+        pm2_5 = null;
       }
       notifyListeners();
     } catch (e) {
@@ -268,14 +280,42 @@ class WeatherViewModel extends ChangeNotifier {
     }
   }
 
+  /// این گتر جادویی تبدیل غلظت PM2.5 به عدد استاندارد 0 تا 500 است
+  int get calculatedAqiScore {
+    if (pm2_5 == null) return 0;
+    final pm = pm2_5!;
+
+    // فرمول تبدیل PM2.5 به AQI (بر اساس استاندارد EPA)
+    if (pm <= 12.0) {
+      return ((50 - 0) / (12.0 - 0) * (pm - 0) + 0).round();
+    } else if (pm <= 35.4) {
+      return ((100 - 51) / (35.4 - 12.1) * (pm - 12.1) + 51).round();
+    } else if (pm <= 55.4) {
+      return ((150 - 101) / (55.4 - 35.5) * (pm - 35.5) + 101).round();
+    } else if (pm <= 150.4) {
+      return ((200 - 151) / (150.4 - 55.5) * (pm - 55.5) + 151).round();
+    } else if (pm <= 250.4) {
+      return ((300 - 201) / (250.4 - 150.5) * (pm - 150.5) + 201).round();
+    } else if (pm <= 350.4) {
+      return ((400 - 301) / (350.4 - 250.5) * (pm - 250.5) + 301).round();
+    } else {
+      return ((500 - 401) / (500.4 - 350.5) * (pm - 350.5) + 401).round();
+    }
+  }
+
+  // ------------------------- SEARCH LOGIC (FIXED) -------------------------
+
   void searchChanged(String text) {
     _debounce?.cancel();
     final trimmed = text.trim();
+
     if (trimmed.isEmpty) {
       suggestions = [];
       notifyListeners();
       return;
     }
+
+    // تاخیر ۵۰۰ میلی‌ثانیه‌ای برای بهینه کردن درخواست‌ها
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       try {
         final results = await _api.fetchCitySuggestions(trimmed, lang: lang);
@@ -290,12 +330,16 @@ class WeatherViewModel extends ChangeNotifier {
   Future<void> selectCitySuggestion(Map<String, dynamic> city) async {
     final lat = (city['lat'] as num?)?.toDouble();
     final lon = (city['lon'] as num?)?.toDouble();
+
     if (lat == null || lon == null) return;
+
     final localNames = city['local_names'] as Map<String, dynamic>?;
     final cityName = localNames?[lang] ?? city['name'] ?? '';
-    suggestions = [];
+
+    suggestions = []; // پاک کردن لیست پیشنهادات
     location = cityName;
     notifyListeners();
+
     await fetchWeatherByCoordinates(lat, lon);
   }
 
@@ -310,6 +354,8 @@ class WeatherViewModel extends ChangeNotifier {
     await _savePref('recent', recent);
     notifyListeners();
   }
+
+  // ------------------------- HELPERS -------------------------
 
   void _setLoading(bool value) {
     isLoading = value;

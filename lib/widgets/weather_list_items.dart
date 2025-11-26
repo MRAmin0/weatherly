@@ -31,9 +31,9 @@ class ForecastItem extends StatelessWidget {
         children: [
           Text(
             dayFa,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           // نمایش آیکون بدون فیلتر رنگ
           SvgPicture.asset(
@@ -44,9 +44,9 @@ class ForecastItem extends StatelessWidget {
           ),
           Text(
             tempText,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -84,7 +84,9 @@ class HourlyItem extends StatelessWidget {
           Text(
             hourText,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(180),
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withAlpha(180),
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),

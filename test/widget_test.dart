@@ -99,8 +99,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchWeatherAndForecast(
-      {String? cityName, double? lat, double? lon}) async {
+  Future<void> _fetchWeatherAndForecast({
+    String? cityName,
+    double? lat,
+    double? lon,
+  }) async {
     if (!mounted) return;
     if (!_isLoading) setState(() => _isLoading = true);
 
@@ -232,7 +235,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     _buildCurrentWeatherSection(),
                     const SizedBox(height: 40),
                     if (_forecast.isNotEmpty) _buildForecastSection(),
-                  ]
+                  ],
                 ],
               ),
             ),
@@ -253,15 +256,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
         padding: EdgeInsets.zero,
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
+            decoration: BoxDecoration(color: Colors.blue),
             child: Text(
               'Settings',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 24),
             ),
           ),
           Padding(
@@ -319,7 +317,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     // **تغییرات اصلی اینجا اعمال شده**
                     maxLength: 15, // محدودیت تعداد کاراکتر
                     // فیلتر حروف حذف شد تا همه زبان‌ها پشتیبانی شوند
-                    // inputFormatters: [], 
+                    // inputFormatters: [],
                     decoration: const InputDecoration(
                       hintText: 'e.g., London',
                       hintStyle: TextStyle(color: Colors.white54),
@@ -360,10 +358,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       subtitle = '$state, $country';
                     }
                     return ListTile(
-                      title: Text(name,
-                          style: const TextStyle(color: Colors.white)),
-                      subtitle: Text(subtitle,
-                          style: const TextStyle(color: Colors.white70)),
+                      title: Text(
+                        name,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      subtitle: Text(
+                        subtitle,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       onTap: () => _selectCity(suggestion),
                     );
                   },
@@ -379,19 +381,29 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(_location,
-            style: const TextStyle(
-                fontSize: 42, fontWeight: FontWeight.bold, color: Colors.white),
-            textAlign: TextAlign.center),
+        Text(
+          _location,
+          style: const TextStyle(
+            fontSize: 42,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 20),
-        Text('${_temperature?.toStringAsFixed(1) ?? '--'}°C',
-            style: const TextStyle(
-                fontSize: 64,
-                fontWeight: FontWeight.w200,
-                color: Colors.white)),
+        Text(
+          '${_temperature?.toStringAsFixed(1) ?? '--'}°C',
+          style: const TextStyle(
+            fontSize: 64,
+            fontWeight: FontWeight.w200,
+            color: Colors.white,
+          ),
+        ),
         const SizedBox(height: 20),
-        Text(_weatherDescription,
-            style: const TextStyle(fontSize: 26, color: Colors.white70)),
+        Text(
+          _weatherDescription,
+          style: const TextStyle(fontSize: 26, color: Colors.white70),
+        ),
       ],
     );
   }
@@ -400,11 +412,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("5-Day Forecast",
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white)),
+        const Text(
+          "5-Day Forecast",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         const SizedBox(height: 10),
         SizedBox(
           height: 120,
@@ -421,7 +436,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 'Thu',
                 'Fri',
                 'Sat',
-                'Sun'
+                'Sun',
               ][date.weekday - 1];
               final temp = day['main']['temp'].toStringAsFixed(0);
               String weather = day['weather'][0]['main'];
@@ -448,13 +463,18 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text(dayOfWeek,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
+                      Text(
+                        dayOfWeek,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                       Icon(icon, color: Colors.orangeAccent),
-                      Text('$temp°C',
-                          style: const TextStyle(color: Colors.white)),
+                      Text(
+                        '$temp°C',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 ),
@@ -482,9 +502,7 @@ class GlassmorphicContainer extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(15.0),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
-            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: child,
         ),
@@ -570,9 +588,7 @@ class RainAnimation extends StatelessWidget {
           colors: [Color(0xFF283E51), Color(0xFF0A2342)],
         ),
       ),
-      child: Stack(
-        children: List.generate(100, (index) => const RainDrop()),
-      ),
+      child: Stack(children: List.generate(100, (index) => const RainDrop())),
     );
   }
 }
@@ -637,9 +653,7 @@ class SnowAnimation extends StatelessWidget {
           colors: [Color(0xFF3a6ea5), Color(0xFF22333b)],
         ),
       ),
-      child: Stack(
-        children: List.generate(50, (index) => const SnowFlake()),
-      ),
+      child: Stack(children: List.generate(50, (index) => const SnowFlake())),
     );
   }
 }
@@ -686,4 +700,3 @@ class _SnowFlakeState extends State<SnowFlake> {
     );
   }
 }
-

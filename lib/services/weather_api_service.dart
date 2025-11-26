@@ -203,7 +203,7 @@ class WeatherApiService {
   }
 
   // ---------------------------------------------------------------------------
-  // ۵. کیفیت هوا (Air Quality)
+  // ۵. کیفیت هوا (Air Quality) - اصلاح شده
   // ---------------------------------------------------------------------------
   Future<Map<String, dynamic>?> fetchAirQuality({
     required double lat,
@@ -225,17 +225,9 @@ class WeatherApiService {
         return null;
       }
 
-      final data = json.decode(response.body) as Map<String, dynamic>;
-      final list = data['list'] as List<dynamic>?;
-
-      if (list == null || list.isEmpty) return null;
-
-      final first = list.first as Map<String, dynamic>;
-      final main = first['main'] as Map<String, dynamic>?;
-
-      final aqi = (main?['aqi'] as num?)?.toInt() ?? 0;
-
-      return {'aqi': aqi};
+      // تغییر مهم: برگرداندن کل دیتای جیسون به جای پردازش آن
+      // این باعث می‌شود ViewModel بتواند کلید 'list' را ببیند
+      return json.decode(response.body) as Map<String, dynamic>;
     } catch (e) {
       if (kDebugMode) {
         print('Air quality error: $e');

@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class AirQualityCard extends StatelessWidget {
   final int aqi; // Air Quality Index
 
-  const AirQualityCard({
-    super.key,
-    required this.aqi,
-  });
+  const AirQualityCard({super.key, required this.aqi});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +18,7 @@ class AirQualityCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.dividerColor.withAlpha(30),
-        ),
+        border: Border.all(color: theme.dividerColor.withAlpha(30)),
       ),
       child: Row(
         children: [
@@ -61,8 +56,7 @@ class AirQualityCard extends StatelessWidget {
                 Text(
                   info.subtitle,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color:
-                    theme.textTheme.bodyMedium?.color?.withAlpha(180),
+                    color: theme.textTheme.bodyMedium?.color?.withAlpha(180),
                   ),
                 ),
               ],
@@ -88,7 +82,8 @@ _AqiInfo _mapAqiToInfo(int? rawAqi, bool fa) {
   if (aqi <= 0) {
     return _AqiInfo(
       fa ? 'نامشخص' : 'Unknown',
-      fa ? 'اطلاعات کیفیت هوا در دسترس نیست.'
+      fa
+          ? 'اطلاعات کیفیت هوا در دسترس نیست.'
           : 'Air quality data is not available.',
       Colors.grey,
     );
