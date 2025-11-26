@@ -1,11 +1,9 @@
-// lib/widgets/home/details_row.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
-import 'package:weatherly_app/models/weather_type.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/utils/city_utils.dart';
-import 'package:weatherly_app/widgets/animations/weather_animator.dart';
+// ایمپورت فایل جدید
+import 'package:weatherly_app/widgets/animations/weather_status_icons.dart';
 
 class DetailsRow extends StatelessWidget {
   final WeatherViewModel viewModel;
@@ -20,12 +18,12 @@ class DetailsRow extends StatelessWidget {
 
     final isPersian = viewModel.lang == 'fa';
 
-    // 1. Humidity Setup
+    // --- 1. تنظیمات رطوبت ---
     final humidityVal = isPersian
         ? "${toPersianDigits(current.humidity.toString())}٪"
         : "${current.humidity}%";
 
-    // 2. Wind Setup & Animation Logic
+    // --- 2. تنظیمات باد ---
     final double windSpeed = current.windSpeed;
     final windValString = windSpeed % 1 == 0
         ? windSpeed.toInt().toString()
@@ -34,16 +32,7 @@ class DetailsRow extends StatelessWidget {
     final windVal = isPersian ? toPersianDigits(windValString) : windValString;
     final windUnit = isPersian ? "km/h" : "km/h";
 
-    // محاسبه سرعت چرخش توربین بر اساس سرعت باد
-    // فرمول: پایه زمانی (مثلاً ۶۰۰۰ میلی‌ثانیه) تقسیم بر سرعت.
-    // اگر سرعت ۵ باشه: ۱۲۰۰ میلی‌ثانیه (آرام)
-    // اگر سرعت ۳۰ باشه: ۲۰۰ میلی‌ثانیه (خیلی سریع)
-    // clamp برای جلوگیری از سرعت‌های غیرمنطقی
-    final Duration? windDuration = windSpeed > 0.5
-        ? Duration(milliseconds: (6000 / windSpeed).clamp(200, 5000).toInt())
-        : null;
-
-    // 3. AQI Setup
+    // --- 3. تنظیمات کیفیت هوا ---
     final int aqiScore = viewModel.calculatedAqiScore;
     String aqiStatusText;
     Color aqiColor;
@@ -74,61 +63,38 @@ class DetailsRow extends StatelessWidget {
         ? toPersianDigits(aqiScore.toString())
         : aqiScore.toString();
 
-    // آیکون باد (توربین)
-    Widget windIcon = SvgPicture.asset(
-      'assets/icons/turbine.svg',
-      width: 24,
-      height: 24,
-      colorFilter: const ColorFilter.mode(Colors.blueAccent, BlendMode.srcIn),
-    );
-
-    // اگر باد میوزد، انیمیت کن، اگر نه، ثابت نشان بده
-    if (windDuration != null) {
-      windIcon = WeatherAnimator(
-        weatherType: WeatherType.clear, // نوع clear انیمیشن چرخش دارد
-        customDuration: windDuration, // سرعت محاسبه شده
-        child: windIcon,
-      );
-    }
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // --- HUMIDITY ---
+        // --- کارت رطوبت ---
         Expanded(
           child: _buildDetailBox(
             context: context,
             title: l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
             mainValue: humidityVal,
             subValue: " ",
-            icon: const WeatherAnimator(
-              weatherType: WeatherType.clear, // مهم نیست چون onPulse داریم
-              onPulse: true, // فقط پالس ساده
-              child: Icon(
-                Icons.water_drop_outlined,
-                color: Colors.lightBlueAccent,
-                size: 28,
-              ),
-            ),
+            // استفاده از ویجت جدا شده
+            icon: const HumidityIcon(),
           ),
         ),
 
         const SizedBox(width: 12),
 
-        // --- WIND ---
+        // --- کارت باد ---
         Expanded(
           child: _buildDetailBox(
             context: context,
             title: l10n.localeName == 'fa' ? "باد" : "Wind",
             mainValue: windVal,
             subValue: windUnit,
-            icon: windIcon, // آیکون داینامیک
+            // استفاده از ویجت جدا شده (فقط سرعت را پاس می‌دهیم)
+            icon: WindTurbineIcon(windSpeed: windSpeed),
           ),
         ),
 
         const SizedBox(width: 12),
 
-        // --- AQI ---
+        // --- کارت کیفیت هوا ---
         Expanded(
           child: _buildDetailBox(
             context: context,
@@ -137,8 +103,8 @@ class DetailsRow extends StatelessWidget {
             subValue: aqiStatusText,
             subValueColor: aqiColor,
             isAqi: true,
-            // اینجا دیگه WeatherAnimator نداریم -> ثابت
-            icon: Icon(Icons.air, color: aqiColor, size: 28),
+            // استفاده از ویجت جدا شده
+            icon: AirQualityIcon(color: aqiColor),
           ),
         ),
       ],

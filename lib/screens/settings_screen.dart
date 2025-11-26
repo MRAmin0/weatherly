@@ -5,14 +5,10 @@ import 'package:weatherly_app/screens/about_screen.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final VoidCallback onGoToDefaultCity;
+  // پارامتر شهر پیش‌فرض حذف شد، فقط پارامتر شهر اخیر باقی ماند
   final VoidCallback onGoToRecentCity;
 
-  const SettingsScreen({
-    super.key,
-    required this.onGoToDefaultCity,
-    required this.onGoToRecentCity,
-  });
+  const SettingsScreen({super.key, required this.onGoToRecentCity});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -100,6 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 MediaQuery.of(context).padding.bottom + 160,
               ),
               children: [
+                // --- LANGUAGE ---
                 _buildSectionTitle(context, l10n.language),
                 _buildSectionCard(
                   context,
@@ -113,6 +110,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // --- DISPLAY MODE ---
                 _buildSectionTitle(context, l10n.displayMode),
                 _buildSectionCard(
                   context,
@@ -124,6 +123,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // --- THEME COLOR ---
                 _buildSectionTitle(context, l10n.themeColor),
                 _buildSectionCard(
                   context,
@@ -208,6 +209,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // --- UNITS ---
                 _buildSectionTitle(context, l10n.temperatureUnitCelsius),
                 _buildSectionCard(
                   context,
@@ -223,20 +226,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildSectionTitle(context, l10n.defaultCity),
-                _buildSectionCard(
-                  context,
-                  ListTile(
-                    title: Text(l10n.goToDefaultCity),
-                    subtitle: Text(l10n.currentDefault(vm.defaultCity)),
-                    trailing: const Icon(Icons.location_city_outlined),
-                    onTap: () async {
-                      await vm.fetchByDefaultCity();
-                      widget.onGoToDefaultCity();
-                    },
-                  ),
-                ),
-                const SizedBox(height: 24),
+
+                // --- (بخش شهر پیش‌فرض حذف شد) ---
+
+                // --- ABOUT ---
                 _buildSectionTitle(context, l10n.aboutApp),
                 _buildSectionCard(
                   context,

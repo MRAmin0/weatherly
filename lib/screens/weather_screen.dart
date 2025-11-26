@@ -47,7 +47,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       HomePage(onSearchFocusChange: (_) {}),
       const ForecastScreen(),
       SettingsScreen(
-        onGoToDefaultCity: () => _onItemTapped(0),
+        // --- FIX: پارامتر onGoToDefaultCity حذف شد ---
         onGoToRecentCity: () => _onItemTapped(0),
       ),
     ];

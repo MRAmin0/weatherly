@@ -234,79 +234,232 @@ class _HomePageState extends State<HomePage> {
     AppLocalizations l10n,
   ) {
     final theme = Theme.of(context);
+
     return Drawer(
       backgroundColor: theme.colorScheme.surface,
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
+          // --- هدر دراور ---
           DrawerHeader(
             decoration: BoxDecoration(
               color: theme.colorScheme.primaryContainer,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(
-                  Icons.cloud_circle_rounded,
-                  size: 48,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  l10n.weatherly,
-                  style: theme.textTheme.headlineMedium?.copyWith(
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    Icons.cloud_circle_rounded,
+                    size: 48,
                     color: theme.colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.weatherly,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // --- لیست آیتم‌ها ---
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                // ---------------- 1. بخش مکان‌های سنجاق شده ----------------
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(28, 16, 28, 10),
+                  child: Text(
+                    l10n.pinnedLocations,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: theme.colorScheme.secondary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+
+                // آیتم شهر پین شده (با استایل ListTile برای داشتن دکمه حذف)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    // اگر شهر فعلی همان شهر پین شده است، رنگی شود
+                    tileColor:
+                        (vm.location.toLowerCase() ==
+                            vm.defaultCity.toLowerCase())
+                        ? theme.colorScheme.secondaryContainer
+                        : null,
+                    contentPadding: const EdgeInsetsDirectional.only(
+                      start: 16,
+                      end: 8,
+                    ),
+
+                    leading: Icon(
+                      Icons.push_pin, // پین توپر برای نشان دادن وضعیت
+                      color: theme.colorScheme.primary,
+                    ),
+
+                    title: Text(
+                      vm.defaultCity,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+
+                    onTap: () {
+                      vm.fetchWeatherByCity(vm.defaultCity);
+                      Navigator.pop(context);
+                    },
+
+                    // دکمه حذف پین (ریست به حالت اولیه)
+                    trailing: IconButton(
+                      icon: Icon(
+                        Icons.delete_outline, // سطل آشغال
+                        size: 20,
+                        color: theme.colorScheme.error.withValues(alpha: 0.7),
+                      ),
+                      tooltip: 'حذف پین',
+                      onPressed: () {
+                        // وقتی پین حذف شود، شهر پیش‌فرض به تهران (یا هر شهر امن دیگر) برمی‌گردد
+                        vm.setDefaultCity('Tehran');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              l10n.localeName == 'fa'
+                                  ? 'مکان پیش‌فرض بازنشانی شد'
+                                  : 'Default location reset',
+                            ),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                const Divider(indent: 28, endIndent: 28, height: 32),
+
+                // ---------------- 2. بخش مکان‌های اخیر ----------------
+                if (vm.recent.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(28, 0, 28, 10),
+                    child: Text(
+                      l10n.recentLocations,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: theme.colorScheme.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  ...vm.recent.map((city) {
+                    final isSelected =
+                        vm.location.toLowerCase() == city.toLowerCase();
+                    // چک میکنیم آیا این شهر در لیست اخیر، همانی است که پین شده؟
+                    final isPinned =
+                        city.toLowerCase() == vm.defaultCity.toLowerCase();
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      child: ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        tileColor: isSelected
+                            ? theme.colorScheme.secondaryContainer
+                            : null,
+                        contentPadding: const EdgeInsetsDirectional.only(
+                          start: 16,
+                          end: 8,
+                        ),
+
+                        leading: Icon(
+                          Icons.history,
+                          color: isSelected
+                              ? theme.colorScheme.onSecondaryContainer
+                              : theme.colorScheme.onSurfaceVariant,
+                        ),
+
+                        title: Text(
+                          city,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: isSelected
+                                ? theme.colorScheme.onSecondaryContainer
+                                : theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        onTap: () {
+                          vm.fetchWeatherByCity(city);
+                          Navigator.pop(context);
+                        },
+
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // دکمه پین
+                            IconButton(
+                              icon: Icon(
+                                // اگر پین شده بود توپر، وگرنه توخالی
+                                isPinned
+                                    ? Icons.push_pin
+                                    : Icons.push_pin_outlined,
+                                size: 20,
+                                color: isPinned
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.primary.withValues(
+                                        alpha: 0.7,
+                                      ),
+                              ),
+                              tooltip: 'سنجاق کردن',
+                              onPressed: () {
+                                vm.setDefaultCity(city);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('$city پین شد'),
+                                    duration: const Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                            ),
+
+                            // دکمه حذف (سطل آشغال)
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete_outline, // آیکون جدید سطل آشغال
+                                size: 20,
+                                color: theme.colorScheme.error.withValues(
+                                  alpha: 0.7,
+                                ),
+                              ),
+                              tooltip: 'حذف از تاریخچه',
+                              onPressed: () {
+                                vm.removeRecent(city);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(28, 16, 28, 10),
-            child: Text(
-              l10n.pinnedLocations,
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.secondary,
-              ),
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.push_pin_outlined),
-            selectedIcon: const Icon(Icons.push_pin),
-            label: Text(vm.defaultCity),
-            onTap: () {
-              vm.fetchWeatherByCity(vm.defaultCity);
-              Navigator.pop(context);
-            },
-            isSelected: vm.location == vm.defaultCity,
-          ),
-          const Divider(indent: 28, endIndent: 28),
-          if (vm.recent.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(28, 16, 28, 10),
-              child: Text(
-                l10n.recentLocations,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.secondary,
-                ),
-              ),
-            ),
-            ...vm.recent.map((city) {
-              final isSelected = vm.location == city;
-              return NavigationDrawerDestination(
-                icon: const Icon(Icons.history),
-                selectedIcon: const Icon(Icons.history),
-                label: Text(city),
-                isSelected: isSelected,
-                onTap: () {
-                  vm.fetchWeatherByCity(city);
-                  Navigator.pop(context);
-                },
-              );
-            }),
-          ],
         ],
       ),
     );
