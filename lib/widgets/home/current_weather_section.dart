@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/utils/weather_formatters.dart';
-import 'package:weatherly_app/utils/city_utils.dart'; // برای اعداد فارسی
+import 'package:weatherly_app/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
-// ✅ ایمپورت فایل جدید:
 import 'package:weatherly_app/widgets/animations/main_weather_icon.dart';
 
 class CurrentWeatherSection extends StatelessWidget {
@@ -24,7 +23,6 @@ class CurrentWeatherSection extends StatelessWidget {
     final isPersian = viewModel.lang == 'fa';
     final theme = Theme.of(context);
 
-    // تبدیل دما
     final tempValue = viewModel.useCelsius
         ? current.temp
         : (current.temp * 9 / 5) + 32;
@@ -37,47 +35,48 @@ class CurrentWeatherSection extends StatelessWidget {
 
     return Column(
       children: [
-        // ---------------- آیکون انیمیشنی بزرگ ----------------
-        MainWeatherIcon(
-          weatherType: current.weatherType,
-          size: 140, // سایز بزرگ برای وسط صفحه
-        ),
-
-        const SizedBox(height: 16),
-
-        // ---------------- دما ----------------
+        MainWeatherIcon(weatherType: current.weatherType, size: 160),
+        const SizedBox(height: 24),
         Text(
           "$tempString$unit",
           style: theme.textTheme.displayLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 80,
+            fontWeight: FontWeight.w900,
+            fontSize: 90,
             height: 1.0,
+            color: Colors.white,
+            shadows: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
         ),
-
         const SizedBox(height: 8),
-
-        // ---------------- نام شهر ----------------
         Text(
           current.cityName,
           style: theme.textTheme.headlineMedium?.copyWith(
-            color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
+            fontWeight: FontWeight.bold,
+            color: Colors.white.withValues(alpha: 0.9),
           ),
         ),
-
-        const SizedBox(height: 8),
-
-        // ---------------- توضیحات (صاف، ابری و...) ----------------
+        const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(20),
+            color: Colors.white.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
           child: Text(
             translateWeatherDescription(current.main, lang: viewModel.lang),
             style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),

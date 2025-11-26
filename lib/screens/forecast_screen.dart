@@ -8,6 +8,7 @@ import 'package:weatherly_app/utils/weather_formatters.dart';
 import 'package:weatherly_app/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/widgets/air_quality_card.dart';
+import 'package:weatherly_app/widgets/animations/weather_status_icons.dart'; // برای آیکون‌های جدید
 
 class ForecastScreen extends StatefulWidget {
   const ForecastScreen({super.key});
@@ -16,50 +17,32 @@ class ForecastScreen extends StatefulWidget {
   State<ForecastScreen> createState() => _ForecastScreenState();
 }
 
-class _ForecastScreenState extends State<ForecastScreen>
-    with TickerProviderStateMixin {
-  late final AnimationController _rotationController;
-  late final AnimationController _pulseController;
-  late final Animation<double> _pulseAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _rotationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    )..repeat();
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _rotationController.dispose();
-    _pulseController.dispose();
-    super.dispose();
-  }
-
+class _ForecastScreenState extends State<ForecastScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.forecast), centerTitle: true),
+      backgroundColor: Colors.transparent, // شفاف برای دیدن گرادینت
+      appBar: AppBar(
+        title: Text(l10n.forecast),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       body: Consumer<WeatherViewModel>(
         builder: (context, vm, _) {
           final isPersian = vm.lang == 'fa';
 
           if (vm.isLoading && vm.location.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
           }
 
           if (vm.error != null) {
@@ -70,7 +53,7 @@ class _ForecastScreenState extends State<ForecastScreen>
                   vm.error!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    color: Colors.redAccent,
+                    color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -86,13 +69,15 @@ class _ForecastScreenState extends State<ForecastScreen>
                 child: Text(
                   l10n.forecastSearchPrompt,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
             );
           }
 
           return RefreshIndicator(
+            color: Colors.white,
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
             onRefresh: vm.refresh,
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -137,8 +122,9 @@ class _ForecastScreenState extends State<ForecastScreen>
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: Colors.white.withValues(alpha: 0.15), // Glassmorphism
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: Column(
             children: [
@@ -149,6 +135,7 @@ class _ForecastScreenState extends State<ForecastScreen>
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 4),
@@ -157,9 +144,7 @@ class _ForecastScreenState extends State<ForecastScreen>
                     ? "پیش‌بینی ۵ روز آینده"
                     : "Next 5 Days Forecast",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                  color: Colors.white.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -194,15 +179,14 @@ class _ForecastScreenState extends State<ForecastScreen>
                     l10n.hourlyTemperatureTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '($unitSymbol)',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
+                      color: Colors.white.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -239,12 +223,10 @@ class _ForecastScreenState extends State<ForecastScreen>
                       width: 70,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white.withValues(alpha: 0.1), // Glass
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).dividerColor.withValues(alpha: 0.06),
+                          color: Colors.white.withValues(alpha: 0.15),
                         ),
                       ),
                       child: Column(
@@ -256,13 +238,23 @@ class _ForecastScreenState extends State<ForecastScreen>
                                 ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
+                                  color: Colors.white,
                                 ),
                           ),
-                          SvgPicture.asset(iconPath, width: 32, height: 32),
+                          SvgPicture.asset(
+                            iconPath,
+                            width: 32,
+                            height: 32,
+                            // اگر آیکون‌ها سیاه هستند، سفیدشان کن (اختیاری)
+                            // colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                          ),
                           Text(
                             isPersian ? toPersianDigits(tempText) : tempText,
                             style: Theme.of(context).textTheme.bodyLarge
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                           ),
                         ],
                       ),
@@ -299,9 +291,10 @@ class _ForecastScreenState extends State<ForecastScreen>
               padding: const EdgeInsets.only(bottom: 12),
               child: Text(
                 l10n.dailyForecastTitle,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
             ...vm.daily5.asMap().entries.map((entry) {
@@ -327,10 +320,6 @@ class _ForecastScreenState extends State<ForecastScreen>
                 lang: vm.lang,
               );
 
-              // -----------------------------------------------------------------
-              // FIX: استفاده از calculatedAqiScore (0-500) بجای aqi (1-5)
-              // چون AirQualityCard الان انتظار عدد استاندارد 0-500 دارد
-              // -----------------------------------------------------------------
               final currentAqi = vm.calculatedAqiScore;
 
               return Padding(
@@ -352,8 +341,11 @@ class _ForecastScreenState extends State<ForecastScreen>
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
+                      color: Colors.white.withValues(alpha: 0.1), // Glass
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.15),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -365,18 +357,19 @@ class _ForecastScreenState extends State<ForecastScreen>
                               Text(
                                 index == 0 ? l10n.today : dayOfWeek,
                                 style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold),
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 description,
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.color
-                                          ?.withValues(alpha: 0.7),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.8,
+                                      ),
                                     ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -409,7 +402,10 @@ class _ForecastScreenState extends State<ForecastScreen>
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -433,11 +429,9 @@ class _ForecastScreenState extends State<ForecastScreen>
                                         .titleMedium
                                         ?.copyWith(
                                           fontWeight: FontWeight.normal,
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.color
-                                              ?.withValues(alpha: 0.6),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.7,
+                                          ),
                                         ),
                                   ),
                                 ],
@@ -457,7 +451,7 @@ class _ForecastScreenState extends State<ForecastScreen>
     );
   }
 
-  // ---------------- Bottom Sheet (Day Details) - Updated ----------------
+  // ---------------- Bottom Sheet (Day Details) ----------------
 
   void _showDayDetails({
     required BuildContext context,
@@ -489,9 +483,14 @@ class _ForecastScreenState extends State<ForecastScreen>
           minChildSize: 0.4,
           maxChildSize: 0.9,
           builder: (_, controller) {
+            // چون باتم شیت روی صفحه میاد، بهتره پس‌زمینه سالید (غیرشفاف) داشته باشه
+            // تا با محتوای زیر قاطی نشه، یا یک بلر (Blur) قوی داشته باشه.
+            // فعلاً از رنگ تم استفاده میکنیم برای خوانایی.
+            final sheetColor = Theme.of(context).scaffoldBackgroundColor;
+
             return Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
+                color: sheetColor,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(24),
                 ),
@@ -500,11 +499,10 @@ class _ForecastScreenState extends State<ForecastScreen>
                 controller: controller,
                 padding: const EdgeInsets.all(24),
                 children: [
-                  // --- هدر شامل دستگیره و دکمه بستن ---
+                  // --- Header ---
                   Stack(
                     alignment: Alignment.center,
                     children: [
-                      // دستگیره طوسی وسط
                       Container(
                         width: 40,
                         height: 4,
@@ -513,14 +511,10 @@ class _ForecastScreenState extends State<ForecastScreen>
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      // دکمه بستن (ضربدر) در گوشه
                       Align(
-                        alignment: AlignmentDirectional
-                            .centerEnd, // در فارسی چپ، در انگلیسی راست
+                        alignment: AlignmentDirectional.centerEnd,
                         child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context); // بستن پنجره
-                          },
+                          onPressed: () => Navigator.pop(context),
                           icon: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
@@ -547,7 +541,7 @@ class _ForecastScreenState extends State<ForecastScreen>
                   ),
                   const SizedBox(height: 24),
 
-                  // کارت کیفیت هوا
+                  // AQI Card
                   AirQualityCard(aqi: aqi),
 
                   const SizedBox(height: 16),
@@ -557,63 +551,25 @@ class _ForecastScreenState extends State<ForecastScreen>
                       Expanded(
                         child: _buildDetailBox(
                           context: context,
-                          icon: ScaleTransition(
-                            scale: _pulseAnimation,
-                            child: const Icon(
-                              Icons.water_drop_outlined,
-                              color: Colors.lightBlue,
-                              size: 28,
-                            ),
-                          ),
                           title: l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
                           value: humidity,
+                          // استفاده از آیکون انیمیشنی جدید
+                          icon: const HumidityIcon(),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildDetailBox(
                           context: context,
-                          icon: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 14.0),
-                                child: Container(
-                                  width: 3,
-                                  height: 14,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blueAccent.withValues(
-                                      alpha: 0.6,
-                                    ),
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 4.0),
-                                child: RotationTransition(
-                                  turns: _rotationController,
-                                  child: SvgPicture.asset(
-                                    'assets/icons/turbine.svg',
-                                    width: 24,
-                                    height: 24,
-                                    colorFilter: const ColorFilter.mode(
-                                      Colors.blueAccent,
-                                      BlendMode.srcIn,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                           title: l10n.localeName == 'fa' ? "باد" : "Wind",
                           value: "$windSpeedText $windUnit",
+                          // استفاده از آیکون انیمیشنی جدید
+                          icon: WindTurbineIcon(windSpeed: dayWindSpeed),
                         ),
                       ),
                     ],
                   ),
 
-                  // دکمه بزرگ بستن در پایین (اختیاری - اگر دوست داشتی اینم باشه)
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
@@ -644,6 +600,8 @@ class _ForecastScreenState extends State<ForecastScreen>
     required String title,
     required String value,
   }) {
+    // این باکس‌ها چون داخل باتم شیت هستند (که پس‌زمینه سفید/تیره دارد)،
+    // نیازی نیست شیشه‌ای باشند و از استایل تم پیروی می‌کنند.
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       decoration: BoxDecoration(

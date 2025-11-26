@@ -5,7 +5,6 @@ import 'package:weatherly_app/screens/about_screen.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
 class SettingsScreen extends StatefulWidget {
-  // پارامتر شهر پیش‌فرض حذف شد، فقط پارامتر شهر اخیر باقی ماند
   final VoidCallback onGoToRecentCity;
 
   const SettingsScreen({super.key, required this.onGoToRecentCity});
@@ -38,8 +37,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          // دیالوگ هم کمی شیشه‌ای و زیبا شود
+          backgroundColor: Theme.of(context).cardColor.withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
           title: Text(l10n.language),
           content: Column(
@@ -76,8 +77,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final theme = Theme.of(context);
     final vm = context.watch<WeatherViewModel>();
 
+    // رنگ متن روشن برای خوانایی روی گرادینت
+    final textColor = Colors.white;
+    final subTextColor = Colors.white.withValues(alpha: 0.7);
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settings), centerTitle: true),
+      backgroundColor: Colors.transparent, // ✅ شفاف شد
+      appBar: AppBar(
+        title: Text(l10n.settings),
+        centerTitle: true,
+        backgroundColor: Colors.transparent, // ✅ شفاف
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white), // آیکون‌ها سفید
+        titleTextStyle: theme.textTheme.titleLarge?.copyWith(
+          color: Colors.white, // متن سفید
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       body: Stack(
         children: [
           NotificationListener<ScrollNotification>(
@@ -97,14 +113,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               children: [
                 // --- LANGUAGE ---
-                _buildSectionTitle(context, l10n.language),
+                _buildSectionTitle(context, l10n.language, textColor),
                 _buildSectionCard(
                   context,
                   ListTile(
-                    leading: const Icon(Icons.language_outlined),
-                    title: Text(l10n.language),
+                    leading: const Icon(
+                      Icons.language_outlined,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      l10n.language,
+                      style: TextStyle(color: textColor),
+                    ),
                     subtitle: Text(
                       vm.lang == 'fa' ? l10n.persian : l10n.english,
+                      style: TextStyle(color: subTextColor),
                     ),
                     onTap: () => _showLanguageDialog(l10n, vm),
                   ),
@@ -112,32 +135,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 24),
 
                 // --- DISPLAY MODE ---
-                _buildSectionTitle(context, l10n.displayMode),
+                _buildSectionTitle(context, l10n.displayMode, textColor),
                 _buildSectionCard(
                   context,
                   Padding(
                     padding: const EdgeInsets.all(14),
                     child: Center(
-                      child: _buildThemeModeSelector(context, l10n, vm),
+                      child: _buildThemeModeSelector(
+                        context,
+                        l10n,
+                        vm,
+                        textColor,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
 
                 // --- THEME COLOR ---
-                _buildSectionTitle(context, l10n.themeColor),
+                _buildSectionTitle(context, l10n.themeColor, textColor),
                 _buildSectionCard(
                   context,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SwitchListTile(
-                        title: Text(l10n.useSystemColor),
-                        subtitle: Text(l10n.systemColorSubtitle),
+                        title: Text(
+                          l10n.useSystemColor,
+                          style: TextStyle(color: textColor),
+                        ),
+                        subtitle: Text(
+                          l10n.systemColorSubtitle,
+                          style: TextStyle(color: subTextColor),
+                        ),
                         value: vm.useSystemColor,
                         onChanged: (val) => vm.setUseSystemColor(val),
+                        activeThumbColor: Colors.white, // رنگ سوئیچ روشن
+                        activeTrackColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
-                      const Divider(height: 1, indent: 16, endIndent: 16),
+                      Divider(
+                        height: 1,
+                        indent: 16,
+                        endIndent: 16,
+                        color: Colors.white.withValues(alpha: 0.2),
+                      ),
                       AnimatedOpacity(
                         duration: const Duration(milliseconds: 300),
                         opacity: vm.useSystemColor ? 0.4 : 1.0,
@@ -151,8 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 Text(
                                   l10n.chooseStaticColor,
                                   style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.textTheme.bodyMedium?.color
-                                        ?.withValues(alpha: 0.7),
+                                    color: subTextColor,
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -173,9 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           shape: BoxShape.circle,
                                           border: isSelected
                                               ? Border.all(
-                                                  color: theme
-                                                      .colorScheme
-                                                      .onSurface,
+                                                  color: Colors.white,
                                                   width: 2.5,
                                                 )
                                               : null,
@@ -211,31 +251,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 24),
 
                 // --- UNITS ---
-                _buildSectionTitle(context, l10n.temperatureUnitCelsius),
+                _buildSectionTitle(
+                  context,
+                  l10n.temperatureUnitCelsius,
+                  textColor,
+                ),
                 _buildSectionCard(
                   context,
                   Column(
                     children: [
                       SwitchListTile(
-                        title: Text(l10n.temperatureUnitCelsius),
-                        subtitle: Text(l10n.celsiusFahrenheit),
+                        title: Text(
+                          l10n.temperatureUnitCelsius,
+                          style: TextStyle(color: textColor),
+                        ),
+                        subtitle: Text(
+                          l10n.celsiusFahrenheit,
+                          style: TextStyle(color: subTextColor),
+                        ),
                         value: vm.useCelsius,
                         onChanged: (v) => vm.setUseCelsius(v),
+                        activeThumbColor: Colors.white,
+                        activeTrackColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
 
-                // --- (بخش شهر پیش‌فرض حذف شد) ---
-
                 // --- ABOUT ---
-                _buildSectionTitle(context, l10n.aboutApp),
+                _buildSectionTitle(context, l10n.aboutApp, textColor),
                 _buildSectionCard(
                   context,
                   ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: Text(l10n.aboutApp),
+                    leading: const Icon(
+                      Icons.info_outline,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      l10n.aboutApp,
+                      style: TextStyle(color: textColor),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: subTextColor,
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -247,6 +310,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
+
+          // فید پایین لیست (برای زیبایی) - الان با رنگ شفاف
           Positioned(
             left: 0,
             right: 0,
@@ -257,15 +322,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 duration: const Duration(milliseconds: 400),
                 opacity: (_scrollOffset + 80 < _maxScroll) ? 1 : 0,
                 child: Container(
-                  height: 120,
+                  height: 80,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        theme.scaffoldBackgroundColor.withValues(alpha: 0),
-                        theme.scaffoldBackgroundColor.withValues(alpha: 0.5),
-                        theme.scaffoldBackgroundColor,
+                        Colors.transparent,
+                        Colors.black.withValues(
+                          alpha: 0.2,
+                        ), // کمی تیرگی در پایین
                       ],
                     ),
                   ),
@@ -278,19 +344,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // کانتینر شیشه‌ای برای کارت‌ها
   Widget _buildSectionCard(BuildContext context, Widget child) {
-    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(top: 4),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        // ✅ Glassmorphism: سفید با ۲۰٪ شفافیت
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25),
+          color: Colors.white.withValues(alpha: 0.2),
+          width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -300,7 +368,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
+  Widget _buildSectionTitle(
+    BuildContext context,
+    String title,
+    Color textColor,
+  ) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.only(right: 4, bottom: 6),
@@ -308,7 +380,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title,
         style: textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.bold,
-          color: textTheme.bodyMedium?.color?.withValues(alpha: 0.85),
+          color: textColor.withValues(alpha: 0.9),
         ),
       ),
     );
@@ -318,14 +390,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     BuildContext context,
     AppLocalizations l10n,
     WeatherViewModel vm,
+    Color textColor,
   ) {
-    final theme = Theme.of(context);
     final selected = [
       vm.themeMode == ThemeMode.system,
       vm.themeMode == ThemeMode.light,
       vm.themeMode == ThemeMode.dark,
     ];
 
+    // رنگ انتخاب شده: سفید
+    // رنگ انتخاب نشده: سفید کمرنگ
     return ToggleButtons(
       isSelected: selected,
       onPressed: (i) {
@@ -339,27 +413,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       borderRadius: BorderRadius.circular(20),
       constraints: const BoxConstraints(minHeight: 40, minWidth: 90),
-      fillColor: theme.colorScheme.primary.withValues(alpha: 0.12),
-      selectedColor: theme.colorScheme.primary,
-      borderColor: theme.dividerColor.withValues(alpha: 0.4),
+      fillColor: Colors.white.withValues(
+        alpha: 0.3,
+      ), // پس‌زمینه دکمه انتخاب شده
+      selectedColor: Colors.white, // آیکون/متن دکمه انتخاب شده
+      color: Colors.white.withValues(alpha: 0.6), // آیکون/متن دکمه‌های دیگر
+      borderColor: Colors.white.withValues(alpha: 0.3),
+      selectedBorderColor: Colors.white.withValues(alpha: 0.5),
       children: [
         Row(
           children: [
-            const Icon(Icons.phone_iphone),
+            const Icon(Icons.phone_iphone, size: 18),
             const SizedBox(width: 6),
             Text(l10n.system),
           ],
         ),
         Row(
           children: [
-            const Icon(Icons.light_mode),
+            const Icon(Icons.light_mode, size: 18),
             const SizedBox(width: 6),
             Text(l10n.light),
           ],
         ),
         Row(
           children: [
-            const Icon(Icons.dark_mode),
+            const Icon(Icons.dark_mode, size: 18),
             const SizedBox(width: 6),
             Text(l10n.dark),
           ],
@@ -384,12 +462,14 @@ class _LanguageOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return ListTile(
-      leading: Text(flag, style: theme.textTheme.headlineSmall),
-      title: Text(label, style: theme.textTheme.titleMedium),
+      leading: Text(flag, style: const TextStyle(fontSize: 24)),
+      title: Text(label),
       trailing: isSelected
-          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+          ? Icon(
+              Icons.check_circle,
+              color: Theme.of(context).colorScheme.primary,
+            )
           : null,
       onTap: onTap,
     );

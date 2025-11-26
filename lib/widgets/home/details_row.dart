@@ -126,11 +126,18 @@ class DetailsRow extends StatelessWidget {
       height: 140,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        // رنگ شیشه‌ای: سطح با شفافیت ۲۰٪
+        color: theme.colorScheme.surface.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(24),
+        // حاشیه محو برای افکت شیشه
+        border: Border.all(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+          width: 1,
+        ),
+        // سایه کمتر برای حفظ سبکی
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
