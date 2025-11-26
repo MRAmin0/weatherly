@@ -1,5 +1,3 @@
-// lib/screens/settings_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
@@ -7,17 +5,11 @@ import 'package:weatherly_app/screens/about_screen.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final ThemeMode currentThemeMode;
-  final Function(ThemeMode) onThemeChanged;
-  final Function(Locale) onLocaleChanged;
   final VoidCallback onGoToDefaultCity;
   final VoidCallback onGoToRecentCity;
 
   const SettingsScreen({
     super.key,
-    required this.currentThemeMode,
-    required this.onThemeChanged,
-    required this.onLocaleChanged,
     required this.onGoToDefaultCity,
     required this.onGoToRecentCity,
   });
@@ -30,7 +22,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   double _scrollOffset = 0;
   double _maxScroll = 0;
 
-  // Material 3 Seed Colors
   static const List<Color> _seedColorOptions = [
     Colors.deepPurple,
     Colors.indigo,
@@ -42,8 +33,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Colors.deepOrange,
     Colors.red,
     Colors.pink,
-    Color(0xFF6750A4), // M3 Baseline Purple
-    Color(0xFF006C4C), // M3 Baseline Green
+    Color(0xFF6750A4),
+    Color(0xFF006C4C),
   ];
 
   void _showLanguageDialog(AppLocalizations l10n, WeatherViewModel vm) {
@@ -63,7 +54,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 label: l10n.persian,
                 isSelected: vm.lang == 'fa',
                 onTap: () {
-                  widget.onLocaleChanged(const Locale('fa'));
                   vm.setLang('fa');
                   Navigator.pop(context);
                 },
@@ -73,7 +63,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 label: l10n.english,
                 isSelected: vm.lang == 'en',
                 onTap: () {
-                  widget.onLocaleChanged(const Locale('en'));
                   vm.setLang('en');
                   Navigator.pop(context);
                 },
@@ -111,8 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 MediaQuery.of(context).padding.bottom + 160,
               ),
               children: [
-                // ---------------- LANGUAGE ----------------
-                _buildSectionTitle(l10n.language),
+                _buildSectionTitle(context, l10n.language),
                 _buildSectionCard(
                   context,
                   ListTile(
@@ -124,39 +112,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onTap: () => _showLanguageDialog(l10n, vm),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                // ---------------- THEME MODE ----------------
-                _buildSectionTitle(l10n.displayMode),
+                _buildSectionTitle(context, l10n.displayMode),
                 _buildSectionCard(
                   context,
                   Padding(
                     padding: const EdgeInsets.all(14),
-                    child: Center(child: _buildThemeModeSelector(l10n)),
+                    child: Center(
+                      child: _buildThemeModeSelector(context, l10n, vm),
+                    ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                // ---------------- THEME COLOR ----------------
-                _buildSectionTitle(l10n.themeColor),
+                _buildSectionTitle(context, l10n.themeColor),
                 _buildSectionCard(
                   context,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 1. System Color Toggle
                       SwitchListTile(
                         title: Text(l10n.useSystemColor),
                         subtitle: Text(l10n.systemColorSubtitle),
                         value: vm.useSystemColor,
                         onChanged: (val) => vm.setUseSystemColor(val),
                       ),
-
                       const Divider(height: 1, indent: 16, endIndent: 16),
-
-                      // 2. Static Color Picker
                       AnimatedOpacity(
                         duration: const Duration(milliseconds: 300),
                         opacity: vm.useSystemColor ? 0.4 : 1.0,
@@ -179,11 +159,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   spacing: 12,
                                   runSpacing: 12,
                                   children: _seedColorOptions.map((color) {
-                                    // --- FIX IS HERE: Use toARGB32() ---
                                     final isSelected =
                                         vm.seedColor.toARGB32() ==
                                         color.toARGB32();
-
                                     return GestureDetector(
                                       onTap: () => vm.setSeedColor(color),
                                       child: Container(
@@ -229,11 +207,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                // ---------------- UNITS ----------------
-                _buildSectionTitle(l10n.temperatureUnitCelsius),
+                _buildSectionTitle(context, l10n.temperatureUnitCelsius),
                 _buildSectionCard(
                   context,
                   Column(
@@ -247,32 +222,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                // ---------------- DEFAULT CITY ----------------
-                _buildSectionTitle(l10n.defaultCity),
+                _buildSectionTitle(context, l10n.defaultCity),
                 _buildSectionCard(
                   context,
-                  Column(
-                    children: [
-                      ListTile(
-                        title: Text(l10n.goToDefaultCity),
-                        subtitle: Text(l10n.currentDefault(vm.defaultCity)),
-                        trailing: const Icon(Icons.location_city_outlined),
-                        onTap: () async {
-                          await vm.fetchByDefaultCity();
-                          widget.onGoToDefaultCity();
-                        },
-                      ),
-                    ],
+                  ListTile(
+                    title: Text(l10n.goToDefaultCity),
+                    subtitle: Text(l10n.currentDefault(vm.defaultCity)),
+                    trailing: const Icon(Icons.location_city_outlined),
+                    onTap: () async {
+                      await vm.fetchByDefaultCity();
+                      widget.onGoToDefaultCity();
+                    },
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                // ---------------- ABOUT ----------------
-                _buildSectionTitle(l10n.aboutApp),
+                _buildSectionTitle(context, l10n.aboutApp),
                 _buildSectionCard(
                   context,
                   ListTile(
@@ -289,8 +254,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-
-          // ============== Fade-out bottom ==============
           Positioned(
             left: 0,
             right: 0,
@@ -322,8 +285,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // ================= UI HELPERS ==================
-
   Widget _buildSectionCard(BuildContext context, Widget child) {
     final theme = Theme.of(context);
     return Container(
@@ -346,7 +307,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.only(right: 4, bottom: 6),
@@ -360,19 +321,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildThemeModeSelector(AppLocalizations l10n) {
+  Widget _buildThemeModeSelector(
+    BuildContext context,
+    AppLocalizations l10n,
+    WeatherViewModel vm,
+  ) {
     final theme = Theme.of(context);
     final selected = [
-      widget.currentThemeMode == ThemeMode.system,
-      widget.currentThemeMode == ThemeMode.light,
-      widget.currentThemeMode == ThemeMode.dark,
+      vm.themeMode == ThemeMode.system,
+      vm.themeMode == ThemeMode.light,
+      vm.themeMode == ThemeMode.dark,
     ];
 
     return ToggleButtons(
       isSelected: selected,
-      onPressed: (i) => widget.onThemeChanged(
-        [ThemeMode.system, ThemeMode.light, ThemeMode.dark][i],
-      ),
+      onPressed: (i) {
+        final mode = [ThemeMode.system, ThemeMode.light, ThemeMode.dark][i];
+        vm.setThemeMode(mode);
+        if (mode == ThemeMode.system) {
+          vm.setUseSystemColor(true);
+        } else {
+          vm.setUseSystemColor(false);
+        }
+      },
       borderRadius: BorderRadius.circular(20),
       constraints: const BoxConstraints(minHeight: 40, minWidth: 90),
       fillColor: theme.colorScheme.primary.withValues(alpha: 0.12),

@@ -1,5 +1,3 @@
-// lib/widgets/home/recent_cities_slider.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
@@ -14,7 +12,20 @@ class RecentCitiesSlider extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    // If there are no recent cities, hide the slider completely
+    // تشخیص جهت متن (برای گرد کردن صحیح گوشه‌ها در فارسی و انگلیسی)
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final radius = const Radius.circular(24);
+
+    // محاسبه BorderRadius برای دکمه شروع (پین)
+    final startBorderRadius = isRtl
+        ? BorderRadius.only(topRight: radius, bottomRight: radius)
+        : BorderRadius.only(topLeft: radius, bottomLeft: radius);
+
+    // محاسبه BorderRadius برای دکمه پایان (حذف)
+    final endBorderRadius = isRtl
+        ? BorderRadius.only(topLeft: radius, bottomLeft: radius)
+        : BorderRadius.only(topRight: radius, bottomRight: radius);
+
     if (vm.recent.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -25,51 +36,113 @@ class RecentCitiesSlider extends StatelessWidget {
           child: Text(
             l10n.recentSearches,
             style: theme.textTheme.labelLarge?.copyWith(
-              // Using withValues as requested for Flutter 3.27+
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         SizedBox(
-          height: 48,
+          height: 44,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: vm.recent.length,
-            // FIX: Changed (_, __) to (_, index) to remove linter warning
             separatorBuilder: (_, index) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final city = vm.recent[index];
-              // Highlight if this is the currently displayed city
               final isSelected =
                   city.toLowerCase() == vm.location.toLowerCase();
+              final isPinned =
+                  city.toLowerCase() == vm.defaultCity.toLowerCase();
 
-              return ActionChip(
-                label: Text(city),
-                avatar: Icon(
-                  Icons.history,
-                  size: 16,
-                  color: isSelected
-                      ? theme.colorScheme.onSecondaryContainer
-                      : theme.colorScheme.onSurfaceVariant,
-                ),
-                backgroundColor: isSelected
-                    ? theme.colorScheme.secondaryContainer
-                    : theme.colorScheme.surfaceContainerHigh,
-                side: BorderSide.none,
-                shape: RoundedRectangleBorder(
+              final foregroundColor = isSelected
+                  ? theme.colorScheme.onSecondaryContainer
+                  : theme.colorScheme.onSurfaceVariant;
+
+              final backgroundColor = isSelected
+                  ? theme.colorScheme.secondaryContainer
+                  : theme.colorScheme.surfaceContainerHigh;
+
+              return Container(
+                decoration: BoxDecoration(
+                  color: backgroundColor,
                   borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
                 ),
-                labelStyle: TextStyle(
-                  color: isSelected
-                      ? theme.colorScheme.onSecondaryContainer
-                      : theme.colorScheme.onSurface,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // --- دکمه پین (Start) ---
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: startBorderRadius, // ✅ اصلاح شد
+                        onTap: () {
+                          vm.setDefaultCity(city);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '$city ${l10n.localeName == 'fa' ? 'پین شد' : 'Pinned'}',
+                              ),
+                              duration: const Duration(seconds: 1),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                          child: Icon(
+                            isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                            size: 16,
+                            color: isPinned
+                                ? theme.colorScheme.primary
+                                : foregroundColor.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // --- متن شهر (Middle) ---
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => vm.fetchWeatherByCity(city),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 4,
+                          ),
+                          child: Text(
+                            city,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: foregroundColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // --- دکمه حذف (End) ---
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: endBorderRadius, // ✅ اصلاح شد
+                        onTap: () => vm.removeRecent(city),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 8, 12, 8),
+                          child: Icon(
+                            Icons.close,
+                            size: 16,
+                            color: foregroundColor.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                onPressed: () {
-                  // When tapped, fetch weather for this city
-                  vm.fetchWeatherByCity(city);
-                },
               );
             },
           ),

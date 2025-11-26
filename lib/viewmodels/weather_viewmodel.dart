@@ -1,4 +1,3 @@
-// lib/viewmodels/weather_viewmodel.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -19,35 +18,29 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   // ------------------------- STATE -------------------------
-
+  ThemeMode themeMode = ThemeMode.system;
   Color seedColor = Colors.deepPurple;
   bool useSystemColor = false;
   String defaultCity = 'Tehran';
 
   String location = '';
   CurrentWeather? currentWeather;
-
   List<HourlyForecastEntry> hourly = [];
   int? hourlyOffset;
-
   List<DailyForecastEntry> daily5 = [];
-
-  // متغیرهای مربوط به کیفیت هوا
-  int? aqi; // شاخص ۱ تا ۵ (استاندارد OpenWeather)
-  double? pm2_5; // غلظت ذرات معلق برای محاسبه دقیق
+  int? aqi;
+  double? pm2_5;
 
   bool isLoading = false;
   String? error;
   bool useCelsius = true;
   String lang = 'fa';
 
-  // متغیرهای مربوط به جستجو
   List<String> recent = [];
   List<Map<String, dynamic>> suggestions = [];
   Timer? _debounce;
 
   // ------------------------- INIT -------------------------
-
   Future<void> _init() async {
     await _loadPrefs();
     if (recent.isNotEmpty) {
@@ -70,6 +63,15 @@ class WeatherViewModel extends ChangeNotifier {
       seedColor = Color(colorValue);
     }
 
+    final themeStr = prefs.getString('themeMode');
+    if (themeStr == 'light') {
+      themeMode = ThemeMode.light;
+    } else if (themeStr == 'dark') {
+      themeMode = ThemeMode.dark;
+    } else {
+      themeMode = ThemeMode.system;
+    }
+
     notifyListeners();
   }
 
@@ -86,39 +88,18 @@ class WeatherViewModel extends ChangeNotifier {
     }
   }
 
-  // ------------------------- SETTINGS -------------------------
-
-  Future<void> setDefaultCity(String city) async {
-    if (city.isEmpty) return;
-    defaultCity = city;
-    await _savePref('defaultCity', city);
-    notifyListeners();
-  }
-
-  Future<void> setUseSystemColor(bool value) async {
-    if (useSystemColor == value) return;
-    useSystemColor = value;
-    await _savePref('useSystemColor', value);
-    notifyListeners();
-  }
-
-  Future<void> setSeedColor(Color color) async {
-    if (seedColor == color) return;
-    seedColor = color;
-    // Use .toARGB32() for Color persistence (Flutter 3.27+)
-    await _savePref('seedColor', color.value);
-
-    if (useSystemColor) {
-      setUseSystemColor(false);
-    } else {
-      notifyListeners();
+  // ------------------------- SETTINGS ACTIONS -------------------------
+  Future<void> setThemeMode(ThemeMode mode) async {
+    if (themeMode == mode) return;
+    themeMode = mode;
+    String modeStr = 'system';
+    if (mode == ThemeMode.light) {
+      modeStr = 'light';
     }
-  }
-
-  Future<void> setUseCelsius(bool value) async {
-    if (useCelsius == value) return;
-    useCelsius = value;
-    await _savePref('useCelsius', value);
+    if (mode == ThemeMode.dark) {
+      modeStr = 'dark';
+    }
+    await _savePref('themeMode', modeStr);
     notifyListeners();
   }
 
@@ -129,14 +110,43 @@ class WeatherViewModel extends ChangeNotifier {
     await refresh();
   }
 
-  // ------------------------- FETCH MAIN WEATHER -------------------------
+  Future<void> setSeedColor(Color color) async {
+    if (seedColor == color) return;
+    seedColor = color;
+    await _savePref('seedColor', color.toARGB32());
+    if (useSystemColor) {
+      setUseSystemColor(false);
+    } else {
+      notifyListeners();
+    }
+  }
 
+  Future<void> setUseSystemColor(bool value) async {
+    if (useSystemColor == value) return;
+    useSystemColor = value;
+    await _savePref('useSystemColor', value);
+    notifyListeners();
+  }
+
+  Future<void> setUseCelsius(bool value) async {
+    if (useCelsius == value) return;
+    useCelsius = value;
+    await _savePref('useCelsius', value);
+    notifyListeners();
+  }
+
+  Future<void> setDefaultCity(String city) async {
+    if (city.isEmpty) return;
+    defaultCity = city;
+    await _savePref('defaultCity', city);
+    notifyListeners();
+  }
+
+  // ------------------------- WEATHER LOGIC -------------------------
   Future<void> fetchWeatherByCity(String city) async {
     final text = city.trim();
     if (text.isEmpty) return;
-
     _setLoading(true);
-
     try {
       final data = await _api.fetchCurrentWeather(cityName: text, lang: lang);
       if (data == null) {
@@ -174,29 +184,12 @@ class WeatherViewModel extends ChangeNotifier {
     location = currentWeather!.cityName;
     error = null;
     _addRecent(location).ignore();
-
     final coord = data['coord'];
     final lat = (coord['lat'] as num).toDouble();
     final lon = (coord['lon'] as num).toDouble();
-
-    // دریافت همزمان اطلاعات تکمیلی (AQI و پیش‌بینی)
     await Future.wait([fetchAqi(lat, lon), fetchHourlyAndDaily(lat, lon)]);
     _setLoading(false);
   }
-
-  Future<void> fetchByDefaultCity() async {
-    await fetchWeatherByCity(defaultCity);
-  }
-
-  Future<void> refresh() async {
-    if (location.isEmpty) {
-      await fetchByDefaultCity();
-    } else {
-      await fetchWeatherByCity(location);
-    }
-  }
-
-  // ------------------------- HOURLY & DAILY -------------------------
 
   Future<void> fetchHourlyAndDaily(double lat, double lon) async {
     try {
@@ -207,9 +200,7 @@ class WeatherViewModel extends ChangeNotifier {
         notifyListeners();
         return;
       }
-
       hourlyOffset = 0;
-
       hourly = rawList.take(8).map((item) {
         final map = item as Map<String, dynamic>;
         return HourlyForecastEntry(
@@ -218,13 +209,11 @@ class WeatherViewModel extends ChangeNotifier {
           weatherType: mapWeatherType(map['weather'][0]['main'] as String),
         );
       }).toList();
-
       final Map<String, Map<String, dynamic>> dailyMap = {};
       for (var item in rawList) {
         final map = item as Map<String, dynamic>;
         final dateStr = map['dt_txt'] as String;
         final dayKey = dateStr.split(' ')[0];
-
         if (!dailyMap.containsKey(dayKey)) {
           dailyMap[dayKey] = map;
         } else {
@@ -233,7 +222,6 @@ class WeatherViewModel extends ChangeNotifier {
           }
         }
       }
-
       daily5 = dailyMap.values.take(5).map((item) {
         return DailyForecastEntry(
           date: DateTime.parse(item['dt_txt'] as String),
@@ -245,14 +233,13 @@ class WeatherViewModel extends ChangeNotifier {
           weatherType: mapWeatherType(item['weather'][0]['main'] as String),
         );
       }).toList();
-
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) print("Forecast fetch error: $e");
+      if (kDebugMode) {
+        print("Forecast fetch error: $e");
+      }
     }
   }
-
-  // ------------------------- AQI LOGIC (UPDATED) -------------------------
 
   Future<void> fetchAqi(double lat, double lon) async {
     try {
@@ -262,12 +249,8 @@ class WeatherViewModel extends ChangeNotifier {
           (result['list'] as List).isNotEmpty) {
         final list = result['list'] as List;
         final firstItem = list[0] as Map<String, dynamic>;
-
-        // 1. گرفتن شاخص 1 تا 5
         final main = firstItem['main'] as Map<String, dynamic>;
         aqi = (main['aqi'] as num?)?.toInt();
-
-        // 2. گرفتن غلظت ذرات معلق (PM2.5) برای محاسبه عدد دقیق 0-500
         final components = firstItem['components'] as Map<String, dynamic>;
         pm2_5 = (components['pm2_5'] as num?)?.toDouble();
       } else {
@@ -276,16 +259,15 @@ class WeatherViewModel extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) print("AQI fetch error: $e");
+      if (kDebugMode) {
+        print("AQI fetch error: $e");
+      }
     }
   }
 
-  /// این گتر جادویی تبدیل غلظت PM2.5 به عدد استاندارد 0 تا 500 است
   int get calculatedAqiScore {
     if (pm2_5 == null) return 0;
     final pm = pm2_5!;
-
-    // فرمول تبدیل PM2.5 به AQI (بر اساس استاندارد EPA)
     if (pm <= 12.0) {
       return ((50 - 0) / (12.0 - 0) * (pm - 0) + 0).round();
     } else if (pm <= 35.4) {
@@ -303,19 +285,14 @@ class WeatherViewModel extends ChangeNotifier {
     }
   }
 
-  // ------------------------- SEARCH LOGIC (FIXED) -------------------------
-
   void searchChanged(String text) {
     _debounce?.cancel();
     final trimmed = text.trim();
-
     if (trimmed.isEmpty) {
       suggestions = [];
       notifyListeners();
       return;
     }
-
-    // تاخیر ۵۰۰ میلی‌ثانیه‌ای برای بهینه کردن درخواست‌ها
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       try {
         final results = await _api.fetchCitySuggestions(trimmed, lang: lang);
@@ -330,17 +307,25 @@ class WeatherViewModel extends ChangeNotifier {
   Future<void> selectCitySuggestion(Map<String, dynamic> city) async {
     final lat = (city['lat'] as num?)?.toDouble();
     final lon = (city['lon'] as num?)?.toDouble();
-
     if (lat == null || lon == null) return;
-
     final localNames = city['local_names'] as Map<String, dynamic>?;
     final cityName = localNames?[lang] ?? city['name'] ?? '';
-
-    suggestions = []; // پاک کردن لیست پیشنهادات
+    suggestions = [];
     location = cityName;
     notifyListeners();
-
     await fetchWeatherByCoordinates(lat, lon);
+  }
+
+  Future<void> fetchByDefaultCity() async {
+    await fetchWeatherByCity(defaultCity);
+  }
+
+  Future<void> refresh() async {
+    if (location.isEmpty) {
+      await fetchByDefaultCity();
+    } else {
+      await fetchWeatherByCity(location);
+    }
   }
 
   Future<void> _addRecent(String city) async {
@@ -355,7 +340,11 @@ class WeatherViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ------------------------- HELPERS -------------------------
+  Future<void> removeRecent(String city) async {
+    recent.removeWhere((e) => e.toLowerCase() == city.toLowerCase());
+    await _savePref('recent', recent);
+    notifyListeners();
+  }
 
   void _setLoading(bool value) {
     isLoading = value;

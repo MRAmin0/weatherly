@@ -1,11 +1,11 @@
-import 'package:flutter/foundation.dart'; // برای kReleaseMode
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:device_preview/device_preview.dart'; // 1. ایمپورت پکیج Device Preview
+import 'package:device_preview/device_preview.dart';
 
 import 'l10n/app_localizations.dart';
-import 'screens/weather_screen.dart';
+import 'screens/splash_screen.dart';
 import 'viewmodels/weather_viewmodel.dart';
 import 'config/config_reader.dart';
 
@@ -13,13 +13,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ConfigReader.initialize();
 
-  final themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
-  final localeNotifier = ValueNotifier<Locale>(const Locale('fa'));
-
   runApp(
-    // 2. رپ کردن کل برنامه با DevicePreview
     DevicePreview(
-      enabled: !kReleaseMode, // فقط در حالت دیباگ فعال باشد
+      enabled: !kReleaseMode,
       builder: (context) => DynamicColorBuilder(
         builder: (lightDynamic, darkDynamic) {
           return ChangeNotifierProvider(
@@ -28,6 +24,7 @@ void main() async {
               builder: (context, viewModel, _) {
                 final bool useSystem = viewModel.useSystemColor;
 
+                // Light Theme
                 ColorScheme lightScheme;
                 if (useSystem && lightDynamic != null) {
                   lightScheme = lightDynamic.harmonized();
@@ -38,6 +35,7 @@ void main() async {
                   );
                 }
 
+                // Dark Theme
                 ColorScheme darkScheme;
                 if (useSystem && darkDynamic != null) {
                   darkScheme = darkDynamic.harmonized();
@@ -48,58 +46,44 @@ void main() async {
                   );
                 }
 
-                return ValueListenableBuilder<ThemeMode>(
-                  valueListenable: themeNotifier,
-                  builder: (context, themeMode, _) {
-                    return ValueListenableBuilder<Locale>(
-                      valueListenable: localeNotifier,
-                      builder: (context, locale, _) {
-                        return MaterialApp(
-                          title: 'Weatherly',
-                          debugShowCheckedModeBanner: false,
+                return MaterialApp(
+                  title: 'Weatherly',
+                  debugShowCheckedModeBanner: false,
 
-                          locale: locale,
-                          builder: (context, child) {
-                            // الف: ابتدا بیلدر DevicePreview را صدا می‌زنیم
-                            child = DevicePreview.appBuilder(context, child);
-                            // ب: سپس منطق Directionality خودتان را اعمال می‌کنیم
-                            final isFarsi =
-                                Localizations.localeOf(context).languageCode ==
-                                'fa';
-                            return Directionality(
-                              textDirection: isFarsi
-                                  ? TextDirection.rtl
-                                  : TextDirection.ltr,
-                              child: child,
-                            );
-                          },
+                  // زبان از ویومدل خوانده می‌شود
+                  locale: Locale(viewModel.lang),
 
-                          supportedLocales: AppLocalizations.supportedLocales,
-                          localizationsDelegates:
-                              AppLocalizations.localizationsDelegates,
-                          themeMode: themeMode,
-                          theme: ThemeData(
-                            useMaterial3: true,
-                            fontFamily: 'Vazir',
-                            colorScheme: lightScheme,
-                          ),
-                          darkTheme: ThemeData(
-                            useMaterial3: true,
-                            fontFamily: 'Vazir',
-                            colorScheme: darkScheme,
-                          ),
-                          home: WeatherScreen(
-                            currentThemeMode: themeMode,
-                            onThemeChanged: (m) => themeNotifier.value = m,
-                            onLocaleChanged: (loc) {
-                              localeNotifier.value = loc;
-                              viewModel.setLang(loc.languageCode);
-                            },
-                          ),
-                        );
-                      },
+                  builder: (context, child) {
+                    child = DevicePreview.appBuilder(context, child);
+                    final isFarsi =
+                        Localizations.localeOf(context).languageCode == 'fa';
+                    return Directionality(
+                      textDirection: isFarsi
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      child: child,
                     );
                   },
+
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  localizationsDelegates:
+                      AppLocalizations.localizationsDelegates,
+
+                  // تم از ویومدل خوانده می‌شود
+                  themeMode: viewModel.themeMode,
+
+                  theme: ThemeData(
+                    useMaterial3: true,
+                    fontFamily: 'Vazir',
+                    colorScheme: lightScheme,
+                  ),
+                  darkTheme: ThemeData(
+                    useMaterial3: true,
+                    fontFamily: 'Vazir',
+                    colorScheme: darkScheme,
+                  ),
+
+                  home: const SplashScreen(),
                 );
               },
             ),

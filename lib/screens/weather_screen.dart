@@ -1,37 +1,24 @@
-// lib/screens/weather_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
-
 import 'package:weatherly_app/screens/home_page.dart';
 import 'package:weatherly_app/screens/forecast_screen.dart';
 import 'package:weatherly_app/screens/settings_screen.dart';
 
 class WeatherScreen extends StatefulWidget {
-  final ThemeMode currentThemeMode;
-  final Function(ThemeMode) onThemeChanged;
-  final Function(Locale) onLocaleChanged;
-
-  const WeatherScreen({
-    super.key,
-    required this.currentThemeMode,
-    required this.onThemeChanged,
-    required this.onLocaleChanged,
-  });
+  const WeatherScreen({super.key});
 
   @override
   State<WeatherScreen> createState() => _WeatherScreenState();
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
+  int _selectedIndex = 0;
   late final PageController _pageController;
-  int _selectedTabIndex = 0;
-  bool _isSearchFocused = false;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _selectedTabIndex);
+    _pageController = PageController(initialPage: 0);
   }
 
   @override
@@ -40,186 +27,74 @@ class _WeatherScreenState extends State<WeatherScreen> {
     super.dispose();
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      // جلوگیری از بالا پریدن نوار پایین هنگام باز شدن کیبورد
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          PageView(
-            controller: _pageController,
-            // --- تغییر اصلی اینجاست ---
-            // قبلاً NeverScrollableScrollPhysics بود که جلوی حرکت دست را می‌گرفت.
-            // الان BouncingScrollPhysics گذاشتیم تا هم حرکت کند و هم حس نرمی داشته باشد.
-            physics: const BouncingScrollPhysics(),
-            onPageChanged: (index) {
-              if (mounted) {
-                // این قسمت باعث می‌شود وقتی با دست اسکرول می‌کنید، دکمه پایین هم آپدیت شود
-                setState(() => _selectedTabIndex = index);
-              }
-            },
-            children: [
-              // Tab 0: Home
-              HomePage(
-                key: const ValueKey('weather_page'),
-                onSearchFocusChange: (hasFocus) {
-                  if (mounted) {
-                    setState(() => _isSearchFocused = hasFocus);
-                  }
-                },
-              ),
-              // Tab 1: Forecast
-              const ForecastScreen(key: ValueKey('forecast_page')),
-              // Tab 2: Settings
-              SettingsScreen(
-                key: const ValueKey('settings_page'),
-                currentThemeMode: widget.currentThemeMode,
-                onThemeChanged: widget.onThemeChanged,
-                onLocaleChanged: widget.onLocaleChanged,
-                // Both redirect to Home (Tab 0)
-                onGoToDefaultCity: () => _goToTab(0),
-                onGoToRecentCity: () => _goToTab(0),
-              ),
-            ],
-          ),
-
-          // Custom Bottom Navigation Bar
-          // مخفی شدن نوار پایین هنگام جستجو
-          if (!_isSearchFocused)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: _buildCustomBottomNav(context, l10n),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCustomBottomNav(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
 
-    // M3 Colors
-    final backgroundColor = theme.colorScheme.surfaceContainer;
-    final primaryColor = theme.colorScheme.primary;
+    final List<Widget> pages = [
+      HomePage(onSearchFocusChange: (_) {}),
+      const ForecastScreen(),
+      SettingsScreen(
+        onGoToDefaultCity: () => _onItemTapped(0),
+        onGoToRecentCity: () => _onItemTapped(0),
+      ),
+    ];
 
-    final unselectedColor = theme.textTheme.bodyMedium?.color?.withValues(
-      alpha: 0.6,
-    );
-    final borderColor = theme.colorScheme.outlineVariant.withValues(alpha: 0.2);
-
-    final double systemBottomPadding = MediaQuery.of(
-      context,
-    ).viewPadding.bottom;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: Border(top: BorderSide(color: borderColor, width: 1)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                Icons.home_filled,
-                l10n.home,
-                0,
-                primaryColor,
-                unselectedColor,
-              ),
-              _buildNavItem(
-                Icons.bar_chart_rounded,
-                l10n.forecast,
-                1,
-                primaryColor,
-                unselectedColor,
-              ),
-              _buildNavItem(
-                Icons.settings_outlined,
-                l10n.settings,
-                2,
-                primaryColor,
-                unselectedColor,
-              ),
-            ],
-          ),
+    return Scaffold(
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        children: pages,
+      ),
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const TextStyle(fontWeight: FontWeight.bold);
+            }
+            return const TextStyle(fontWeight: FontWeight.normal);
+          }),
         ),
-        // فضای خالی برای جسچر بار در گوشی‌های جدید
-        if (systemBottomPadding > 0)
-          Container(height: systemBottomPadding, color: backgroundColor),
-      ],
-    );
-  }
-
-  Widget _buildNavItem(
-    IconData icon,
-    String label,
-    int index,
-    Color activeColor,
-    Color? inactiveColor,
-  ) {
-    final bool isSelected = _selectedTabIndex == index;
-
-    return InkWell(
-      onTap: () => _goToTab(index),
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-        decoration: BoxDecoration(
-          // M3 Pill shape highlight
-          color: isSelected
-              ? activeColor.withValues(alpha: 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? activeColor : inactiveColor,
-              size: 26,
+        child: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: _onItemTapped,
+          backgroundColor: theme.colorScheme.surfaceContainer,
+          indicatorColor: theme.colorScheme.secondaryContainer,
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home_filled),
+              label: l10n.localeName == 'fa' ? 'خانه' : 'Home',
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? activeColor : inactiveColor,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 12,
-              ),
+            NavigationDestination(
+              icon: const Icon(Icons.bar_chart_outlined),
+              selectedIcon: const Icon(Icons.bar_chart_rounded),
+              label: l10n.localeName == 'fa' ? 'پیش‌بینی' : 'Forecast',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.settings_outlined),
+              selectedIcon: const Icon(Icons.settings),
+              label: l10n.localeName == 'fa' ? 'تنظیمات' : 'Settings',
             ),
           ],
         ),
       ),
     );
-  }
-
-  void _goToTab(int index) {
-    if (index == _selectedTabIndex) return;
-    // وقتی روی دکمه کلیک می‌کنیم، با انیمیشن صفحه را عوض می‌کنیم
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOutQuart,
-    );
-    // نکته: نیازی به setState اینجا نیست چون animateToPage باعث تریگر شدن
-    // onPageChanged می‌شود و آنجا setState داریم.
   }
 }

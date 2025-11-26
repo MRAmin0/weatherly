@@ -1,3 +1,4 @@
+// lib/widgets/home/details_row.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
@@ -19,24 +20,34 @@ class DetailsRow extends StatelessWidget {
 
     final isPersian = viewModel.lang == 'fa';
 
-    // --- Humidity & Wind ---
-    final humidityText = isPersian
-        ? toPersianDigits("${current.humidity}%")
+    // 1. Humidity Setup
+    final humidityVal = isPersian
+        ? "${toPersianDigits(current.humidity.toString())}٪"
         : "${current.humidity}%";
 
-    final windText = isPersian
-        ? toPersianDigits(current.windSpeed.toString())
-        : current.windSpeed.toString();
-    final windUnit = isPersian ? "کیلومتر/ساعت" : "km/h";
+    // 2. Wind Setup & Animation Logic
+    final double windSpeed = current.windSpeed;
+    final windValString = windSpeed % 1 == 0
+        ? windSpeed.toInt().toString()
+        : windSpeed.toStringAsFixed(1);
 
-    // --- AQI Logic (Updated) ---
-    // حالا از عدد محاسبه شده (0 تا 500) استفاده می‌کنیم
+    final windVal = isPersian ? toPersianDigits(windValString) : windValString;
+    final windUnit = isPersian ? "km/h" : "km/h";
+
+    // محاسبه سرعت چرخش توربین بر اساس سرعت باد
+    // فرمول: پایه زمانی (مثلاً ۶۰۰۰ میلی‌ثانیه) تقسیم بر سرعت.
+    // اگر سرعت ۵ باشه: ۱۲۰۰ میلی‌ثانیه (آرام)
+    // اگر سرعت ۳۰ باشه: ۲۰۰ میلی‌ثانیه (خیلی سریع)
+    // clamp برای جلوگیری از سرعت‌های غیرمنطقی
+    final Duration? windDuration = windSpeed > 0.5
+        ? Duration(milliseconds: (6000 / windSpeed).clamp(200, 5000).toInt())
+        : null;
+
+    // 3. AQI Setup
     final int aqiScore = viewModel.calculatedAqiScore;
-
     String aqiStatusText;
     Color aqiColor;
 
-    // شرط‌ها بر اساس استاندارد 0 تا 500
     if (aqiScore <= 50) {
       aqiStatusText = isPersian ? "پاک" : "Good";
       aqiColor = const Color(0xFF8BC34A);
@@ -44,36 +55,55 @@ class DetailsRow extends StatelessWidget {
       aqiStatusText = isPersian ? "سالم" : "Moderate";
       aqiColor = const Color(0xFFFFEB3B);
     } else if (aqiScore <= 150) {
-      aqiStatusText = isPersian ? "ناسالم (حساس)" : "Unhealthy (Sen.)";
+      aqiStatusText = isPersian
+          ? "ناسالم برای گروه‌های حساس"
+          : "Unhealthy for Sensitive Groups";
       aqiColor = const Color(0xFFFF9800);
     } else if (aqiScore <= 200) {
       aqiStatusText = isPersian ? "ناسالم" : "Unhealthy";
       aqiColor = const Color(0xFFF44336);
     } else if (aqiScore <= 300) {
-      aqiStatusText = isPersian ? "بسیار ناسالم" : "Very Unhealthy";
+      aqiStatusText = isPersian ? "خیلی ناسالم" : "Very Unhealthy";
       aqiColor = const Color(0xFF9C27B0);
     } else {
       aqiStatusText = isPersian ? "خطرناک" : "Hazardous";
       aqiColor = const Color(0xFF880E4F);
     }
 
-    // نمایش عدد فارسی یا انگلیسی
-    final String scoreText = isPersian
+    final aqiVal = isPersian
         ? toPersianDigits(aqiScore.toString())
         : aqiScore.toString();
 
+    // آیکون باد (توربین)
+    Widget windIcon = SvgPicture.asset(
+      'assets/icons/turbine.svg',
+      width: 24,
+      height: 24,
+      colorFilter: const ColorFilter.mode(Colors.blueAccent, BlendMode.srcIn),
+    );
+
+    // اگر باد میوزد، انیمیت کن، اگر نه، ثابت نشان بده
+    if (windDuration != null) {
+      windIcon = WeatherAnimator(
+        weatherType: WeatherType.clear, // نوع clear انیمیشن چرخش دارد
+        customDuration: windDuration, // سرعت محاسبه شده
+        child: windIcon,
+      );
+    }
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // --- HUMIDITY ---
         Expanded(
           child: _buildDetailBox(
             context: context,
             title: l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
-            value: humidityText,
+            mainValue: humidityVal,
+            subValue: " ",
             icon: const WeatherAnimator(
-              weatherType: WeatherType.rain,
-              isSmallIcon: true,
+              weatherType: WeatherType.clear, // مهم نیست چون onPulse داریم
+              onPulse: true, // فقط پالس ساده
               child: Icon(
                 Icons.water_drop_outlined,
                 color: Colors.lightBlueAccent,
@@ -82,6 +112,7 @@ class DetailsRow extends StatelessWidget {
             ),
           ),
         ),
+
         const SizedBox(width: 12),
 
         // --- WIND ---
@@ -89,38 +120,25 @@ class DetailsRow extends StatelessWidget {
           child: _buildDetailBox(
             context: context,
             title: l10n.localeName == 'fa' ? "باد" : "Wind",
-            value: "$windText\n$windUnit",
-            icon: WeatherAnimator(
-              weatherType: WeatherType.clear,
-              isSmallIcon: true,
-              child: SvgPicture.asset(
-                'assets/icons/turbine.svg',
-                width: 24,
-                height: 24,
-                colorFilter: const ColorFilter.mode(
-                  Colors.blueAccent,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
+            mainValue: windVal,
+            subValue: windUnit,
+            icon: windIcon, // آیکون داینامیک
           ),
         ),
+
         const SizedBox(width: 12),
 
-        // --- AQI (Correct Number) ---
+        // --- AQI ---
         Expanded(
           child: _buildDetailBox(
             context: context,
             title: l10n.localeName == 'fa' ? "کیفیت هوا" : "AQI",
-            // اینجا هم متن وضعیت و هم عدد را نشان می‌دهیم
-            value: "$aqiStatusText\n($scoreText)",
-            isLongText: true,
-            textColor: aqiColor, // رنگ متن عدد را رنگی می‌کنیم
-            icon: WeatherAnimator(
-              weatherType: WeatherType.fog,
-              isSmallIcon: true,
-              child: Icon(Icons.air, color: aqiColor, size: 28),
-            ),
+            mainValue: aqiVal,
+            subValue: aqiStatusText,
+            subValueColor: aqiColor,
+            isAqi: true,
+            // اینجا دیگه WeatherAnimator نداریم -> ثابت
+            icon: Icon(Icons.air, color: aqiColor, size: 28),
           ),
         ),
       ],
@@ -130,17 +148,20 @@ class DetailsRow extends StatelessWidget {
   Widget _buildDetailBox({
     required BuildContext context,
     required String title,
-    required String value,
+    required String mainValue,
+    required String subValue,
     required Widget icon,
-    bool isLongText = false,
-    Color? textColor,
+    Color? subValueColor,
+    bool isAqi = false,
   }) {
     final theme = Theme.of(context);
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+      height: 140,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -150,36 +171,56 @@ class DetailsRow extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(height: 32, width: 32, child: Center(child: icon)),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
+
           Text(
             title,
             maxLines: 1,
-            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 11,
-              color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+              fontSize: 12,
+              color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
             ),
           ),
-          const SizedBox(height: 4),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: isLongText ? 13 : 14,
-                  // اگر رنگ خاصی دادیم (برای AQI) اعمال کن، وگرنه رنگ پیشفرض
-                  color: textColor ?? theme.textTheme.titleMedium?.color,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
+
+          const Spacer(),
+
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              mainValue,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w900,
+                fontSize: isAqi ? 22 : 24,
+                height: 1.0,
+                color: isAqi ? subValueColor : null,
               ),
             ),
           ),
+
+          const SizedBox(height: 4),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2.0),
+            child: Text(
+              subValue,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: isAqi ? 10 : 12,
+                height: 1.1,
+                color:
+                    subValueColor ??
+                    theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+
+          const Spacer(),
         ],
       ),
     );

@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/utils/weather_formatters.dart';
-// FIX: Import city_utils to use toPersianDigits
 import 'package:weatherly_app/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/widgets/air_quality_card.dart';
@@ -328,7 +327,11 @@ class _ForecastScreenState extends State<ForecastScreen>
                 lang: vm.lang,
               );
 
-              final currentAqi = vm.aqi ?? 0;
+              // -----------------------------------------------------------------
+              // FIX: استفاده از calculatedAqiScore (0-500) بجای aqi (1-5)
+              // چون AirQualityCard الان انتظار عدد استاندارد 0-500 دارد
+              // -----------------------------------------------------------------
+              final currentAqi = vm.calculatedAqiScore;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
@@ -454,7 +457,7 @@ class _ForecastScreenState extends State<ForecastScreen>
     );
   }
 
-  // ---------------- Bottom Sheet (Day Details) ----------------
+  // ---------------- Bottom Sheet (Day Details) - Updated ----------------
 
   void _showDayDetails({
     required BuildContext context,
@@ -497,17 +500,44 @@ class _ForecastScreenState extends State<ForecastScreen>
                 controller: controller,
                 padding: const EdgeInsets.all(24),
                 children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(2),
+                  // --- هدر شامل دستگیره و دکمه بستن ---
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // دستگیره طوسی وسط
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
-                    ),
+                      // دکمه بستن (ضربدر) در گوشه
+                      Align(
+                        alignment: AlignmentDirectional
+                            .centerEnd, // در فارسی چپ، در انگلیسی راست
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context); // بستن پنجره
+                          },
+                          icon: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Theme.of(
+                                context,
+                              ).dividerColor.withValues(alpha: 0.1),
+                            ),
+                            child: const Icon(Icons.close_rounded, size: 20),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
+
+                  const SizedBox(height: 12),
+
                   Text(
                     "$dayTitle - $description",
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -516,8 +546,12 @@ class _ForecastScreenState extends State<ForecastScreen>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
+
+                  // کارت کیفیت هوا
                   AirQualityCard(aqi: aqi),
+
                   const SizedBox(height: 16),
+
                   Row(
                     children: [
                       Expanded(
@@ -577,6 +611,23 @@ class _ForecastScreenState extends State<ForecastScreen>
                         ),
                       ),
                     ],
+                  ),
+
+                  // دکمه بزرگ بستن در پایین (اختیاری - اگر دوست داشتی اینم باشه)
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: BorderSide(color: Theme.of(context).dividerColor),
+                      ),
+                      child: Text(l10n.localeName == 'fa' ? "بستن" : "Close"),
+                    ),
                   ),
                 ],
               ),
