@@ -46,20 +46,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+
     final vm = context.watch<WeatherViewModel>();
 
-    // --- تغییر منطق شب و روز طبق درخواست شما ---
-    final hour = DateTime.now().hour;
-    // اگر ساعت کمتر از 7 صبح یا بیشتر/مساوی 17 (5 عصر) باشد، شب است.
-    final isNight = hour < 7 || hour >= 17;
+    final Color userSeedColor = vm.seedColor;
 
-    // محاسبه گرادینت
-    final bgGradient = vm.currentWeather != null
-        ? WeatherGradients.getGradient(
-            vm.currentWeather!.weatherType,
-            isNight: isNight,
-          )
-        : WeatherGradients.getGradient(WeatherType.clear, isNight: isNight);
+    final WeatherType currentType = vm.currentWeather != null
+        ? vm.currentWeather!.weatherType
+        : WeatherType.clear;
+
+    final bgGradient = WeatherGradients.getGradient(currentType, userSeedColor);
 
     final List<Widget> pages = [
       HomePage(onSearchFocusChange: (_) {}),
@@ -85,17 +81,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
         bottomNavigationBar: NavigationBarTheme(
           data: NavigationBarThemeData(
             labelTextStyle: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.selected)) {
-                return const TextStyle(fontWeight: FontWeight.bold);
-              }
-              return const TextStyle(fontWeight: FontWeight.normal);
+              final color = states.contains(WidgetState.selected)
+                  ? theme.colorScheme.primary
+                  : Colors.white;
+              return TextStyle(
+                fontWeight: states.contains(WidgetState.selected)
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+                color: color,
+              );
+            }),
+            iconTheme: WidgetStateProperty.resolveWith((states) {
+              final color = states.contains(WidgetState.selected)
+                  ? theme.colorScheme.primary
+                  : Colors.white;
+              return IconThemeData(color: color);
             }),
           ),
           child: NavigationBar(
             selectedIndex: _selectedIndex,
             onDestinationSelected: _onItemTapped,
-            // نوار پایین کمی شیشه‌ای
-            backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.8),
+            backgroundColor: Colors.black.withValues(alpha: 0.4),
             indicatorColor: theme.colorScheme.secondaryContainer,
             destinations: [
               NavigationDestination(

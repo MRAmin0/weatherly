@@ -8,7 +8,8 @@ import 'package:weatherly_app/utils/weather_formatters.dart';
 import 'package:weatherly_app/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/widgets/air_quality_card.dart';
-import 'package:weatherly_app/widgets/animations/weather_status_icons.dart'; // برای آیکون‌های جدید
+import 'package:weatherly_app/widgets/animations/weather_status_icons.dart';
+import 'package:weatherly_app/widgets/charts/temperature_chart.dart'; // ✅ ایمپورت نمودار
 
 class ForecastScreen extends StatefulWidget {
   const ForecastScreen({super.key});
@@ -18,12 +19,18 @@ class ForecastScreen extends StatefulWidget {
 }
 
 class _ForecastScreenState extends State<ForecastScreen> {
+  // @override
+  // void initState() {
+  //   // حذف کنترلرهای انیمیشن غیرضروری از این صفحه برای تمیزی بیشتر
+  //   super.initState();
+  // }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.transparent, // شفاف برای دیدن گرادینت
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(l10n.forecast),
         centerTitle: true,
@@ -39,12 +46,12 @@ class _ForecastScreenState extends State<ForecastScreen> {
         builder: (context, vm, _) {
           final isPersian = vm.lang == 'fa';
 
+          // --- مدیریت حالت‌های اولیه ---
           if (vm.isLoading && vm.location.isEmpty) {
             return const Center(
               child: CircularProgressIndicator(color: Colors.white),
             );
           }
-
           if (vm.error != null) {
             return Center(
               child: Padding(
@@ -53,7 +60,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                   vm.error!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: Colors.redAccent,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -61,7 +68,6 @@ class _ForecastScreenState extends State<ForecastScreen> {
               ),
             );
           }
-
           if (vm.location.isEmpty || vm.currentWeather == null) {
             return Center(
               child: Padding(
@@ -74,6 +80,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
               ),
             );
           }
+          // --- پایان مدیریت حالت‌های اولیه ---
 
           return RefreshIndicator(
             color: Colors.white,
@@ -89,6 +96,14 @@ class _ForecastScreenState extends State<ForecastScreen> {
                   const SizedBox(height: 24),
 
                   if (vm.hourly.isNotEmpty) ...[
+                    // ✅ ۱. اضافه شدن نمودار دما
+                    TemperatureChart(
+                      hourlyData: vm.hourly,
+                      useCelsius: vm.useCelsius,
+                      isPersian: isPersian,
+                    ),
+                    const SizedBox(height: 24), // فاصله بین نمودار و لیست ساعتی
+
                     _buildHourlySection(context, vm, l10n, isPersian),
                     const SizedBox(height: 24),
                   ],
@@ -107,7 +122,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Location Header ----------------
+  // ---------------- Location Header (Glassmorphism) ----------------
 
   Widget _buildLocationHeader(
     BuildContext context,
@@ -122,7 +137,8 @@ class _ForecastScreenState extends State<ForecastScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15), // Glassmorphism
+            // ✅ استایل شیشه‌ای
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
@@ -135,7 +151,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.white, // ✅ متن سفید
                 ),
               ),
               const SizedBox(height: 4),
@@ -144,7 +160,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                     ? "پیش‌بینی ۵ روز آینده"
                     : "Next 5 Days Forecast",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: Colors.white.withValues(alpha: 0.8), // ✅ متن سفید
                 ),
               ),
             ],
@@ -154,7 +170,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Hourly Section ----------------
+  // ---------------- Hourly Section (Glassmorphism) ----------------
 
   Widget _buildHourlySection(
     BuildContext context,
@@ -179,14 +195,14 @@ class _ForecastScreenState extends State<ForecastScreen> {
                     l10n.hourlyTemperatureTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.white, // ✅ متن سفید
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '($unitSymbol)',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: Colors.white.withValues(alpha: 0.7), // ✅ متن سفید
                     ),
                   ),
                 ],
@@ -223,7 +239,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                       width: 70,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1), // Glass
+                        color: Colors.white.withValues(alpha: 0.1), // ✅ Glass
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.15),
@@ -238,22 +254,16 @@ class _ForecastScreenState extends State<ForecastScreen> {
                                 ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Colors.white,
+                                  color: Colors.white, // ✅ متن سفید
                                 ),
                           ),
-                          SvgPicture.asset(
-                            iconPath,
-                            width: 32,
-                            height: 32,
-                            // اگر آیکون‌ها سیاه هستند، سفیدشان کن (اختیاری)
-                            // colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                          ),
+                          SvgPicture.asset(iconPath, width: 32, height: 32),
                           Text(
                             isPersian ? toPersianDigits(tempText) : tempText,
                             style: Theme.of(context).textTheme.bodyLarge
                                 ?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.white, // ✅ متن سفید
                                 ),
                           ),
                         ],
@@ -269,7 +279,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Daily 5-day Section ----------------
+  // ---------------- Daily 5-day Section (Glassmorphism) ----------------
 
   Widget _buildDailyForecastSection(
     BuildContext context,
@@ -293,7 +303,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                 l10n.dailyForecastTitle,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.white, // ✅ متن سفید
                 ),
               ),
             ),
@@ -341,7 +351,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1), // Glass
+                      color: Colors.white.withValues(alpha: 0.1), // ✅ Glass
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.15),
@@ -359,7 +369,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                                 style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: Colors.white, // ✅ متن سفید
                                     ),
                               ),
                               const SizedBox(height: 4),
@@ -368,8 +378,8 @@ class _ForecastScreenState extends State<ForecastScreen> {
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(
                                       color: Colors.white.withValues(
-                                        alpha: 0.8,
-                                      ),
+                                        alpha: 0.9,
+                                      ), // ✅ متن سفید
                                     ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -404,7 +414,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                                         .titleMedium
                                         ?.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                          color: Colors.white, // ✅ متن سفید
                                         ),
                                   ),
                                 ],
@@ -431,7 +441,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                                           fontWeight: FontWeight.normal,
                                           color: Colors.white.withValues(
                                             alpha: 0.7,
-                                          ),
+                                          ), // ✅ متن سفید
                                         ),
                                   ),
                                 ],
@@ -452,7 +462,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
   }
 
   // ---------------- Bottom Sheet (Day Details) ----------------
-
+  // این قسمت نیازی به تغییر ندارد چون از رنگ تم (سفید/مشکی) استفاده می‌کند
   void _showDayDetails({
     required BuildContext context,
     required String dayTitle,
@@ -483,11 +493,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
           minChildSize: 0.4,
           maxChildSize: 0.9,
           builder: (_, controller) {
-            // چون باتم شیت روی صفحه میاد، بهتره پس‌زمینه سالید (غیرشفاف) داشته باشه
-            // تا با محتوای زیر قاطی نشه، یا یک بلر (Blur) قوی داشته باشه.
-            // فعلاً از رنگ تم استفاده میکنیم برای خوانایی.
             final sheetColor = Theme.of(context).scaffoldBackgroundColor;
-
             return Container(
               decoration: BoxDecoration(
                 color: sheetColor,
@@ -499,7 +505,6 @@ class _ForecastScreenState extends State<ForecastScreen> {
                 controller: controller,
                 padding: const EdgeInsets.all(24),
                 children: [
-                  // --- Header ---
                   Stack(
                     alignment: Alignment.center,
                     children: [
@@ -529,9 +534,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 12),
-
                   Text(
                     "$dayTitle - $description",
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -540,12 +543,8 @@ class _ForecastScreenState extends State<ForecastScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-
-                  // AQI Card
                   AirQualityCard(aqi: aqi),
-
                   const SizedBox(height: 16),
-
                   Row(
                     children: [
                       Expanded(
@@ -553,7 +552,6 @@ class _ForecastScreenState extends State<ForecastScreen> {
                           context: context,
                           title: l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
                           value: humidity,
-                          // استفاده از آیکون انیمیشنی جدید
                           icon: const HumidityIcon(),
                         ),
                       ),
@@ -563,13 +561,11 @@ class _ForecastScreenState extends State<ForecastScreen> {
                           context: context,
                           title: l10n.localeName == 'fa' ? "باد" : "Wind",
                           value: "$windSpeedText $windUnit",
-                          // استفاده از آیکون انیمیشنی جدید
                           icon: WindTurbineIcon(windSpeed: dayWindSpeed),
                         ),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
@@ -600,8 +596,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
     required String title,
     required String value,
   }) {
-    // این باکس‌ها چون داخل باتم شیت هستند (که پس‌زمینه سفید/تیره دارد)،
-    // نیازی نیست شیشه‌ای باشند و از استایل تم پیروی می‌کنند.
+    // این باکس‌ها چون داخل باتم شیت هستند، از استایل تم پیروی می‌کنند.
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       decoration: BoxDecoration(

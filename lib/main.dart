@@ -50,7 +50,6 @@ void main() async {
                   title: 'Weatherly',
                   debugShowCheckedModeBanner: false,
 
-                  // زبان از ویومدل خوانده می‌شود
                   locale: Locale(viewModel.lang),
 
                   builder: (context, child) {
@@ -61,7 +60,7 @@ void main() async {
                       textDirection: isFarsi
                           ? TextDirection.rtl
                           : TextDirection.ltr,
-                      child: child,
+                      child: child, // ✅ FIX: علامت '!' حذف شد
                     );
                   },
 
@@ -69,7 +68,6 @@ void main() async {
                   localizationsDelegates:
                       AppLocalizations.localizationsDelegates,
 
-                  // تم از ویومدل خوانده می‌شود
                   themeMode: viewModel.themeMode,
 
                   theme: ThemeData(

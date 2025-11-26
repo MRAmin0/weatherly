@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
@@ -35,50 +36,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showLanguageDialog(AppLocalizations l10n, WeatherViewModel vm) {
     showDialog(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.2),
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.black.withValues(alpha: 0.65),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(
-              color: Colors.white.withValues(alpha: 0.15),
-              width: 1,
-            ),
-          ),
-          title: Text(
-            l10n.language,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _LanguageOptionTile(
-                flag: '🇮🇷',
-                label: l10n.persian,
-                isSelected: vm.lang == 'fa',
-                textColor: Colors.white,
-                onTap: () {
-                  vm.setLang('fa');
-                  Navigator.pop(context);
-                },
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: AlertDialog(
+            backgroundColor: Colors.black.withValues(alpha: 0.65),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+              side: BorderSide(
+                color: Colors.white.withValues(alpha: 0.15),
+                width: 1,
               ),
-              Divider(color: Colors.white.withValues(alpha: 0.15), height: 1),
-              _LanguageOptionTile(
-                flag: '🇬🇧',
-                label: l10n.english,
-                isSelected: vm.lang == 'en',
-                textColor: Colors.white,
-                onTap: () {
-                  vm.setLang('en');
-                  Navigator.pop(context);
-                },
+            ),
+            title: Text(
+              l10n.language,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
-            ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _LanguageOptionTile(
+                  flag: '🇮🇷',
+                  label: l10n.persian,
+                  isSelected: vm.lang == 'fa',
+                  textColor: Colors.white,
+                  onTap: () {
+                    vm.setLang('fa');
+                    Navigator.pop(context);
+                  },
+                ),
+                Divider(color: Colors.white.withValues(alpha: 0.15), height: 1),
+                _LanguageOptionTile(
+                  flag: '🇬🇧',
+                  label: l10n.english,
+                  isSelected: vm.lang == 'en',
+                  textColor: Colors.white,
+                  onTap: () {
+                    vm.setLang('en');
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -147,13 +152,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // --- DISPLAY MODE ---
+                // --- DISPLAY MODE (Segmented Button) ---
                 _buildSectionTitle(context, l10n.displayMode, textColor),
                 _buildSectionCard(
                   context,
                   Padding(
                     padding: const EdgeInsets.all(14),
-                    // FIX: پارامتر textColor اضافه شد
                     child: Center(
                       child: _buildThemeModeSelector(
                         context,
@@ -184,7 +188,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         value: vm.useSystemColor,
                         onChanged: (val) => vm.setUseSystemColor(val),
-                        // FIX: استفاده از activeThumbColor به جای activeColor
                         activeThumbColor: Colors.white,
                         activeTrackColor: theme.colorScheme.primary.withValues(
                           alpha: 0.5,
@@ -286,7 +289,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         value: vm.useCelsius,
                         onChanged: (v) => vm.setUseCelsius(v),
-                        // FIX: استفاده از activeThumbColor به جای activeColor
                         activeThumbColor: Colors.white,
                         activeTrackColor: theme.colorScheme.primary.withValues(
                           alpha: 0.5,
@@ -357,6 +359,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // ویجت Theme Selector (تغییر یافته به SegmentedButton)
+  Widget _buildThemeModeSelector(
+    BuildContext context,
+    AppLocalizations l10n,
+    WeatherViewModel vm,
+    Color textColor,
+  ) {
+    final buttonStyle = ButtonStyle(
+      elevation: const WidgetStatePropertyAll(0),
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.white.withValues(alpha: 0.3);
+        }
+        return Colors.transparent;
+      }),
+      foregroundColor: WidgetStateProperty.all(Colors.white),
+      side: WidgetStatePropertyAll(
+        BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+      ),
+    );
+
+    return SegmentedButton<ThemeMode>(
+      style: buttonStyle,
+      segments: [
+        ButtonSegment<ThemeMode>(
+          value: ThemeMode.system,
+          label: Text(l10n.system),
+          icon: const Icon(Icons.phone_iphone),
+        ),
+        ButtonSegment<ThemeMode>(
+          value: ThemeMode.light,
+          label: Text(l10n.light),
+          icon: const Icon(Icons.light_mode),
+        ),
+        ButtonSegment<ThemeMode>(
+          value: ThemeMode.dark,
+          label: Text(l10n.dark),
+          icon: const Icon(Icons.dark_mode),
+        ),
+      ],
+      selected: {vm.themeMode},
+      onSelectionChanged: (newSelection) {
+        if (newSelection.isNotEmpty) {
+          final mode = newSelection.first;
+          vm.setThemeMode(mode);
+          if (mode == ThemeMode.system) {
+            vm.setUseSystemColor(true);
+          } else {
+            vm.setUseSystemColor(false);
+          }
+        }
+      },
+      showSelectedIcon: false,
+    );
+  }
+
   Widget _buildSectionCard(BuildContext context, Widget child) {
     return Container(
       margin: const EdgeInsets.only(top: 4),
@@ -396,65 +454,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
-  Widget _buildThemeModeSelector(
-    BuildContext context,
-    AppLocalizations l10n,
-    WeatherViewModel vm,
-    Color textColor,
-  ) {
-    final selected = [
-      vm.themeMode == ThemeMode.system,
-      vm.themeMode == ThemeMode.light,
-      vm.themeMode == ThemeMode.dark,
-    ];
-
-    return ToggleButtons(
-      isSelected: selected,
-      onPressed: (i) {
-        final mode = [ThemeMode.system, ThemeMode.light, ThemeMode.dark][i];
-        vm.setThemeMode(mode);
-        // FIX: اضافه کردن آکولاد برای رفع وارنینگ
-        if (mode == ThemeMode.system) {
-          vm.setUseSystemColor(true);
-        } else {
-          vm.setUseSystemColor(false);
-        }
-      },
-      borderRadius: BorderRadius.circular(20),
-      constraints: const BoxConstraints(minHeight: 40, minWidth: 90),
-      fillColor: Colors.white.withValues(alpha: 0.3),
-      selectedColor: Colors.white,
-      color: Colors.white.withValues(alpha: 0.6),
-      borderColor: Colors.white.withValues(alpha: 0.3),
-      selectedBorderColor: Colors.white.withValues(alpha: 0.5),
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.phone_iphone, size: 18),
-            const SizedBox(width: 6),
-            Text(l10n.system),
-          ],
-        ),
-        Row(
-          children: [
-            const Icon(Icons.light_mode, size: 18),
-            const SizedBox(width: 6),
-            Text(l10n.light),
-          ],
-        ),
-        Row(
-          children: [
-            const Icon(Icons.dark_mode, size: 18),
-            const SizedBox(width: 6),
-            Text(l10n.dark),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
+// ✅ کلاس کمکی خارج از کلاس اصلی
 class _LanguageOptionTile extends StatelessWidget {
   final String flag;
   final String label;

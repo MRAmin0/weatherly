@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
@@ -22,126 +20,75 @@ class HomeSearchSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cardColor = theme.cardColor;
-    final textColor = theme.textTheme.bodyMedium?.color;
-    final subtitleColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
-    final colorScheme = theme.colorScheme;
+    // رنگ‌های آیکون و متن باید سفید باشند چون پس‌زمینه رنگی است
+    const inputColor = Colors.white;
+    final hintColor = Colors.white.withValues(alpha: 0.7);
 
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 800),
-        padding: const EdgeInsets.symmetric(horizontal: 0.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // --- SEARCH BAR ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                controller: searchController,
-                focusNode: searchFocusNode,
-                maxLength: 30,
-                onChanged: viewModel.searchChanged,
-                textInputAction: TextInputAction.search,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r'[ء-يآ-یa-zA-Z\s]'),
-                  ),
-                ],
-                textAlign: l10n.localeName == 'fa'
-                    ? TextAlign.right
-                    : TextAlign.left,
-                decoration: InputDecoration(
-                  hintText: l10n.enterCityName,
-                  counterText: "",
-                  filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24.0),
-                    borderSide: BorderSide(
-                      color: colorScheme.primary.withValues(alpha: 0.7),
-                      width: 1.4,
-                    ),
-                  ),
-                  prefixIcon: IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: onSearchPressed,
-                  ),
-                ),
-                onSubmitted: (_) => onSearchPressed(),
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0),
+      child: TextField(
+        controller: searchController,
+        focusNode: searchFocusNode,
+        maxLength: 30,
+        // اکشن سرچ روی کیبورد
+        textInputAction: TextInputAction.search,
+        onSubmitted: (_) => onSearchPressed(),
+        onChanged: viewModel.searchChanged,
+
+        // استایل متن ورودی
+        style: TextStyle(color: inputColor, fontWeight: FontWeight.w600),
+
+        decoration: InputDecoration(
+          hintText: l10n.enterCityName,
+          counterText: "",
+
+          // --- تغییرات برای افکت شیشه‌ای ---
+          filled: true,
+          // ✅ رنگ نیمه‌شفاف برای پر کردن
+          fillColor: Colors.white.withValues(alpha: 0.15),
+
+          // ✅ استایل Border
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(
+              color: inputColor.withValues(alpha: 0.3), // حاشیه محو
+              width: 1.0,
             ),
+          ),
 
-            const SizedBox(height: 8),
+          // border در حالت عادی
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(
+              color: inputColor.withValues(alpha: 0.3),
+              width: 1.0,
+            ),
+          ),
 
-            // --- SUGGESTIONS LIST (When typing) ---
-            if (viewModel.suggestions.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 220),
-                  decoration: BoxDecoration(
-                    color: cardColor,
-                    borderRadius: BorderRadius.circular(16.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Scrollbar(
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: viewModel.suggestions.length,
-                      itemBuilder: (context, index) {
-                        final suggestion = viewModel.suggestions[index];
+          // border در حالت فوکوس
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(
+              color: inputColor, // حاشیه سفید کامل
+              width: 1.5,
+            ),
+          ),
 
-                        final nameFa = suggestion['local_names']?['fa']
-                            ?.toString();
-                        final nameEn = suggestion['name']?.toString() ?? '';
-                        final name = viewModel.lang == 'fa'
-                            ? (nameFa ?? nameEn)
-                            : nameEn;
+          // استایل Hint
+          hintStyle: TextStyle(color: hintColor, fontWeight: FontWeight.normal),
 
-                        final country = (suggestion['country'] ?? '')
-                            .toString();
-                        final state = (suggestion['state'] ?? '').toString();
+          // آیکون سرچ
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.search),
+            color: inputColor,
+            onPressed: onSearchPressed,
+          ),
 
-                        final subtitle = [
-                          if (state.isNotEmpty && state != name) state,
-                          if (country.isNotEmpty) country,
-                        ].join(' • ');
-
-                        return ListTile(
-                          title: Text(name, style: TextStyle(color: textColor)),
-                          subtitle: Text(
-                            subtitle,
-                            style: TextStyle(color: subtitleColor),
-                          ),
-                          onTap: () async {
-                            await viewModel.selectCitySuggestion(suggestion);
-                            if (!context.mounted) return;
-                            searchController.clear();
-                            FocusScope.of(context).unfocus();
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-          ],
+          // پدینگ داخلی
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
+          ),
         ),
       ),
     );

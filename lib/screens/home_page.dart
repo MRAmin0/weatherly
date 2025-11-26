@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/services/network_service.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
+// برای استفاده از WeatherType.clear
 
 import 'package:weatherly_app/widgets/home/home_search_section.dart';
 import 'package:weatherly_app/widgets/home/current_weather_section.dart';
 import 'package:weatherly_app/widgets/home/details_row.dart';
-// import 'package:weatherly_app/utils/weather_gradients.dart'; // حذف شد (نیازی نیست)
+// گرادینت از اینجا حذف شد و در فایل WeatherScreen قرار گرفت
 import 'package:weatherly_app/widgets/home/weather_drawer.dart';
 
 class HomePage extends StatefulWidget {
@@ -95,7 +96,7 @@ class _HomePageState extends State<HomePage> {
     final vm = context.watch<WeatherViewModel>();
     final l10n = AppLocalizations.of(context)!;
 
-    // --- بخش گرادینت حذف شد (چون پدرش WeatherScreen این کار را می‌کند) ---
+    // --- لاجیک گرادینت حذف شد ---
 
     if (_showSearchLoading && !vm.isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -116,10 +117,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: _scaffoldKey,
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent, // ✅ مهم: شفاف شد
-
+      backgroundColor: Colors.transparent, // مهم: شفاف شد
+      // استفاده از دراور جدا شده
       drawer: WeatherDrawer(vm: vm, l10n: l10n),
 
+      // اپ‌بار شیشه‌ای
       appBar: AppBar(
         title: Text(l10n.weatherly),
         centerTitle: true,
@@ -132,7 +134,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
-      // ✅ کانتینر گرادینت حذف شد و مستقیم Stack گذاشتیم
+      // بادی که دیگر کانتینر گرادینت ندارد
       body: Stack(
         children: [
           RefreshIndicator(
@@ -205,6 +207,7 @@ class _HomePageState extends State<HomePage> {
     WeatherViewModel vm,
     AppLocalizations l10n,
   ) {
+    // محتوای اصلی آب و هوا (کارت شیشه‌ای)
     if (vm.error != null) {
       return Center(
         child: Text(vm.error!, style: const TextStyle(color: Colors.white)),
@@ -231,6 +234,7 @@ class _HomePageState extends State<HomePage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
       decoration: BoxDecoration(
+        // افکت Glassmorphism
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(

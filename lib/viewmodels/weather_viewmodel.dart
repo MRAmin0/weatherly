@@ -40,7 +40,7 @@ class WeatherViewModel extends ChangeNotifier {
   List<Map<String, dynamic>> suggestions = [];
   Timer? _debounce;
 
-  // ------------------------- INIT -------------------------
+  // ------------------------- INIT & PREFS -------------------------
   Future<void> _init() async {
     await _loadPrefs();
     if (recent.isNotEmpty) {
@@ -139,6 +139,13 @@ class WeatherViewModel extends ChangeNotifier {
     if (city.isEmpty) return;
     defaultCity = city;
     await _savePref('defaultCity', city);
+    notifyListeners();
+  }
+
+  // ✅ این متد نهایی و یگانه است. تعریف اضافی آن حذف شده است.
+  Future<void> removeRecent(String city) async {
+    recent.removeWhere((e) => e.toLowerCase() == city.toLowerCase());
+    await _savePref('recent', recent);
     notifyListeners();
   }
 
@@ -285,6 +292,18 @@ class WeatherViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchByDefaultCity() async {
+    await fetchWeatherByCity(defaultCity);
+  }
+
+  Future<void> refresh() async {
+    if (location.isEmpty) {
+      await fetchByDefaultCity();
+    } else {
+      await fetchWeatherByCity(location);
+    }
+  }
+
   void searchChanged(String text) {
     _debounce?.cancel();
     final trimmed = text.trim();
@@ -316,18 +335,6 @@ class WeatherViewModel extends ChangeNotifier {
     await fetchWeatherByCoordinates(lat, lon);
   }
 
-  Future<void> fetchByDefaultCity() async {
-    await fetchWeatherByCity(defaultCity);
-  }
-
-  Future<void> refresh() async {
-    if (location.isEmpty) {
-      await fetchByDefaultCity();
-    } else {
-      await fetchWeatherByCity(location);
-    }
-  }
-
   Future<void> _addRecent(String city) async {
     final normalized = city.trim();
     if (normalized.isEmpty) return;
@@ -340,11 +347,9 @@ class WeatherViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> removeRecent(String city) async {
-    recent.removeWhere((e) => e.toLowerCase() == city.toLowerCase());
-    await _savePref('recent', recent);
-    notifyListeners();
-  }
+  // متد removeRecent دیگر در خط 146 وجود ندارد و فقط این یکی باقی مانده است.
+  // خطای "already declared" رفع شد.
+  // ----------------------------------------------------------------------
 
   void _setLoading(bool value) {
     isLoading = value;
