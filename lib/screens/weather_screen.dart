@@ -46,33 +46,31 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-
-    // 1. دریافت ویومدل برای تعیین گرادینت
     final vm = context.watch<WeatherViewModel>();
 
-    final isNight = DateTime.now().hour < 6 || DateTime.now().hour > 19;
+    // --- تغییر منطق شب و روز طبق درخواست شما ---
+    final hour = DateTime.now().hour;
+    // اگر ساعت کمتر از 7 صبح یا بیشتر/مساوی 17 (5 عصر) باشد، شب است.
+    final isNight = hour < 7 || hour >= 17;
 
+    // محاسبه گرادینت
     final bgGradient = vm.currentWeather != null
         ? WeatherGradients.getGradient(
             vm.currentWeather!.weatherType,
             isNight: isNight,
           )
-        : WeatherGradients.getGradient(WeatherType.clear);
+        : WeatherGradients.getGradient(WeatherType.clear, isNight: isNight);
 
     final List<Widget> pages = [
       HomePage(onSearchFocusChange: (_) {}),
       const ForecastScreen(),
-      SettingsScreen(
-        // ✅ خط onGoToDefaultCity حذف شد چون در SettingsScreen وجود ندارد
-        onGoToRecentCity: () => _onItemTapped(0),
-      ),
+      SettingsScreen(onGoToRecentCity: () => _onItemTapped(0)),
     ];
 
-    // 2. کانتینر اصلی گرادینت
     return Container(
       decoration: BoxDecoration(gradient: bgGradient),
       child: Scaffold(
-        backgroundColor: Colors.transparent, // مهم: شفاف باشد
+        backgroundColor: Colors.transparent,
 
         body: PageView(
           controller: _pageController,
