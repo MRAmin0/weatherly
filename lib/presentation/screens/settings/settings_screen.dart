@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/presentation/screens/about/about_screen.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
+import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onGoToRecentCity;
@@ -16,7 +17,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // رنگ‌های ثابت برای انتخاب تم
   static const List<Color> _seedColorOptions = [
     Colors.deepPurple,
     Colors.indigo,
@@ -32,7 +32,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Color(0xFF006C4C),
   ];
 
-  // دیالوگ انتخاب زبان
   void _showLanguageDialog(AppLocalizations l10n, WeatherViewModel vm) {
     showDialog(
       context: context,
@@ -92,14 +91,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final theme = Theme.of(context);
     final vm = context.watch<WeatherViewModel>();
 
-    // رنگ‌های درست مطابق Material 3
     final textColor = theme.colorScheme.onSurface;
     final subTextColor = theme.colorScheme.onSurfaceVariant;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface, // ❗ پس‌زمینه درست
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
+        backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.85,
+        ),
         elevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(color: theme.colorScheme.primary),
@@ -111,174 +111,190 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
+      body: Stack(
+        children: [
+          // 🔹 پس‌زمینه مشترک
+          AppBackground(color: vm.userBackgroundColor, blur: vm.useBlur),
 
-      // محتوای اصلی
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (notif) {
-          setState(() {});
-          return false;
-        },
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            16,
-            16,
-            MediaQuery.of(context).padding.bottom + 160,
-          ),
-          children: [
-            // LANGUAGE
-            _buildSectionTitle(context, l10n.language, textColor),
-            _buildSectionCard(
-              context,
-              ListTile(
-                leading: const Icon(Icons.language_outlined),
-                title: Text(l10n.language, style: TextStyle(color: textColor)),
-                subtitle: Text(
-                  vm.lang == 'fa' ? l10n.persian : l10n.english,
-                  style: TextStyle(color: subTextColor),
-                ),
-                onTap: () => _showLanguageDialog(l10n, vm),
+          NotificationListener<ScrollNotification>(
+            onNotification: (notif) {
+              setState(() {});
+              return false;
+            },
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                MediaQuery.of(context).padding.bottom + 160,
               ),
-            ),
-            const SizedBox(height: 24),
-
-            // DISPLAY MODE
-            _buildSectionTitle(context, l10n.displayMode, textColor),
-            _buildSectionCard(
-              context,
-              Padding(
-                padding: const EdgeInsets.all(14),
-                child: _buildThemeModeSelector(context, l10n, vm, textColor),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // THEME COLOR
-            _buildSectionTitle(context, l10n.themeColor, textColor),
-            _buildSectionCard(
-              context,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SwitchListTile(
+              children: [
+                // LANGUAGE
+                _buildSectionTitle(context, l10n.language, textColor),
+                _buildSectionCard(
+                  context,
+                  ListTile(
+                    leading: const Icon(Icons.language_outlined),
                     title: Text(
-                      l10n.useSystemColor,
+                      l10n.language,
                       style: TextStyle(color: textColor),
                     ),
                     subtitle: Text(
-                      l10n.systemColorSubtitle,
+                      vm.lang == 'fa' ? l10n.persian : l10n.english,
                       style: TextStyle(color: subTextColor),
                     ),
-                    value: vm.useSystemColor,
-                    onChanged: (val) => vm.setUseSystemColor(val),
+                    onTap: () => _showLanguageDialog(l10n, vm),
                   ),
+                ),
+                const SizedBox(height: 24),
 
-                  Divider(height: 1, indent: 16, endIndent: 16),
-
-                  // رنگ‌های ثابت
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    opacity: vm.useSystemColor ? 0.35 : 1.0,
-                    child: IgnorePointer(
-                      ignoring: vm.useSystemColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.chooseStaticColor,
-                              style: TextStyle(color: subTextColor),
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              children: _seedColorOptions.map((color) {
-                                final isSelected =
-                                    vm.seedColor.toARGB32() == color.toARGB32();
-                                return GestureDetector(
-                                  onTap: () => vm.setSeedColor(color),
-                                  child: Container(
-                                    width: 42,
-                                    height: 42,
-                                    decoration: BoxDecoration(
-                                      color: color,
-                                      shape: BoxShape.circle,
-                                      border: isSelected
-                                          ? Border.all(
-                                              color: Colors.white,
-                                              width: 2.5,
-                                            )
-                                          : null,
-                                    ),
-                                    child: isSelected
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 20,
-                                          )
-                                        : null,
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
+                // DISPLAY MODE
+                _buildSectionTitle(context, l10n.displayMode, textColor),
+                _buildSectionCard(
+                  context,
+                  Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: _buildThemeModeSelector(
+                      context,
+                      l10n,
+                      vm,
+                      textColor,
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
+                ),
+                const SizedBox(height: 24),
 
-            // UNITS
-            _buildSectionTitle(context, l10n.temperatureUnitCelsius, textColor),
-            _buildSectionCard(
-              context,
-              SwitchListTile(
-                title: Text(
+                // THEME COLOR
+                _buildSectionTitle(context, l10n.themeColor, textColor),
+                _buildSectionCard(
+                  context,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SwitchListTile(
+                        title: Text(
+                          l10n.useSystemColor,
+                          style: TextStyle(color: textColor),
+                        ),
+                        subtitle: Text(
+                          l10n.systemColorSubtitle,
+                          style: TextStyle(color: subTextColor),
+                        ),
+                        value: vm.useSystemColor,
+                        onChanged: (val) => vm.setUseSystemColor(val),
+                      ),
+                      Divider(height: 1, indent: 16, endIndent: 16),
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 300),
+                        opacity: vm.useSystemColor ? 0.35 : 1.0,
+                        child: IgnorePointer(
+                          ignoring: vm.useSystemColor,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.chooseStaticColor,
+                                  style: TextStyle(color: subTextColor),
+                                ),
+                                const SizedBox(height: 12),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: _seedColorOptions.map((color) {
+                                    final isSelected =
+                                        vm.seedColor.toARGB32() ==
+                                        color.toARGB32();
+                                    return GestureDetector(
+                                      onTap: () => vm.setSeedColor(color),
+                                      child: Container(
+                                        width: 42,
+                                        height: 42,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                          border: isSelected
+                                              ? Border.all(
+                                                  color: Colors.white,
+                                                  width: 2.5,
+                                                )
+                                              : null,
+                                        ),
+                                        child: isSelected
+                                            ? const Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 20,
+                                              )
+                                            : null,
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // UNITS
+                _buildSectionTitle(
+                  context,
                   l10n.temperatureUnitCelsius,
-                  style: TextStyle(color: textColor),
+                  textColor,
                 ),
-                subtitle: Text(
-                  l10n.celsiusFahrenheit,
-                  style: TextStyle(color: subTextColor),
+                _buildSectionCard(
+                  context,
+                  SwitchListTile(
+                    title: Text(
+                      l10n.temperatureUnitCelsius,
+                      style: TextStyle(color: textColor),
+                    ),
+                    subtitle: Text(
+                      l10n.celsiusFahrenheit,
+                      style: TextStyle(color: subTextColor),
+                    ),
+                    value: vm.useCelsius,
+                    onChanged: vm.setUseCelsius,
+                  ),
                 ),
-                value: vm.useCelsius,
-                onChanged: vm.setUseCelsius,
-              ),
-            ),
-            const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-            // ABOUT
-            _buildSectionTitle(context, l10n.aboutApp, textColor),
-            _buildSectionCard(
-              context,
-              ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: Text(l10n.aboutApp, style: TextStyle(color: textColor)),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: subTextColor,
+                // ABOUT
+                _buildSectionTitle(context, l10n.aboutApp, textColor),
+                _buildSectionCard(
+                  context,
+                  ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: Text(
+                      l10n.aboutApp,
+                      style: TextStyle(color: textColor),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: subTextColor,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AboutScreen()),
+                      );
+                    },
+                  ),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AboutScreen()),
-                  );
-                },
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-
-  // ---------------- UI helper widgets ----------------
 
   Widget _buildThemeModeSelector(
     BuildContext context,
@@ -296,7 +312,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           }
           return theme.colorScheme.surfaceContainerHighest;
         }),
-        foregroundColor: WidgetStateProperty.all(textColor),
+        foregroundColor: WidgetStatePropertyAll(textColor),
         side: WidgetStatePropertyAll(BorderSide(color: theme.dividerColor)),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -320,9 +336,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ],
       selected: {vm.themeMode},
-      onSelectionChanged: (v) {
-        vm.setThemeMode(v.first);
-        vm.setUseSystemColor(v.first == ThemeMode.system);
+      onSelectionChanged: (v) async {
+        final mode = v.first;
+        await vm.setThemeMode(mode);
+        await vm.setUseSystemColor(mode == ThemeMode.system);
       },
       showSelectedIcon: false,
     );

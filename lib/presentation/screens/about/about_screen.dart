@@ -2,8 +2,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'package:weatherly_app/l10n/app_localizations.dart';
+import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
+import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -12,7 +16,6 @@ class AboutScreen extends StatelessWidget {
   final String githubProject = "https://github.com/MRAmin0/Weatherly";
   final String githubProfile = "https://github.com/MRAmin0";
 
-  // ---------------- Version Loader ----------------
   Future<String> _loadVersion(AppLocalizations l10n) async {
     try {
       final info = await PackageInfo.fromPlatform();
@@ -27,7 +30,7 @@ class AboutScreen extends StatelessWidget {
   }
 
   Future<void> _sendEmail(String email) async {
-    final Uri uri = Uri(
+    final uri = Uri(
       scheme: 'mailto',
       path: email,
       query: "subject=Feedback on Weatherly",
@@ -81,7 +84,7 @@ ISSUE DESCRIPTION
 (Write the problem here)
 """;
 
-    final Uri uri = Uri(
+    final uri = Uri(
       scheme: 'mailto',
       path: developerEmail,
       query: Uri.encodeFull("subject=Weatherly Issue Report&body=$body"),
@@ -94,13 +97,14 @@ ISSUE DESCRIPTION
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final vm = context.watch<WeatherViewModel>();
 
     final isDark = theme.brightness == Brightness.dark;
     final textColor = theme.colorScheme.onSurface;
     final subTextColor = theme.colorScheme.onSurfaceVariant;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
           l10n.aboutApp,
@@ -116,24 +120,17 @@ ISSUE DESCRIPTION
         elevation: 0,
         iconTheme: IconThemeData(color: theme.colorScheme.primary),
       ),
-
       body: Stack(
         children: [
-          // 🔹 Glass background only in dark mode
-          if (isDark)
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                child: Container(color: Colors.black.withValues(alpha: 0.25)),
-              ),
-            ),
+          // 🔹 بک‌گراند مشترک
+          AppBackground(color: vm.userBackgroundColor, blur: vm.useBlur),
 
           ListView(
             padding: const EdgeInsets.all(16),
-            children: <Widget>[
+            children: [
               const SizedBox(height: 16),
 
-              // ----- Logo Glass Circle -----
+              // لوگو
               Center(
                 child: Container(
                   width: 110,
@@ -167,7 +164,6 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 24),
 
-              // ----- Description -----
               _glassCard(
                 theme: theme,
                 isDark: isDark,
@@ -183,7 +179,6 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              // ----- App info -----
               _glassCard(
                 theme: theme,
                 isDark: isDark,
@@ -211,7 +206,6 @@ ISSUE DESCRIPTION
                       ),
                     ),
                     _divider(theme, isDark),
-
                     ListTile(
                       leading: Icon(
                         Icons.history_outlined,
@@ -237,7 +231,6 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              // ----- Dev info -----
               _glassCard(
                 theme: theme,
                 isDark: isDark,
@@ -261,7 +254,6 @@ ISSUE DESCRIPTION
                       onTap: () => _openUrl(githubProfile),
                     ),
                     _divider(theme, isDark),
-
                     ListTile(
                       leading: Icon(
                         Icons.email_outlined,
@@ -276,7 +268,6 @@ ISSUE DESCRIPTION
                       onTap: () => _sendEmail(developerEmail),
                     ),
                     _divider(theme, isDark),
-
                     ListTile(
                       leading: Icon(
                         Icons.code_outlined,
@@ -296,7 +287,6 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              // ----- Issue Report -----
               _glassCard(
                 theme: theme,
                 isDark: isDark,
@@ -328,7 +318,6 @@ ISSUE DESCRIPTION
     );
   }
 
-  // ---------------- GlassCard ----------------
   Widget _glassCard({
     required ThemeData theme,
     required bool isDark,
@@ -369,7 +358,6 @@ ISSUE DESCRIPTION
     );
   }
 
-  // ---------- Changelog Dialog ----------
   void _showChangelogDialog(
     BuildContext context,
     AppLocalizations l10n,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/presentation/widgets/charts/temperature_chart.dart';
+import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 
 import 'widgets/location_header.dart';
 import 'widgets/hourly_list.dart';
@@ -21,65 +22,50 @@ class _ForecastScreenState extends State<ForecastScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final subTextColor = isDark
-        ? Colors.white.withAlpha(179) // ~0.7
-        : Colors.black.withAlpha(153); // ~0.6
+    return Consumer<WeatherViewModel>(
+      builder: (context, vm, _) {
+        final isDark = theme.brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: Text(l10n.forecast),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: textColor),
-        titleTextStyle: theme.textTheme.titleLarge?.copyWith(
-          color: textColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      body: Consumer<WeatherViewModel>(
-        builder: (context, vm, _) {
-          final isPersian = vm.lang == 'fa';
+        final textColor = isDark ? Colors.white : Colors.black87;
+        final subTextColor = isDark
+            ? Colors.white.withAlpha(179)
+            : Colors.black.withAlpha(153);
 
-          if (vm.isLoading && vm.location.isEmpty) {
-            return Center(child: CircularProgressIndicator(color: textColor));
-          }
+        final isPersian = vm.lang == 'fa';
 
-          if (vm.error != null) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  vm.error!,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: theme.colorScheme.error,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+        Widget content;
+
+        if (vm.isLoading && vm.location.isEmpty) {
+          content = Center(child: CircularProgressIndicator(color: textColor));
+        } else if (vm.error != null) {
+          content = Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                vm.error!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: theme.colorScheme.error,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            );
-          }
-
-          if (vm.location.isEmpty || vm.currentWeather == null) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  l10n.forecastSearchPrompt,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: textColor),
-                ),
+            ),
+          );
+        } else if (vm.location.isEmpty || vm.currentWeather == null) {
+          content = Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                l10n.forecastSearchPrompt,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: textColor),
               ),
-            );
-          }
-
-          return RefreshIndicator(
+            ),
+          );
+        } else {
+          content = RefreshIndicator(
             color: textColor,
             backgroundColor: textColor.withAlpha(40),
             onRefresh: vm.refresh,
@@ -100,7 +86,6 @@ class _ForecastScreenState extends State<ForecastScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // نمودار دما و لیست ساعتی
                   if (vm.hourly.isNotEmpty) ...[
                     TemperatureChart(
                       hourlyData: vm.hourly,
@@ -143,7 +128,6 @@ class _ForecastScreenState extends State<ForecastScreen> {
                     const SizedBox(height: 24),
                   ],
 
-                  // ۵ روز آینده
                   if (vm.daily5.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -177,8 +161,29 @@ class _ForecastScreenState extends State<ForecastScreen> {
               ),
             ),
           );
-        },
-      ),
+        }
+
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            title: Text(l10n.forecast),
+            centerTitle: true,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            iconTheme: IconThemeData(color: textColor),
+            titleTextStyle: theme.textTheme.titleLarge?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          body: Stack(
+            children: [
+              AppBackground(color: vm.userBackgroundColor, blur: vm.useBlur),
+              content,
+            ],
+          ),
+        );
+      },
     );
   }
 }

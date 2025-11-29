@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:weatherly_app/data/models/current_weather.dart';
 import 'package:weatherly_app/data/models/daily_forecast.dart';
 import 'package:weatherly_app/data/models/hourly_forecast.dart';
@@ -16,12 +17,18 @@ class WeatherViewModel extends ChangeNotifier {
     scheduleMicrotask(_init);
   }
 
-  // ------------------------- STATE -------------------------
+  // ------------------------- UI / THEME STATE -------------------------
   ThemeMode themeMode = ThemeMode.system;
   Color seedColor = Colors.deepPurple;
   bool useSystemColor = false;
+
+  // 🎨 بک‌گراند انتخاب‌شده توسط کاربر
+  Color userBackgroundColor = const Color(0xFF0D47A1); // آبی تیره ملایم
+  bool useBlur = true;
+
   String defaultCity = 'Tehran';
 
+  // ------------------------- WEATHER STATE -------------------------
   String location = '';
   CurrentWeather? currentWeather;
   List<HourlyForecastEntry> hourly = [];
@@ -51,16 +58,27 @@ class WeatherViewModel extends ChangeNotifier {
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+
     useCelsius = prefs.getBool('useCelsius') ?? true;
     lang = prefs.getString('lang') ?? 'fa';
     recent = prefs.getStringList('recent') ?? [];
     useSystemColor = prefs.getBool('useSystemColor') ?? false;
     defaultCity = prefs.getString('defaultCity') ?? 'Tehran';
 
-    final colorValue = prefs.getInt('seedColor');
-    if (colorValue != null) {
-      seedColor = Color(colorValue);
+    // رنگ تم (seed)
+    final seedColorValue = prefs.getInt('seedColor');
+    if (seedColorValue != null) {
+      seedColor = Color(seedColorValue);
     }
+
+    // 🎨 رنگ بک‌گراند
+    final bgColorValue = prefs.getInt('bgColor');
+    if (bgColorValue != null) {
+      userBackgroundColor = Color(bgColorValue);
+    }
+
+    // 🔁 استفاده از بلور
+    useBlur = prefs.getBool('useBlur') ?? true;
 
     final themeStr = prefs.getString('themeMode');
     if (themeStr == 'light') {
@@ -91,13 +109,11 @@ class WeatherViewModel extends ChangeNotifier {
   Future<void> setThemeMode(ThemeMode mode) async {
     if (themeMode == mode) return;
     themeMode = mode;
+
     String modeStr = 'system';
-    if (mode == ThemeMode.light) {
-      modeStr = 'light';
-    }
-    if (mode == ThemeMode.dark) {
-      modeStr = 'dark';
-    }
+    if (mode == ThemeMode.light) modeStr = 'light';
+    if (mode == ThemeMode.dark) modeStr = 'dark';
+
     await _savePref('themeMode', modeStr);
     notifyListeners();
   }
@@ -110,11 +126,12 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   Future<void> setSeedColor(Color color) async {
-    if (seedColor == color) return;
+    if (seedColor.toARGB32() == color.toARGB32()) return;
     seedColor = color;
     await _savePref('seedColor', color.toARGB32());
+
     if (useSystemColor) {
-      setUseSystemColor(false);
+      await setUseSystemColor(false);
     } else {
       notifyListeners();
     }
@@ -141,7 +158,23 @@ class WeatherViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ این متد نهایی و یگانه است. تعریف اضافی آن حذف شده است.
+  // 🎨 تنظیم رنگ بک‌گراند
+  Future<void> setUserBackgroundColor(Color color) async {
+    if (userBackgroundColor.toARGB32() == color.toARGB32()) return;
+    userBackgroundColor = color;
+    await _savePref('bgColor', color.toARGB32());
+    notifyListeners();
+  }
+
+  // 🌫 روشن/خاموش کردن بلور
+  Future<void> setUseBlur(bool value) async {
+    if (useBlur == value) return;
+    useBlur = value;
+    await _savePref('useBlur', value);
+    notifyListeners();
+  }
+
+  // حذف شهر از لیست اخیر
   Future<void> removeRecent(String city) async {
     recent.removeWhere((e) => e.toLowerCase() == city.toLowerCase());
     await _savePref('recent', recent);
@@ -190,22 +223,27 @@ class WeatherViewModel extends ChangeNotifier {
     location = currentWeather!.cityName;
     error = null;
     _addRecent(location).ignore();
+
     final coord = data['coord'];
     final lat = (coord['lat'] as num).toDouble();
     final lon = (coord['lon'] as num).toDouble();
+
     await Future.wait([fetchAqi(lat, lon), fetchHourlyAndDaily(lat, lon)]);
+
     _setLoading(false);
   }
 
   Future<void> fetchHourlyAndDaily(double lat, double lon) async {
     try {
       final rawList = await _api.fetchForecast(lat: lat, lon: lon, lang: lang);
+
       if (rawList.isEmpty) {
         hourly = [];
         daily5 = [];
         notifyListeners();
         return;
       }
+
       hourlyOffset = 0;
       hourly = rawList.take(8).map((item) {
         final map = item as Map<String, dynamic>;
@@ -215,19 +253,22 @@ class WeatherViewModel extends ChangeNotifier {
           weatherType: mapWeatherType(map['weather'][0]['main'] as String),
         );
       }).toList();
+
       final Map<String, Map<String, dynamic>> dailyMap = {};
       for (var item in rawList) {
         final map = item as Map<String, dynamic>;
         final dateStr = map['dt_txt'] as String;
         final dayKey = dateStr.split(' ')[0];
+
         if (!dailyMap.containsKey(dayKey)) {
           dailyMap[dayKey] = map;
         } else {
-          if (dateStr.contains("12:00:00")) {
+          if (dateStr.contains('12:00:00')) {
             dailyMap[dayKey] = map;
           }
         }
       }
+
       daily5 = dailyMap.values.take(5).map((item) {
         return DailyForecastEntry(
           date: DateTime.parse(item['dt_txt'] as String),
@@ -239,10 +280,11 @@ class WeatherViewModel extends ChangeNotifier {
           weatherType: mapWeatherType(item['weather'][0]['main'] as String),
         );
       }).toList();
+
       notifyListeners();
     } catch (e) {
       if (kDebugMode) {
-        print("Forecast fetch error: $e");
+        print('Forecast fetch error: $e');
       }
     }
   }
@@ -266,7 +308,7 @@ class WeatherViewModel extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       if (kDebugMode) {
-        print("AQI fetch error: $e");
+        print('AQI fetch error: $e');
       }
     }
   }
@@ -315,7 +357,7 @@ class WeatherViewModel extends ChangeNotifier {
       try {
         final results = await _api.fetchCitySuggestions(trimmed, lang: lang);
         suggestions = results;
-      } catch (e) {
+      } catch (_) {
         suggestions = [];
       }
       notifyListeners();
@@ -326,11 +368,14 @@ class WeatherViewModel extends ChangeNotifier {
     final lat = (city['lat'] as num?)?.toDouble();
     final lon = (city['lon'] as num?)?.toDouble();
     if (lat == null || lon == null) return;
+
     final localNames = city['local_names'] as Map<String, dynamic>?;
     final cityName = localNames?[lang] ?? city['name'] ?? '';
+
     suggestions = [];
     location = cityName;
     notifyListeners();
+
     await fetchWeatherByCoordinates(lat, lon);
   }
 
@@ -345,10 +390,6 @@ class WeatherViewModel extends ChangeNotifier {
     await _savePref('recent', recent);
     notifyListeners();
   }
-
-  // متد removeRecent دیگر در خط 146 وجود ندارد و فقط این یکی باقی مانده است.
-  // خطای "already declared" رفع شد.
-  // ----------------------------------------------------------------------
 
   void _setLoading(bool value) {
     isLoading = value;

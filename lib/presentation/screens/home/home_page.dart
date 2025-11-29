@@ -6,6 +6,7 @@ import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/data/services/network_service.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
+import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 import 'package:weatherly_app/presentation/widgets/home/home_search_section.dart';
 import 'package:weatherly_app/presentation/widgets/home/current_weather_section.dart';
 import 'package:weatherly_app/presentation/widgets/home/details_row.dart';
@@ -92,7 +93,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final vm = context.watch<WeatherViewModel>();
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
+
+    // از ستینگ: رنگ + حالت بلور
+    final bgColor = vm.userBackgroundColor;
+    final useBlur = vm.useBlur;
 
     // کنترل حداقل نمایش لودینگ سرچ
     if (_showSearchOverlay && !vm.isLoading) {
@@ -116,25 +120,17 @@ class _HomePageState extends State<HomePage> {
 
       body: Stack(
         children: [
-          // 🔹 Full Glass Blur Background
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.20),
-              ),
-            ),
-          ),
+          /// 🔹 پس‌زمینه مشترک جدید
+          AppBackground(color: bgColor, blur: useBlur),
 
-          // 🔹 Main Content
+          /// 🔹 محتوای اصلی
           RefreshIndicator(
             color: Colors.white,
-            backgroundColor: Colors.white.withValues(alpha: 0.15),
+            backgroundColor: Colors.white.withOpacity(0.15),
             onRefresh: vm.refresh,
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
-                /// APP BAR
                 SliverAppBar(
                   backgroundColor: Colors.transparent,
                   elevation: 0,
@@ -142,9 +138,10 @@ class _HomePageState extends State<HomePage> {
                   centerTitle: true,
                   title: Text(
                     l10n.weatherly,
-                    style: theme.textTheme.titleLarge?.copyWith(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
+                      fontSize: 22,
                     ),
                   ),
                 ),
@@ -155,7 +152,6 @@ class _HomePageState extends State<HomePage> {
                     delegate: SliverChildListDelegate([
                       const SizedBox(height: 16),
 
-                      /// SEARCH BOX
                       HomeSearchSection(
                         searchController: _searchController,
                         searchFocusNode: _searchFocusNode,
@@ -180,13 +176,13 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          /// 🔹 Search Glass Overlay
+          /// 🔹 Search overlay
           if (_showSearchOverlay)
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
                 child: Container(
-                  color: Colors.black.withValues(alpha: 0.32),
+                  color: Colors.black.withOpacity(0.32),
                   child: const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
@@ -238,7 +234,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    // 🔹 Main Weather Glass Card
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -246,17 +241,17 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(32),
         gradient: LinearGradient(
           colors: [
-            Colors.white.withValues(alpha: 0.18),
-            Colors.white.withValues(alpha: 0.08),
+            Colors.white.withOpacity(0.18),
+            Colors.white.withOpacity(0.08),
           ],
         ),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.22),
+          color: Colors.white.withOpacity(0.22),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.14),
+            color: Colors.black.withOpacity(0.14),
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
@@ -266,7 +261,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           CurrentWeatherSection(viewModel: vm, l10n: l10n),
           const SizedBox(height: 18),
-          Divider(color: Colors.white.withValues(alpha: 0.18)),
+          Divider(color: Colors.white.withOpacity(0.18)),
           const SizedBox(height: 18),
           DetailsRow(viewModel: vm, l10n: l10n),
         ],
