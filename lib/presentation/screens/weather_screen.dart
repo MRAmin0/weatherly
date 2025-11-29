@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/presentation/screens/home/home_page.dart';
 import 'package:weatherly_app/presentation/screens/forecast/forecast_screen.dart';
 import 'package:weatherly_app/presentation/screens/settings/settings_screen.dart';
-import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -42,7 +40,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final vm = context.watch<WeatherViewModel>();
     final theme = Theme.of(context);
 
     final pages = [
@@ -52,7 +49,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface, // بدون گرادیانت
+      backgroundColor: theme.colorScheme.surface,
+
       body: PageView(
         controller: _controller,
         onPageChanged: (index) {
@@ -69,7 +67,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               color: isSelected
                   ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface.withOpacity(0.6),
+                  : theme.colorScheme.onSurfaceVariant,
             );
           }),
           iconTheme: WidgetStateProperty.resolveWith((states) {
@@ -77,15 +75,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
             return IconThemeData(
               color: isSelected
                   ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface.withOpacity(0.6),
+                  : theme.colorScheme.onSurfaceVariant,
             );
           }),
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex,
           onDestinationSelected: _onItemTap,
-          backgroundColor: theme.colorScheme.surface.withOpacity(0.7),
-          indicatorColor: theme.colorScheme.secondaryContainer.withOpacity(0.4),
+          backgroundColor: theme.colorScheme.surface,
+          indicatorColor: theme.colorScheme.secondaryContainer,
           destinations: [
             NavigationDestination(
               icon: const Icon(Icons.home_outlined),

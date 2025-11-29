@@ -95,19 +95,16 @@ class _HomePageState extends State<HomePage> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    // کنترل ظاهر Overlay لودینگ سرچ (برای انیمیشن نرم‌تر)
+    // کنترل زمان نمایش لودینگ سرچ
     if (_showSearchOverlay && !vm.isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        const minMs = 900; // کمی سریع‌تر ولی هنوز نرم
+        const minMs = 900;
         final started = _searchStartTime ?? DateTime.now();
         final elapsed = DateTime.now().difference(started).inMilliseconds;
         final remain = (minMs - elapsed).clamp(0, minMs);
-        if (remain > 0) {
-          await Future.delayed(Duration(milliseconds: remain));
-        }
-        if (mounted) {
-          setState(() => _showSearchOverlay = false);
-        }
+        if (remain > 0) await Future.delayed(Duration(milliseconds: remain));
+
+        if (mounted) setState(() => _showSearchOverlay = false);
       });
     }
 
@@ -116,35 +113,29 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
       drawer: WeatherDrawer(vm: vm, l10n: l10n),
 
-      // ======= AppBar شیشه‌ای =======
+      backgroundColor: theme.colorScheme.surface, //⭐ پس‌زمینه درست
+      // AppBar استاندارد و هماهنگ با Material3
       appBar: AppBar(
-        title: Text(l10n.weatherly),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.92),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: theme.textTheme.titleLarge?.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: theme.colorScheme.primary),
+        title: Text(
+          l10n.weatherly,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
 
       body: Stack(
         children: [
-          // پس‌زمینه مینیمال (بدون گرادیانت سراسری، فقط رنگ تم)
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface.withValues(alpha: 0.95),
-            ),
-          ),
-
           RefreshIndicator(
-            color: Colors.white,
-            backgroundColor: Colors.white.withValues(alpha: 0.2),
+            color: theme.colorScheme.primary,
+            backgroundColor: theme.colorScheme.surfaceVariant,
             onRefresh: vm.refresh,
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -165,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         const SizedBox(height: 12),
 
-                        // ======= بخش سرچ شیشه‌ای =======
+                        // بخش سرچ
                         HomeSearchSection(
                           searchController: _searchController,
                           searchFocusNode: _searchFocusNode,
@@ -191,13 +182,11 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          // ======= Overlay شیشه‌ای هنگام سرچ =======
+          // لودینگ Overlay هنگام سرچ
           if (_showSearchOverlay)
             Container(
-              color: Colors.black.withValues(alpha: 0.35),
-              child: const Center(
-                child: CircularProgressIndicator(color: Colors.white70),
-              ),
+              color: Colors.black.withValues(alpha: 0.28),
+              child: const Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -216,7 +205,9 @@ class _HomePageState extends State<HomePage> {
         child: Center(
           child: Text(
             vm.error!,
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.red[100]),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.error,
+            ),
             textAlign: TextAlign.center,
           ),
         ),
@@ -230,8 +221,8 @@ class _HomePageState extends State<HomePage> {
           child: Text(
             l10n.startBySearching,
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
           ),
@@ -242,11 +233,11 @@ class _HomePageState extends State<HomePage> {
     if (vm.currentWeather == null) {
       return const Padding(
         padding: EdgeInsets.only(top: 80),
-        child: Center(child: CircularProgressIndicator(color: Colors.white)),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
-    // ======= کارت شیشه‌ای اصلی آب‌وهوا (Glassmorphism) =======
+    // ⭐ کارت شیشه‌ای زیبا
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -261,14 +252,14 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.25),
+          color: Colors.white.withValues(alpha: 0.22),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 14),
+            color: Colors.black.withValues(alpha: 0.14),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -276,10 +267,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           CurrentWeatherSection(viewModel: vm, l10n: l10n),
           const SizedBox(height: 18),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
-            child: Divider(color: Colors.white.withValues(alpha: 0.35)),
-          ),
+          Divider(color: theme.colorScheme.onSurface.withValues(alpha: 0.15)),
           const SizedBox(height: 18),
           DetailsRow(viewModel: vm, l10n: l10n),
         ],
@@ -288,7 +276,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Loader وسط صفحه برای لودینگ اولیه
 class _CenteredLoader extends StatelessWidget {
   const _CenteredLoader();
 
@@ -296,7 +283,7 @@ class _CenteredLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.only(top: 120),
-      child: Center(child: CircularProgressIndicator(color: Colors.white)),
+      child: Center(child: CircularProgressIndicator()),
     );
   }
 }

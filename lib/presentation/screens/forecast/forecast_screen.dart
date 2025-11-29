@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +8,7 @@ import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/core/utils/weather_formatters.dart';
 import 'package:weatherly_app/core/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
+
 import 'package:weatherly_app/presentation/widgets/cards/air_quality_card.dart';
 import 'package:weatherly_app/presentation/widgets/animations/weather_status_icons.dart';
 import 'package:weatherly_app/presentation/widgets/charts/temperature_chart.dart';
@@ -22,6 +24,13 @@ class _ForecastScreenState extends State<ForecastScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.7)
+        : Colors.black.withValues(alpha: 0.6);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -30,21 +39,20 @@ class _ForecastScreenState extends State<ForecastScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-          color: Colors.white,
+        iconTheme: IconThemeData(color: textColor),
+        titleTextStyle: theme.textTheme.titleLarge?.copyWith(
+          color: textColor,
           fontWeight: FontWeight.bold,
         ),
       ),
+
       body: Consumer<WeatherViewModel>(
         builder: (context, vm, _) {
           final isPersian = vm.lang == 'fa';
 
-          // حالت‌های اولیه
+          // ----------- STATES ----------
           if (vm.isLoading && vm.location.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            );
+            return Center(child: CircularProgressIndicator(color: textColor));
           }
 
           if (vm.error != null) {
@@ -54,7 +62,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                 child: Text(
                   vm.error!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.redAccent,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -71,15 +79,15 @@ class _ForecastScreenState extends State<ForecastScreen> {
                 child: Text(
                   l10n.forecastSearchPrompt,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                  style: TextStyle(fontSize: 16, color: textColor),
                 ),
               ),
             );
           }
 
           return RefreshIndicator(
-            color: Colors.white,
-            backgroundColor: Colors.white.withValues(alpha: 0.2),
+            color: textColor,
+            backgroundColor: textColor.withValues(alpha: 0.2),
             onRefresh: vm.refresh,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -87,10 +95,16 @@ class _ForecastScreenState extends State<ForecastScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildLocationHeader(context, vm, l10n),
+                  _buildLocationHeader(
+                    context,
+                    vm,
+                    l10n,
+                    textColor,
+                    subTextColor,
+                    isDark,
+                  ),
                   const SizedBox(height: 24),
 
-                  // نمودار دما + لیست ساعتی
                   if (vm.hourly.isNotEmpty) ...[
                     TemperatureChart(
                       hourlyData: vm.hourly,
@@ -98,13 +112,28 @@ class _ForecastScreenState extends State<ForecastScreen> {
                       isPersian: isPersian,
                     ),
                     const SizedBox(height: 24),
-                    _buildHourlySection(context, vm, l10n, isPersian),
+                    _buildHourlySection(
+                      context,
+                      vm,
+                      l10n,
+                      isPersian,
+                      textColor,
+                      subTextColor,
+                      isDark,
+                    ),
                     const SizedBox(height: 24),
                   ],
 
-                  // بخش ۵ روزه شیشه‌ای
                   if (vm.daily5.isNotEmpty)
-                    _buildDailyForecastSection(context, vm, l10n, isPersian),
+                    _buildDailySection(
+                      context,
+                      vm,
+                      l10n,
+                      isPersian,
+                      textColor,
+                      subTextColor,
+                      isDark,
+                    ),
 
                   const SizedBox(height: 120),
                 ],
@@ -116,12 +145,15 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Location Header (Glass) ----------------
+  // -------------------- HEADER GLASS --------------------
 
   Widget _buildLocationHeader(
     BuildContext context,
     WeatherViewModel vm,
     AppLocalizations l10n,
+    Color textColor,
+    Color subTextColor,
+    bool isDark,
   ) {
     return Center(
       child: Container(
@@ -130,21 +162,17 @@ class _ForecastScreenState extends State<ForecastScreen> {
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-          ),
+          decoration: _glassBox(isDark),
           child: Column(
             children: [
-              const Icon(Icons.location_on, color: Colors.redAccent, size: 36),
+              Icon(Icons.location_on, color: Colors.redAccent, size: 36),
               const SizedBox(height: 8),
               Text(
                 vm.location,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: textColor,
                 ),
               ),
               const SizedBox(height: 4),
@@ -152,9 +180,9 @@ class _ForecastScreenState extends State<ForecastScreen> {
                 l10n.localeName == 'fa'
                     ? "پیش‌بینی ۵ روز آینده"
                     : "Next 5 Days Forecast",
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.8),
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: subTextColor),
               ),
             ],
           ),
@@ -163,15 +191,18 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Hourly Section (Glass) ----------------
+  // -------------------- HOURLY --------------------
 
   Widget _buildHourlySection(
     BuildContext context,
     WeatherViewModel vm,
     AppLocalizations l10n,
     bool isPersian,
+    Color textColor,
+    Color subTextColor,
+    bool isDark,
   ) {
-    final unitSymbol = vm.useCelsius ? '°C' : '°F';
+    final unit = vm.useCelsius ? '°C' : '°F';
 
     return Center(
       child: Container(
@@ -180,48 +211,32 @@ class _ForecastScreenState extends State<ForecastScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Text(
-                    l10n.hourlyTemperatureTitle,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+            Row(
+              children: [
+                Text(
+                  l10n.hourlyTemperatureTitle,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '($unitSymbol)',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                Text('($unit)', style: TextStyle(color: subTextColor)),
+              ],
             ),
+            const SizedBox(height: 12),
             SizedBox(
               height: 130,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: vm.hourly.length,
-                cacheExtent: 200,
-                itemBuilder: (context, index) {
-                  final hour = vm.hourly[index];
+                itemBuilder: (context, i) {
+                  final hour = vm.hourly[i];
 
-                  final hourText = formatLocalHour(
-                    hour.time,
-                    vm.hourlyOffset ?? 0,
-                  );
-
-                  final rawTemp = hour.temperature;
-                  final displayedTemp = vm.useCelsius
-                      ? rawTemp
-                      : (rawTemp * 9 / 5) + 32;
-                  final tempText =
-                      '${displayedTemp.toStringAsFixed(0)}$unitSymbol';
-
+                  final time = formatLocalHour(hour.time, vm.hourlyOffset ?? 0);
+                  final temp = vm.useCelsius
+                      ? hour.temperature
+                      : (hour.temperature * 9 / 5) + 32;
                   final iconPath = weatherIconAsset(
                     weatherTypeToApiName(hour.weatherType),
                   );
@@ -231,33 +246,29 @@ class _ForecastScreenState extends State<ForecastScreen> {
                     child: Container(
                       width: 72,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.15),
-                        ),
-                      ),
+                      decoration: _glassBoxSmall(isDark),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            isPersian ? toPersianDigits(hourText) : hourText,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Colors.white,
-                                ),
+                            isPersian ? toPersianDigits(time) : time,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: textColor,
+                            ),
                           ),
                           SvgPicture.asset(iconPath, width: 32, height: 32),
                           Text(
-                            isPersian ? toPersianDigits(tempText) : tempText,
-                            style: Theme.of(context).textTheme.bodyLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                            isPersian
+                                ? toPersianDigits(
+                                    "${temp.toStringAsFixed(0)}$unit",
+                                  )
+                                : "${temp.toStringAsFixed(0)}$unit",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
                           ),
                         ],
                       ),
@@ -272,16 +283,19 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Daily 5-day Section (Glass Cards – Style B) ----------------
+  // -------------------- DAILY --------------------
 
-  Widget _buildDailyForecastSection(
+  Widget _buildDailySection(
     BuildContext context,
     WeatherViewModel vm,
     AppLocalizations l10n,
     bool isPersian,
+    Color textColor,
+    Color subTextColor,
+    bool isDark,
   ) {
-    final unitSymbol = vm.useCelsius ? '°C' : '°F';
-    final dayFormatter = DateFormat('EEEE', vm.lang);
+    final unit = vm.useCelsius ? '°C' : '°F';
+    final formatter = DateFormat('EEEE', vm.lang);
 
     return Center(
       child: Container(
@@ -294,7 +308,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
               l10n.dailyForecastTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 12),
@@ -303,152 +317,88 @@ class _ForecastScreenState extends State<ForecastScreen> {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: vm.daily5.length,
-                itemBuilder: (context, index) {
-                  final day = vm.daily5[index];
+                itemBuilder: (context, i) {
+                  final day = vm.daily5[i];
 
-                  final dayOfWeek = dayFormatter.format(
-                    day.date,
-                  ); // همیشه اسم روز
-                  final weatherMain = day.main;
-                  final iconPath = weatherIconAsset(weatherMain);
-
-                  final minDisplayed = vm.useCelsius
-                      ? day.minTemp
-                      : (day.minTemp * 9 / 5) + 32;
-                  final maxDisplayed = vm.useCelsius
-                      ? day.maxTemp
-                      : (day.maxTemp * 9 / 5) + 32;
-
-                  final maxText =
-                      '${maxDisplayed.toStringAsFixed(0)}$unitSymbol';
-                  final minText =
-                      '${minDisplayed.toStringAsFixed(0)}$unitSymbol';
-
-                  final description = translateWeatherDescription(
-                    weatherMain,
+                  final dayName = formatter.format(day.date);
+                  final iconPath = weatherIconAsset(day.main);
+                  final desc = translateWeatherDescription(
+                    day.main,
                     lang: vm.lang,
                   );
 
-                  final currentAqi = vm.calculatedAqiScore;
-
-                  final titleText = isPersian
-                      ? toPersianDigits(dayOfWeek)
-                      : dayOfWeek;
+                  final max = vm.useCelsius
+                      ? day.maxTemp
+                      : (day.maxTemp * 9 / 5) + 32;
+                  final min = vm.useCelsius
+                      ? day.minTemp
+                      : (day.minTemp * 9 / 5) + 32;
 
                   return Padding(
                     padding: const EdgeInsetsDirectional.only(end: 12),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () {
-                        _showDayDetails(
-                          context: context,
-                          dayTitle: titleText, // ✅ همیشه اسم روز، نه Today
-                          description: description,
-                          dayHumidity: day.humidity,
-                          dayWindSpeed: day.windSpeed,
-                          aqi: currentAqi,
-                          l10n: l10n,
-                          isPersian: isPersian,
-                        );
-                      },
-                      child: Container(
-                        width: 150,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white.withValues(alpha: 0.20),
-                              Colors.white.withValues(alpha: 0.05),
+                    child: Container(
+                      width: 150,
+                      padding: const EdgeInsets.all(14),
+                      decoration: _glassBox(isDark),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            isPersian ? toPersianDigits(dayName) : dayName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                          SvgPicture.asset(iconPath, width: 42, height: 42),
+                          Text(
+                            desc,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: subTextColor),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.arrow_upward_rounded,
+                                size: 16,
+                                color: Colors.orangeAccent,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isPersian
+                                    ? toPersianDigits(
+                                        "${max.toStringAsFixed(0)}$unit",
+                                      )
+                                    : "${max.toStringAsFixed(0)}$unit",
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ],
                           ),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.25),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.arrow_downward_rounded,
+                                size: 16,
+                                color: Colors.lightBlueAccent,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isPersian
+                                    ? toPersianDigits(
+                                        "${min.toStringAsFixed(0)}$unit",
+                                      )
+                                    : "${min.toStringAsFixed(0)}$unit",
+                                style: TextStyle(color: subTextColor),
+                              ),
+                            ],
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.18),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              titleText,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                            ),
-                            const SizedBox(height: 6),
-                            SvgPicture.asset(iconPath, width: 42, height: 42),
-                            const SizedBox(height: 4),
-                            Text(
-                              description,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.9),
-                                  ),
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.arrow_upward_rounded,
-                                  size: 16,
-                                  color: Colors.orangeAccent,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  isPersian
-                                      ? toPersianDigits(maxText)
-                                      : maxText,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.arrow_downward_rounded,
-                                  size: 16,
-                                  color: Colors.lightBlueAccent,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  isPersian
-                                      ? toPersianDigits(minText)
-                                      : minText,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.normal,
-                                        color: Colors.white.withValues(
-                                          alpha: 0.7,
-                                        ),
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   );
@@ -461,171 +411,48 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Bottom Sheet (Day Details) ----------------
+  // -------------------- Glass Styles --------------------
 
-  void _showDayDetails({
-    required BuildContext context,
-    required String dayTitle,
-    required String description,
-    required int dayHumidity,
-    required double dayWindSpeed,
-    required int aqi,
-    required AppLocalizations l10n,
-    required bool isPersian,
-  }) {
-    final humidity = isPersian
-        ? toPersianDigits("$dayHumidity%")
-        : "$dayHumidity%";
-
-    final windSpeedText = isPersian
-        ? toPersianDigits(dayWindSpeed.toStringAsFixed(1))
-        : dayWindSpeed.toStringAsFixed(1);
-
-    final windUnit = l10n.localeName == 'fa' ? "کیلومتر/ساعت" : "km/h";
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
-          builder: (_, controller) {
-            final sheetColor = Theme.of(context).scaffoldBackgroundColor;
-            return Container(
-              decoration: BoxDecoration(
-                color: sheetColor,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
-              ),
-              child: ListView(
-                controller: controller,
-                padding: const EdgeInsets.all(24),
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Theme.of(
-                                context,
-                              ).dividerColor.withValues(alpha: 0.1),
-                            ),
-                            child: const Icon(Icons.close_rounded, size: 20),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "$dayTitle - $description",
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  AirQualityCard(aqi: aqi),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildDetailBox(
-                          context: context,
-                          title: l10n.localeName == 'fa' ? "رطوبت" : "Humidity",
-                          value: humidity,
-                          icon: const HumidityIcon(),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildDetailBox(
-                          context: context,
-                          title: l10n.localeName == 'fa' ? "باد" : "Wind",
-                          value: "$windSpeedText $windUnit",
-                          icon: WindTurbineIcon(windSpeed: dayWindSpeed),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        side: BorderSide(color: Theme.of(context).dividerColor),
-                      ),
-                      child: Text(l10n.localeName == 'fa' ? "بستن" : "Close"),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+  BoxDecoration _glassBox(bool isDark) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(20),
+      gradient: LinearGradient(
+        colors: isDark
+            ? [
+                Colors.white.withValues(alpha: 0.15),
+                Colors.white.withValues(alpha: 0.05),
+              ]
+            : [
+                Colors.white.withValues(alpha: 0.22),
+                Colors.white.withValues(alpha: 0.10),
+              ],
+      ),
+      border: Border.all(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.18)
+            : Colors.black.withValues(alpha: 0.08),
+      ),
     );
   }
 
-  Widget _buildDetailBox({
-    required BuildContext context,
-    required Widget icon,
-    required String title,
-    required String value,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withValues(alpha: 0.12),
-        ),
+  BoxDecoration _glassBoxSmall(bool isDark) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(16),
+      gradient: LinearGradient(
+        colors: isDark
+            ? [
+                Colors.white.withValues(alpha: 0.12),
+                Colors.white.withValues(alpha: 0.04),
+              ]
+            : [
+                Colors.white.withValues(alpha: 0.18),
+                Colors.white.withValues(alpha: 0.08),
+              ],
       ),
-      child: Column(
-        children: [
-          SizedBox(height: 32, width: 32, child: Center(child: icon)),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      border: Border.all(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.15)
+            : Colors.black.withValues(alpha: 0.06),
       ),
     );
   }

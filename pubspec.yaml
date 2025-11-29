@@ -78,7 +78,6 @@ flutter:
   assets:
     - assets/config/keys.json
     - assets/icons/
-    - assets/animations/weather_splash.json
 
   fonts:
     - family: Vazir

@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 import 'package:weatherly_app/data/models/weather_type.dart';
-import 'package:weatherly_app/core/utils/city_utils.dart';
 
 /// فرمت کردن ساعت محلی
 String formatLocalHour(DateTime time, int offsetSeconds) {

@@ -60,10 +60,7 @@ class HomeSearchSection extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(
-                  color: inputColor,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: inputColor, width: 1.5),
               ),
               hintStyle: TextStyle(
                 color: hintColor,
@@ -89,9 +86,7 @@ class HomeSearchSection extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -126,9 +121,9 @@ class HomeSearchSection extends StatelessWidget {
                         border: Border(
                           bottom: index < viewModel.suggestions.length - 1
                               ? BorderSide(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            width: 0.5,
-                          )
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                  width: 0.5,
+                                )
                               : BorderSide.none,
                         ),
                       ),

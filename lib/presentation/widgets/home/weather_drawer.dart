@@ -29,14 +29,18 @@ class WeatherDrawer extends StatelessWidget {
               ],
             ),
             border: Border(
-              left: isRtl ? BorderSide.none : BorderSide(
-                color: Colors.white.withValues(alpha: 0.2),
-                width: 1,
-              ),
-              right: isRtl ? BorderSide(
-                color: Colors.white.withValues(alpha: 0.2),
-                width: 1,
-              ) : BorderSide.none,
+              left: isRtl
+                  ? BorderSide.none
+                  : BorderSide(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+              right: isRtl
+                  ? BorderSide(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      width: 1,
+                    )
+                  : BorderSide.none,
             ),
           ),
           child: Column(
@@ -44,7 +48,12 @@ class WeatherDrawer extends StatelessWidget {
               // --- GLASSMORPHIC HEADER ---
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 20, 24, 20),
+                padding: EdgeInsets.fromLTRB(
+                  24,
+                  MediaQuery.of(context).padding.top + 20,
+                  24,
+                  20,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -125,7 +134,10 @@ class WeatherDrawer extends StatelessWidget {
                     ),
 
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 16,
+                      ),
                       child: Container(
                         height: 1,
                         decoration: BoxDecoration(
@@ -209,9 +221,7 @@ class WeatherDrawer extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
             ),
             child: Icon(
               isPinnedSection ? Icons.push_pin : Icons.history,
