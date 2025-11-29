@@ -12,6 +12,7 @@ class AboutScreen extends StatelessWidget {
   final String githubProject = "https://github.com/MRAmin0/Weatherly";
   final String githubProfile = "https://github.com/MRAmin0";
 
+  // ---------------- Version Loader ----------------
   Future<String> _loadVersion(AppLocalizations l10n) async {
     try {
       final info = await PackageInfo.fromPlatform();
@@ -95,10 +96,8 @@ ISSUE DESCRIPTION
     final l10n = AppLocalizations.of(context)!;
 
     final isDark = theme.brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : theme.colorScheme.onSurface;
-    final subTextColor = isDark
-        ? Colors.white70
-        : theme.colorScheme.onSurfaceVariant;
+    final textColor = theme.colorScheme.onSurface;
+    final subTextColor = theme.colorScheme.onSurfaceVariant;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -111,19 +110,21 @@ ISSUE DESCRIPTION
           ),
         ),
         centerTitle: true,
-        backgroundColor: theme.colorScheme.surface.withOpacity(0.9),
+        backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.8,
+        ),
         elevation: 0,
         iconTheme: IconThemeData(color: theme.colorScheme.primary),
       ),
 
       body: Stack(
         children: [
-          // 🔹 پس زمینه شیشه‌ای فقط در دارک مود
+          // 🔹 Glass background only in dark mode
           if (isDark)
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                child: Container(color: Colors.black.withOpacity(0.28)),
+                child: Container(color: Colors.black.withValues(alpha: 0.25)),
               ),
             ),
 
@@ -132,7 +133,7 @@ ISSUE DESCRIPTION
             children: <Widget>[
               const SizedBox(height: 16),
 
-              // --- Logo Glass Circle ---
+              // ----- Logo Glass Circle -----
               Center(
                 child: Container(
                   width: 110,
@@ -140,17 +141,17 @@ ISSUE DESCRIPTION
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isDark
-                        ? Colors.white.withOpacity(0.12)
-                        : theme.colorScheme.primary.withOpacity(0.1),
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : theme.colorScheme.primary.withValues(alpha: 0.08),
                     border: Border.all(
                       color: isDark
-                          ? Colors.white.withOpacity(0.25)
-                          : theme.colorScheme.primary.withOpacity(0.2),
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : theme.colorScheme.primary.withValues(alpha: 0.25),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -166,10 +167,10 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 24),
 
-              // --- Description Card ---
+              // ----- Description -----
               _glassCard(
-                isDark: isDark,
                 theme: theme,
+                isDark: isDark,
                 child: Text(
                   l10n.appDescription,
                   textAlign: TextAlign.center,
@@ -182,10 +183,10 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              // --- Info Card ---
+              // ----- App info -----
               _glassCard(
-                isDark: isDark,
                 theme: theme,
+                isDark: isDark,
                 child: Column(
                   children: [
                     ListTile(
@@ -201,13 +202,16 @@ ISSUE DESCRIPTION
                       ),
                       subtitle: FutureBuilder<String>(
                         future: _loadVersion(l10n),
-                        builder: (context, snap) => Text(
-                          snap.data ?? l10n.readingVersion,
-                          style: TextStyle(color: subTextColor),
-                        ),
+                        builder: (context, snap) {
+                          return Text(
+                            snap.data ?? l10n.readingVersion,
+                            style: TextStyle(color: subTextColor),
+                          );
+                        },
                       ),
                     ),
-                    _divider(isDark, theme),
+                    _divider(theme, isDark),
+
                     ListTile(
                       leading: Icon(
                         Icons.history_outlined,
@@ -225,7 +229,7 @@ ISSUE DESCRIPTION
                         color: subTextColor,
                       ),
                       onTap: () =>
-                          _showChangelogDialog(context, l10n, isDark, theme),
+                          _showChangelogDialog(context, l10n, theme, isDark),
                     ),
                   ],
                 ),
@@ -233,10 +237,10 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              // --- Dev Card ---
+              // ----- Dev info -----
               _glassCard(
-                isDark: isDark,
                 theme: theme,
+                isDark: isDark,
                 child: Column(
                   children: [
                     ListTile(
@@ -256,7 +260,8 @@ ISSUE DESCRIPTION
                       ),
                       onTap: () => _openUrl(githubProfile),
                     ),
-                    _divider(isDark, theme),
+                    _divider(theme, isDark),
+
                     ListTile(
                       leading: Icon(
                         Icons.email_outlined,
@@ -270,7 +275,8 @@ ISSUE DESCRIPTION
                       ),
                       onTap: () => _sendEmail(developerEmail),
                     ),
-                    _divider(isDark, theme),
+                    _divider(theme, isDark),
+
                     ListTile(
                       leading: Icon(
                         Icons.code_outlined,
@@ -290,10 +296,10 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              // --- Issue report ---
+              // ----- Issue Report -----
               _glassCard(
-                isDark: isDark,
                 theme: theme,
+                isDark: isDark,
                 child: ListTile(
                   leading: const Icon(
                     Icons.bug_report_outlined,
@@ -322,10 +328,10 @@ ISSUE DESCRIPTION
     );
   }
 
-  // ------------------------ GlassCard ------------------------
+  // ---------------- GlassCard ----------------
   Widget _glassCard({
-    required bool isDark,
     required ThemeData theme,
+    required bool isDark,
     required Widget child,
   }) {
     return Container(
@@ -334,18 +340,18 @@ ISSUE DESCRIPTION
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         color: isDark
-            ? Colors.white.withOpacity(0.08)
-            : theme.colorScheme.surfaceVariant.withOpacity(0.7),
+            ? Colors.white.withValues(alpha: 0.06)
+            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
         border: Border.all(
           color: isDark
-              ? Colors.white.withOpacity(0.18)
+              ? Colors.white.withValues(alpha: 0.20)
               : theme.colorScheme.outlineVariant,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            blurRadius: 12,
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 10,
             offset: const Offset(0, 6),
           ),
         ],
@@ -354,44 +360,44 @@ ISSUE DESCRIPTION
     );
   }
 
-  Widget _divider(bool isDark, ThemeData theme) {
+  Widget _divider(ThemeData theme, bool isDark) {
     return Divider(
       height: 1,
       color: isDark
-          ? Colors.white.withOpacity(0.12)
+          ? Colors.white.withValues(alpha: 0.16)
           : theme.colorScheme.outlineVariant,
     );
   }
 
-  // ------------------------ CHANGELOG ------------------------
+  // ---------- Changelog Dialog ----------
   void _showChangelogDialog(
     BuildContext context,
     AppLocalizations l10n,
-    bool isDark,
     ThemeData theme,
+    bool isDark,
   ) {
     showDialog(
       context: context,
-      barrierColor: isDark ? Colors.black.withOpacity(0.25) : Colors.black12,
+      barrierColor: Colors.black.withValues(alpha: 0.22),
       builder: (context) {
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: AlertDialog(
             backgroundColor: isDark
-                ? Colors.black.withOpacity(0.6)
+                ? Colors.black.withValues(alpha: 0.65)
                 : theme.colorScheme.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
                 color: isDark
-                    ? Colors.white.withOpacity(0.18)
+                    ? Colors.white.withValues(alpha: 0.20)
                     : theme.colorScheme.outlineVariant,
               ),
             ),
             title: Text(
               l10n.versionHistory,
               style: TextStyle(
-                color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                color: theme.colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -433,9 +439,7 @@ ISSUE DESCRIPTION
 • انتشار اولیه
 ''',
                 style: TextStyle(
-                  color: isDark
-                      ? Colors.white70
-                      : theme.colorScheme.onSurfaceVariant,
+                  color: theme.colorScheme.onSurfaceVariant,
                   height: 1.4,
                 ),
               ),
@@ -446,9 +450,7 @@ ISSUE DESCRIPTION
                 child: Text(
                   l10n.close,
                   style: TextStyle(
-                    color: isDark
-                        ? Colors.lightBlueAccent
-                        : theme.colorScheme.primary,
+                    color: theme.colorScheme.primary,
                     fontSize: 16,
                   ),
                 ),

@@ -32,10 +32,8 @@ class _SplashScreenState extends State<SplashScreen>
       curve: Curves.easeInOut,
     );
 
-    // شروع انیمیشن
     _fadeController.forward();
 
-    // مدت نمایش دینامیک: 1.7 ثانیه
     Future.delayed(const Duration(milliseconds: 1700), () {
       _navigateToHome();
     });
@@ -46,9 +44,8 @@ class _SplashScreenState extends State<SplashScreen>
       context,
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => const WeatherScreen(),
-        transitionsBuilder: (_, animation, __, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
         transitionDuration: const Duration(milliseconds: 900),
       ),
     );
@@ -64,7 +61,6 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final vm = context.watch<WeatherViewModel>();
 
-    // حالت پویا بر اساس وضعیت آب‌وهوا
     final weatherType = vm.currentWeather?.weatherType ?? WeatherType.clear;
 
     final gradientColors = _getDynamicGradient(weatherType);
@@ -73,7 +69,7 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // 🔹 پس‌زمینه گرادینت داینامیک
+          // 🔹 Dynamic Gradient Background
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -84,22 +80,22 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // 🔹 افکت شیشه‌ای تمام صفحه
+          // 🔹 Fullscreen Glass Blur
           Positioned.fill(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-              child: Container(color: Colors.white.withOpacity(0.07)),
+              filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
+              child: Container(color: Colors.white.withValues(alpha: 0.06)),
             ),
           ),
 
-          // 🔹 محتوا (آیکون + متن)
+          // 🔹 Logo + App Name
           Center(
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // دایره شیشه‌ای
+                  // Glass Circle
                   Container(
                     width: 120,
                     height: 120,
@@ -107,19 +103,19 @@ class _SplashScreenState extends State<SplashScreen>
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         colors: [
-                          Colors.white.withOpacity(0.25),
-                          Colors.white.withOpacity(0.10),
+                          Colors.white.withValues(alpha: 0.22),
+                          Colors.white.withValues(alpha: 0.10),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.18),
+                        color: Colors.white.withValues(alpha: 0.18),
                         width: 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
+                          color: Colors.black.withValues(alpha: 0.25),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -143,7 +139,7 @@ class _SplashScreenState extends State<SplashScreen>
                       letterSpacing: 1.5,
                       shadows: [
                         Shadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.32),
                           blurRadius: 10,
                         ),
                       ],
@@ -155,7 +151,7 @@ class _SplashScreenState extends State<SplashScreen>
                   Text(
                     "Forecast • Air Quality • Live Weather",
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 14,
                       letterSpacing: 0.6,
                     ),
@@ -169,21 +165,21 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  /// گرادینت پویا بر اساس وضعیت آب‌وهوا
+  /// 🌈 Dynamic Gradient Based on Weather
   List<Color> _getDynamicGradient(WeatherType type) {
     switch (type) {
       case WeatherType.clear:
-        return [Colors.blue.shade300, Colors.indigo.shade700];
+        return [const Color(0xFF6EC6FF), const Color(0xFF003C8F)];
       case WeatherType.clouds:
-        return [Colors.blueGrey.shade400, Colors.blueGrey.shade800];
+        return [const Color(0xFF90A4AE), const Color(0xFF455A64)];
       case WeatherType.rain:
-        return [Colors.indigo.shade400, Colors.blueGrey.shade900];
+        return [const Color(0xFF5C6BC0), const Color(0xFF263238)];
       case WeatherType.thunderstorm:
-        return [Colors.deepPurple.shade300, Colors.black87];
+        return [const Color(0xFF9575CD), const Color(0xFF1A1A1A)];
       case WeatherType.snow:
-        return [Colors.cyan.shade100, Colors.blueGrey.shade600];
+        return [const Color(0xFFE1F5FE), const Color(0xFF607D8B)];
       default:
-        return [Colors.blue.shade300, Colors.indigo.shade700];
+        return [const Color(0xFF6EC6FF), const Color(0xFF003C8F)];
     }
   }
 }
