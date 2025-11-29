@@ -69,7 +69,9 @@ class _HomePageState extends State<HomePage> {
         context: context,
         builder: (context) => const AlertDialog(
           title: Text("عدم اتصال به اینترنت"),
-          content: Text("برای استفاده از برنامه، اتصال اینترنت خود را بررسی کنید."),
+          content: Text(
+            "برای استفاده از برنامه، اتصال اینترنت خود را بررسی کنید.",
+          ),
         ),
       );
     }
@@ -94,11 +96,11 @@ class _HomePageState extends State<HomePage> {
     final vm = context.watch<WeatherViewModel>();
     final l10n = AppLocalizations.of(context)!;
 
-    // از ستینگ: رنگ + حالت بلور
+    /// از ستینگ: رنگ و بلور
     final bgColor = vm.userBackgroundColor;
     final useBlur = vm.useBlur;
 
-    // کنترل حداقل نمایش لودینگ سرچ
+    /// مدیریت حداقل زمان نمایش لودینگ
     if (_showSearchOverlay && !vm.isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         const minMs = 900;
@@ -120,13 +122,13 @@ class _HomePageState extends State<HomePage> {
 
       body: Stack(
         children: [
-          /// 🔹 پس‌زمینه مشترک جدید
+          /// 🔹 پس‌زمینه یکپارچه
           AppBackground(color: bgColor, blur: useBlur),
 
           /// 🔹 محتوای اصلی
           RefreshIndicator(
             color: Colors.white,
-            backgroundColor: Colors.white.withOpacity(0.15),
+            backgroundColor: Colors.white.withValues(alpha: 38), // 0.15
             onRefresh: vm.refresh,
             child: CustomScrollView(
               controller: _scrollController,
@@ -176,13 +178,13 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          /// 🔹 Search overlay
+          /// 🔹 لایه گلس لودینگ سرچ
           if (_showSearchOverlay)
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
                 child: Container(
-                  color: Colors.black.withOpacity(0.32),
+                  color: Colors.black.withValues(alpha: 82), // 0.32
                   child: const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
@@ -195,10 +197,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildWeatherContent(
-      BuildContext context,
-      WeatherViewModel vm,
-      AppLocalizations l10n,
-      ) {
+    BuildContext context,
+    WeatherViewModel vm,
+    AppLocalizations l10n,
+  ) {
     if (vm.error != null) {
       return Padding(
         padding: const EdgeInsets.only(top: 60),
@@ -239,19 +241,19 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
-            Colors.white.withOpacity(0.18),
-            Colors.white.withOpacity(0.08),
+            Color.fromARGB(46, 255, 255, 255), // 0.18
+            Color.fromARGB(20, 255, 255, 255), // 0.08
           ],
         ),
         border: Border.all(
-          color: Colors.white.withOpacity(0.22),
+          color: const Color.fromARGB(56, 255, 255, 255), // 0.22
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.14),
+            color: const Color.fromARGB(36, 0, 0, 0), // 0.14
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
@@ -261,7 +263,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           CurrentWeatherSection(viewModel: vm, l10n: l10n),
           const SizedBox(height: 18),
-          Divider(color: Colors.white.withOpacity(0.18)),
+          const Divider(color: Color.fromARGB(46, 255, 255, 255)),
           const SizedBox(height: 18),
           DetailsRow(viewModel: vm, l10n: l10n),
         ],
