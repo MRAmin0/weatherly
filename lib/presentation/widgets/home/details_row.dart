@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
-import 'package:weatherly_app/utils/city_utils.dart';
-// ایمپورت فایل جدید
-import 'package:weatherly_app/widgets/animations/weather_status_icons.dart';
+import 'package:weatherly_app/core/utils/city_utils.dart';
+import 'package:weatherly_app/presentation/widgets/animations/weather_status_icons.dart';
 
 class DetailsRow extends StatelessWidget {
   final WeatherViewModel viewModel;

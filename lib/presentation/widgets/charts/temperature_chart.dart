@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:weatherly_app/models/hourly_forecast.dart';
+import 'package:weatherly_app/data/models/hourly_forecast.dart';
 import 'package:intl/intl.dart';
-import 'package:weatherly_app/utils/city_utils.dart';
+import 'package:weatherly_app/core/utils/city_utils.dart';
 
 class TemperatureChart extends StatelessWidget {
   final List<HourlyForecastEntry> hourlyData;
@@ -79,7 +79,8 @@ class TemperatureChart extends StatelessWidget {
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
               // ✅ Updated: Use getTooltipColor instead of tooltipBgColor
-              getTooltipColor: (touchedSpot) => Colors.black.withValues(alpha: 0.8),
+              getTooltipColor: (touchedSpot) =>
+                  Colors.black.withValues(alpha: 0.8),
               tooltipRoundedRadius: 12,
               tooltipPadding: const EdgeInsets.all(10),
               tooltipMargin: 8,
@@ -109,9 +110,7 @@ class TemperatureChart extends StatelessWidget {
               isCurved: true,
               dotData: const FlDotData(show: false),
               // ✅ Updated: Use gradient instead of single color for line
-              gradient: LinearGradient(
-                colors: [Colors.white, Colors.white],
-              ),
+              gradient: LinearGradient(colors: [Colors.white, Colors.white]),
               // ✅ Updated: Use showingIndicators for spot line
               showingIndicators: [],
             ),

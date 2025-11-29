@@ -4,12 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:weatherly_app/l10n/app_localizations.dart';
-import 'package:weatherly_app/utils/weather_formatters.dart';
-import 'package:weatherly_app/utils/city_utils.dart';
+import 'package:weatherly_app/core/utils/weather_formatters.dart';
+import 'package:weatherly_app/core/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
-import 'package:weatherly_app/widgets/air_quality_card.dart';
-import 'package:weatherly_app/widgets/animations/weather_status_icons.dart';
-import 'package:weatherly_app/widgets/charts/temperature_chart.dart'; // ✅ ایمپورت نمودار
+import 'package:weatherly_app/presentation/widgets/cards/air_quality_card.dart';
+import 'package:weatherly_app/presentation/widgets/animations/weather_status_icons.dart';
+import 'package:weatherly_app/presentation/widgets/charts/temperature_chart.dart';
 
 class ForecastScreen extends StatefulWidget {
   const ForecastScreen({super.key});
@@ -19,12 +19,6 @@ class ForecastScreen extends StatefulWidget {
 }
 
 class _ForecastScreenState extends State<ForecastScreen> {
-  // @override
-  // void initState() {
-  //   // حذف کنترلرهای انیمیشن غیرضروری از این صفحه برای تمیزی بیشتر
-  //   super.initState();
-  // }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -46,12 +40,13 @@ class _ForecastScreenState extends State<ForecastScreen> {
         builder: (context, vm, _) {
           final isPersian = vm.lang == 'fa';
 
-          // --- مدیریت حالت‌های اولیه ---
+          // حالت‌های اولیه
           if (vm.isLoading && vm.location.isEmpty) {
             return const Center(
               child: CircularProgressIndicator(color: Colors.white),
             );
           }
+
           if (vm.error != null) {
             return Center(
               child: Padding(
@@ -68,6 +63,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
               ),
             );
           }
+
           if (vm.location.isEmpty || vm.currentWeather == null) {
             return Center(
               child: Padding(
@@ -80,37 +76,35 @@ class _ForecastScreenState extends State<ForecastScreen> {
               ),
             );
           }
-          // --- پایان مدیریت حالت‌های اولیه ---
 
           return RefreshIndicator(
             color: Colors.white,
             backgroundColor: Colors.white.withValues(alpha: 0.2),
             onRefresh: vm.refresh,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
               physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _buildLocationHeader(context, vm, l10n),
                   const SizedBox(height: 24),
 
+                  // نمودار دما + لیست ساعتی
                   if (vm.hourly.isNotEmpty) ...[
-                    // ✅ ۱. اضافه شدن نمودار دما
                     TemperatureChart(
                       hourlyData: vm.hourly,
                       useCelsius: vm.useCelsius,
                       isPersian: isPersian,
                     ),
-                    const SizedBox(height: 24), // فاصله بین نمودار و لیست ساعتی
-
+                    const SizedBox(height: 24),
                     _buildHourlySection(context, vm, l10n, isPersian),
                     const SizedBox(height: 24),
                   ],
 
-                  if (vm.daily5.isNotEmpty) ...[
+                  // بخش ۵ روزه شیشه‌ای
+                  if (vm.daily5.isNotEmpty)
                     _buildDailyForecastSection(context, vm, l10n, isPersian),
-                  ],
 
                   const SizedBox(height: 120),
                 ],
@@ -122,7 +116,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Location Header (Glassmorphism) ----------------
+  // ---------------- Location Header (Glass) ----------------
 
   Widget _buildLocationHeader(
     BuildContext context,
@@ -132,12 +126,11 @@ class _ForecastScreenState extends State<ForecastScreen> {
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 800),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            // ✅ استایل شیشه‌ای
             color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
@@ -151,7 +144,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white, // ✅ متن سفید
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 4),
@@ -160,7 +153,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                     ? "پیش‌بینی ۵ روز آینده"
                     : "Next 5 Days Forecast",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.8), // ✅ متن سفید
+                  color: Colors.white.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -170,7 +163,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Hourly Section (Glassmorphism) ----------------
+  // ---------------- Hourly Section (Glass) ----------------
 
   Widget _buildHourlySection(
     BuildContext context,
@@ -183,7 +176,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 800),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -195,14 +188,14 @@ class _ForecastScreenState extends State<ForecastScreen> {
                     l10n.hourlyTemperatureTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.white, // ✅ متن سفید
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '($unitSymbol)',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.7), // ✅ متن سفید
+                      color: Colors.white.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -234,12 +227,12 @@ class _ForecastScreenState extends State<ForecastScreen> {
                   );
 
                   return Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 12.0),
+                    padding: const EdgeInsetsDirectional.only(end: 12),
                     child: Container(
-                      width: 70,
+                      width: 72,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1), // ✅ Glass
+                        color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.15),
@@ -254,7 +247,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                                 ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Colors.white, // ✅ متن سفید
+                                  color: Colors.white,
                                 ),
                           ),
                           SvgPicture.asset(iconPath, width: 32, height: 32),
@@ -263,7 +256,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
                             style: Theme.of(context).textTheme.bodyLarge
                                 ?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white, // ✅ متن سفید
+                                  color: Colors.white,
                                 ),
                           ),
                         ],
@@ -279,7 +272,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
     );
   }
 
-  // ---------------- Daily 5-day Section (Glassmorphism) ----------------
+  // ---------------- Daily 5-day Section (Glass Cards – Style B) ----------------
 
   Widget _buildDailyForecastSection(
     BuildContext context,
@@ -293,168 +286,175 @@ class _ForecastScreenState extends State<ForecastScreen> {
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 800),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(
-                l10n.dailyForecastTitle,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white, // ✅ متن سفید
-                ),
+            Text(
+              l10n.dailyForecastTitle,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
-            ...vm.daily5.asMap().entries.map((entry) {
-              final index = entry.key;
-              final day = entry.value;
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 170,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: vm.daily5.length,
+                itemBuilder: (context, index) {
+                  final day = vm.daily5[index];
 
-              final dayOfWeek = dayFormatter.format(day.date);
-              final weatherMain = day.main;
-              final iconPath = weatherIconAsset(weatherMain);
+                  final dayOfWeek = dayFormatter.format(
+                    day.date,
+                  ); // همیشه اسم روز
+                  final weatherMain = day.main;
+                  final iconPath = weatherIconAsset(weatherMain);
 
-              final minDisplayed = vm.useCelsius
-                  ? day.minTemp
-                  : (day.minTemp * 9 / 5) + 32;
-              final maxDisplayed = vm.useCelsius
-                  ? day.maxTemp
-                  : (day.maxTemp * 9 / 5) + 32;
+                  final minDisplayed = vm.useCelsius
+                      ? day.minTemp
+                      : (day.minTemp * 9 / 5) + 32;
+                  final maxDisplayed = vm.useCelsius
+                      ? day.maxTemp
+                      : (day.maxTemp * 9 / 5) + 32;
 
-              final maxText = '${maxDisplayed.toStringAsFixed(0)}$unitSymbol';
-              final minText = '${minDisplayed.toStringAsFixed(0)}$unitSymbol';
+                  final maxText =
+                      '${maxDisplayed.toStringAsFixed(0)}$unitSymbol';
+                  final minText =
+                      '${minDisplayed.toStringAsFixed(0)}$unitSymbol';
 
-              final description = translateWeatherDescription(
-                weatherMain,
-                lang: vm.lang,
-              );
+                  final description = translateWeatherDescription(
+                    weatherMain,
+                    lang: vm.lang,
+                  );
 
-              final currentAqi = vm.calculatedAqiScore;
+                  final currentAqi = vm.calculatedAqiScore;
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: InkWell(
-                  onTap: () {
-                    _showDayDetails(
-                      context: context,
-                      dayTitle: index == 0 ? l10n.today : dayOfWeek,
-                      description: description,
-                      dayHumidity: day.humidity,
-                      dayWindSpeed: day.windSpeed,
-                      aqi: currentAqi,
-                      l10n: l10n,
-                      isPersian: isPersian,
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1), // ✅ Glass
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.15),
+                  final titleText = isPersian
+                      ? toPersianDigits(dayOfWeek)
+                      : dayOfWeek;
+
+                  return Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        _showDayDetails(
+                          context: context,
+                          dayTitle: titleText, // ✅ همیشه اسم روز، نه Today
+                          description: description,
+                          dayHumidity: day.humidity,
+                          dayWindSpeed: day.windSpeed,
+                          aqi: currentAqi,
+                          l10n: l10n,
+                          isPersian: isPersian,
+                        );
+                      },
+                      child: Container(
+                        width: 150,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white.withValues(alpha: 0.20),
+                              Colors.white.withValues(alpha: 0.05),
+                            ],
+                          ),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.25),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.18),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              titleText,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                            ),
+                            const SizedBox(height: 6),
+                            SvgPicture.asset(iconPath, width: 42, height: 42),
+                            const SizedBox(height: 4),
+                            Text(
+                              description,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                  ),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.arrow_upward_rounded,
+                                  size: 16,
+                                  color: Colors.orangeAccent,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  isPersian
+                                      ? toPersianDigits(maxText)
+                                      : maxText,
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.arrow_downward_rounded,
+                                  size: 16,
+                                  color: Colors.lightBlueAccent,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  isPersian
+                                      ? toPersianDigits(minText)
+                                      : minText,
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.normal,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.7,
+                                        ),
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                index == 0 ? l10n.today : dayOfWeek,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white, // ✅ متن سفید
-                                    ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                description,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.9,
-                                      ), // ✅ متن سفید
-                                    ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SvgPicture.asset(iconPath, width: 40, height: 40),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.arrow_upward_rounded,
-                                    size: 16,
-                                    color: Colors.orangeAccent,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    isPersian
-                                        ? toPersianDigits(maxText)
-                                        : maxText,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white, // ✅ متن سفید
-                                        ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.arrow_downward_rounded,
-                                    size: 16,
-                                    color: Colors.lightBlueAccent,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    isPersian
-                                        ? toPersianDigits(minText)
-                                        : minText,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.white.withValues(
-                                            alpha: 0.7,
-                                          ), // ✅ متن سفید
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -462,7 +462,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
   }
 
   // ---------------- Bottom Sheet (Day Details) ----------------
-  // این قسمت نیازی به تغییر ندارد چون از رنگ تم (سفید/مشکی) استفاده می‌کند
+
   void _showDayDetails({
     required BuildContext context,
     required String dayTitle,
@@ -596,7 +596,6 @@ class _ForecastScreenState extends State<ForecastScreen> {
     required String title,
     required String value,
   }) {
-    // این باکس‌ها چون داخل باتم شیت هستند، از استایل تم پیروی می‌کنند.
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       decoration: BoxDecoration(

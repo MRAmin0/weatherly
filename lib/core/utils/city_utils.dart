@@ -1,4 +1,4 @@
-import '../models/weather_type.dart';
+import 'package:weatherly_app/data/models/weather_type.dart';
 
 /// تبدیل اعداد انگلیسی به فارسی
 String toPersianDigits(String input) {

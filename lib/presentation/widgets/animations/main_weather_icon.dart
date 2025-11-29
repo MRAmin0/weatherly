@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:weatherly_app/models/weather_type.dart';
-import 'package:weatherly_app/widgets/animations/weather_animator.dart';
-// ✅ ایمپورت فایل SVG های جدید
-import 'package:weatherly_app/widgets/animations/svg_assets.dart';
+import 'package:weatherly_app/data/models/weather_type.dart';
+import 'package:weatherly_app/presentation/widgets/animations/weather_animator.dart';
+// lib/widgets/animations/svg_assets.dart
+import 'package:weatherly_app/presentation/widgets/animations/icon/svg_assets.dart';
 
 class MainWeatherIcon extends StatelessWidget {
   final WeatherType weatherType;

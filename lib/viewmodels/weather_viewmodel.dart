@@ -2,12 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../models/current_weather.dart';
-import '../models/daily_forecast.dart';
-import '../models/hourly_forecast.dart';
-import '../models/weather_type.dart';
-import '../services/weather_api_service.dart';
+import 'package:weatherly_app/data/models/current_weather.dart';
+import 'package:weatherly_app/data/models/daily_forecast.dart';
+import 'package:weatherly_app/data/models/hourly_forecast.dart';
+import 'package:weatherly_app/data/models/weather_type.dart';
+import 'package:weatherly_app/data/services/weather_api_service.dart';
 
 class WeatherViewModel extends ChangeNotifier {
   final WeatherApiService _api;

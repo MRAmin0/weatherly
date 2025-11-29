@@ -5,7 +5,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:device_preview/device_preview.dart';
 
 import 'l10n/app_localizations.dart';
-import 'screens/splash_screen.dart';
+import 'package:weatherly_app/presentation/screens/splash/splash_screen.dart';
 import 'viewmodels/weather_viewmodel.dart';
 import 'config/config_reader.dart';
 

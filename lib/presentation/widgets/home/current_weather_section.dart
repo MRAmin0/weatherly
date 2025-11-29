@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
-import 'package:weatherly_app/utils/weather_formatters.dart';
-import 'package:weatherly_app/utils/city_utils.dart';
+import 'package:weatherly_app/core/utils/weather_formatters.dart';
+import 'package:weatherly_app/core/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
-import 'package:weatherly_app/widgets/animations/main_weather_icon.dart';
+import 'package:weatherly_app/presentation/widgets/animations/main_weather_icon.dart';
 
 class CurrentWeatherSection extends StatelessWidget {
   final WeatherViewModel viewModel;

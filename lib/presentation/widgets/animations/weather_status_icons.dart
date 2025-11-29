@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:weatherly_app/models/weather_type.dart';
-import 'package:weatherly_app/widgets/animations/weather_animator.dart';
+import 'package:weatherly_app/data/models/weather_type.dart';
+import 'package:weatherly_app/presentation/widgets/animations/weather_animator.dart';
 
 /// 1. آیکون هوشمند توربین بادی (با سرعت متغیر و چرخش دقیق)
 class WindTurbineIcon extends StatelessWidget {

@@ -1,4 +1,4 @@
-import 'package:weatherly_app/models/weather_type.dart';
+import 'package:weatherly_app/data/models/weather_type.dart';
 // Ensure this exists for mapWeatherType
 
 class CurrentWeather {

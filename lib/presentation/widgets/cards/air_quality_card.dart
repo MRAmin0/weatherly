@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weatherly_app/utils/city_utils.dart'; // برای تبدیل اعداد به فارسی
+import 'package:weatherly_app/core/utils/city_utils.dart';
 
 class AirQualityCard extends StatelessWidget {
   final int aqi; // این عدد باید بین ۰ تا ۵۰۰ باشد

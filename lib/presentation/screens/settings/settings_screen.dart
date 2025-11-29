@@ -1,8 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:weatherly_app/l10n/app_localizations.dart';
-import 'package:weatherly_app/screens/about_screen.dart';
+import 'package:weatherly_app/presentation/screens/about/about_screen.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -39,14 +40,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       barrierColor: Colors.black.withValues(alpha: 0.2),
       builder: (context) {
         return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: AlertDialog(
-            backgroundColor: Colors.black.withValues(alpha: 0.65),
+            backgroundColor: Colors.black.withValues(alpha: 0.7),
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
-                color: Colors.white.withValues(alpha: 0.15),
+                color: Colors.white.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -114,6 +115,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: Stack(
         children: [
+          // 🔹 پس‌زمینه شیشه‌ای تمام صفحه
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                color: theme.colorScheme.surface.withValues(alpha: 0.3),
+              ),
+            ),
+          ),
+
           NotificationListener<ScrollNotification>(
             onNotification: (notif) {
               setState(() {
@@ -152,7 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // --- DISPLAY MODE (Segmented Button) ---
+                // --- DISPLAY MODE ---
                 _buildSectionTitle(context, l10n.displayMode, textColor),
                 _buildSectionCard(
                   context,
@@ -201,7 +212,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       AnimatedOpacity(
                         duration: const Duration(milliseconds: 300),
-                        opacity: vm.useSystemColor ? 0.4 : 1.0,
+                        opacity: vm.useSystemColor ? 0.35 : 1.0,
                         child: IgnorePointer(
                           ignoring: vm.useSystemColor,
                           child: Padding(
@@ -240,10 +251,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black.withValues(
-                                                alpha: 0.15,
+                                                alpha: 0.18,
                                               ),
-                                              blurRadius: 4,
-                                              offset: const Offset(0, 2),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 3),
                                             ),
                                           ],
                                         ),
@@ -288,7 +299,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(color: subTextColor),
                         ),
                         value: vm.useCelsius,
-                        onChanged: (v) => vm.setUseCelsius(v),
+                        onChanged: vm.setUseCelsius,
                         activeThumbColor: Colors.white,
                         activeTrackColor: theme.colorScheme.primary.withValues(
                           alpha: 0.5,
@@ -329,6 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
+          // 🔹 افکت فید پایین صفحه
           Positioned(
             left: 0,
             right: 0,
@@ -346,7 +358,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withValues(alpha: 0.2),
+                        Colors.black.withValues(alpha: 0.22),
                       ],
                     ),
                   ),
@@ -359,7 +371,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // ویجت Theme Selector (تغییر یافته به SegmentedButton)
   Widget _buildThemeModeSelector(
     BuildContext context,
     AppLocalizations l10n,
@@ -370,13 +381,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       elevation: const WidgetStatePropertyAll(0),
       backgroundColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return Colors.white.withValues(alpha: 0.3);
+          return Colors.white.withValues(alpha: 0.35);
         }
-        return Colors.transparent;
+        return Colors.white.withValues(alpha: 0.10);
       }),
       foregroundColor: WidgetStateProperty.all(Colors.white),
       side: WidgetStatePropertyAll(
-        BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+        BorderSide(color: Colors.white.withValues(alpha: 0.35)),
+      ),
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );
 
@@ -419,17 +433,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       margin: const EdgeInsets.only(top: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: 0.18),
+            Colors.white.withValues(alpha: 0.06),
+          ],
+        ),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: Colors.white.withValues(alpha: 0.25),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -456,7 +477,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-// ✅ کلاس کمکی خارج از کلاس اصلی
 class _LanguageOptionTile extends StatelessWidget {
   final String flag;
   final String label;

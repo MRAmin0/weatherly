@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weatherly_app/models/weather_type.dart';
+import 'package:weatherly_app/data/models/weather_type.dart';
 
 class WeatherGradients {
   static LinearGradient getGradient(WeatherType type, Color seedColor) {
