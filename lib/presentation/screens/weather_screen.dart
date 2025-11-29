@@ -46,7 +46,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final vm = context.watch<WeatherViewModel>();
+    context.watch<WeatherViewModel>();
 
     final pages = [
       HomePage(onSearchFocusChange: (_) {}),
@@ -55,17 +55,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.transparent, // مهم
+      backgroundColor: Colors.transparent,
 
       body: Stack(
         children: [
-          /// 🔹 پس‌زمینه مشترک کل برنامه
-          AppBackground(
-            color: vm.userBackgroundColor,
-            blur: vm.useBlur,
-          ),
+          const AppBackground(),
 
-          /// 🔹 صفحه‌های اصلی
           PageView(
             controller: _controller,
             onPageChanged: (index) {

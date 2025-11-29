@@ -176,12 +176,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          body: Stack(
-            children: [
-              AppBackground(color: vm.userBackgroundColor, blur: vm.useBlur),
-              content,
-            ],
-          ),
+          body: Stack(children: [const AppBackground(), content]),
         );
       },
     );

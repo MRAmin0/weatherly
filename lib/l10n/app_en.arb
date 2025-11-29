@@ -87,5 +87,11 @@
   "chooseStaticColor": "Or choose a static color",
   "menu": "Menu",
   "pinnedLocations": "Pinned Locations",
-  "recentLocations": "Recent Locations"
+  "recentLocations": "Recent Locations",
+
+  "displayEffects": "Display Effects",
+  "blurEnabled": "Blur enabled",
+  "blurDisabled": "Blur disabled",
+  "blurDescription": "Enable glass blur background",
+  "materialDescription": "Disable blur and use Material surfaces"
 }

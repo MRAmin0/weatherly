@@ -34,10 +34,30 @@
   "celsiusFahrenheit": "تغییر بین سلسیوس و فارنهایت",
   "defaultCity": "شهر پیش‌فرض",
   "setCurrentCityAsDefault": "تنظیم شهر فعلی به عنوان پیش‌فرض",
+
   "currentCity": "شهر فعلی: {city}",
+  "@currentCity": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+
   "defaultCitySetTo": "شهر پیش‌فرض روی {city} تنظیم شد",
+  "@defaultCitySetTo": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+
   "goToDefaultCity": "رفتن به شهر پیش‌فرض",
+
   "currentDefault": "پیش‌فرض فعلی: {city}",
+  "@currentDefault": {
+    "placeholders": {
+      "city": {}
+    }
+  },
+
   "recentSearches": "جستجوهای اخیر",
   "nothingFound": "چیزی پیدا نشد",
   "clearAll": "پاک کردن همه",
@@ -72,5 +92,11 @@
   "chooseStaticColor": "یا یک رنگ ثابت انتخاب کنید",
   "menu": "منو",
   "pinnedLocations": "مکان‌های سنجاق‌شده",
-  "recentLocations": "مکان‌های اخیر"
+  "recentLocations": "مکان‌های اخیر",
+
+  "displayEffects": "افکت‌های نمایشی",
+  "blurEnabled": "پس‌زمینه محو (Blur)",
+  "blurDisabled": "پس‌زمینه متریال",
+  "blurDescription": "افکت شیشه‌ای فعال است — سطوح متریال غیرفعال می‌شوند",
+  "materialDescription": "افکت محو غیرفعال است — سطوح متریال فعال می‌شوند"
 }

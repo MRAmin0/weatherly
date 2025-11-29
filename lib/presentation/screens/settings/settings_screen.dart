@@ -113,8 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: Stack(
         children: [
-          // 🔹 پس‌زمینه مشترک
-          AppBackground(color: vm.userBackgroundColor, blur: vm.useBlur),
+          const AppBackground(),
 
           NotificationListener<ScrollNotification>(
             onNotification: (notif) {
@@ -164,6 +163,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 24),
 
+                // EFFECTS TOGGLE (BLUR ↔ MATERIAL)
+                _buildSectionTitle(context, l10n.displayEffects, textColor),
+                _buildSectionCard(
+                  context,
+                  SwitchListTile(
+                    title: Text(
+                      vm.useBlur ? l10n.blurEnabled : l10n.blurDisabled,
+                      style: TextStyle(color: textColor),
+                    ),
+                    subtitle: Text(
+                      vm.useBlur
+                          ? l10n.blurDescription
+                          : l10n.materialDescription,
+                      style: TextStyle(color: subTextColor),
+                    ),
+                    value: vm.useBlur,
+                    onChanged: (val) => vm.setUseBlur(val),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 // THEME COLOR
                 _buildSectionTitle(context, l10n.themeColor, textColor),
                 _buildSectionCard(
@@ -191,48 +211,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ignoring: vm.useSystemColor,
                           child: Padding(
                             padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.chooseStaticColor,
-                                  style: TextStyle(color: subTextColor),
-                                ),
-                                const SizedBox(height: 12),
-                                Wrap(
-                                  spacing: 12,
-                                  runSpacing: 12,
-                                  children: _seedColorOptions.map((color) {
-                                    final isSelected =
-                                        vm.seedColor.toARGB32() ==
-                                        color.toARGB32();
-                                    return GestureDetector(
-                                      onTap: () => vm.setSeedColor(color),
-                                      child: Container(
-                                        width: 42,
-                                        height: 42,
-                                        decoration: BoxDecoration(
-                                          color: color,
-                                          shape: BoxShape.circle,
-                                          border: isSelected
-                                              ? Border.all(
-                                                  color: Colors.white,
-                                                  width: 2.5,
-                                                )
-                                              : null,
-                                        ),
-                                        child: isSelected
-                                            ? const Icon(
-                                                Icons.check,
-                                                color: Colors.white,
-                                                size: 20,
-                                              )
-                                            : null,
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ],
+                            child: Wrap(
+                              spacing: 12,
+                              runSpacing: 12,
+                              children: _seedColorOptions.map((color) {
+                                final isSelected =
+                                    vm.seedColor.toARGB32() == color.toARGB32();
+                                return GestureDetector(
+                                  onTap: () => vm.setSeedColor(color),
+                                  child: Container(
+                                    width: 42,
+                                    height: 42,
+                                    decoration: BoxDecoration(
+                                      color: color,
+                                      shape: BoxShape.circle,
+                                      border: isSelected
+                                          ? Border.all(
+                                              color: Colors.white,
+                                              width: 2.5,
+                                            )
+                                          : null,
+                                    ),
+                                    child: isSelected
+                                        ? const Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 20,
+                                          )
+                                        : null,
+                                  ),
+                                );
+                              }).toList(),
                             ),
                           ),
                         ),

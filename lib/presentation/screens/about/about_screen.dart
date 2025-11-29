@@ -97,7 +97,7 @@ ISSUE DESCRIPTION
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final vm = context.watch<WeatherViewModel>();
+    context.watch<WeatherViewModel>();
 
     final isDark = theme.brightness == Brightness.dark;
     final textColor = theme.colorScheme.onSurface;
@@ -122,15 +122,13 @@ ISSUE DESCRIPTION
       ),
       body: Stack(
         children: [
-          // 🔹 بک‌گراند مشترک
-          AppBackground(color: vm.userBackgroundColor, blur: vm.useBlur),
+          const AppBackground(),
 
           ListView(
             padding: const EdgeInsets.all(16),
             children: [
               const SizedBox(height: 16),
 
-              // لوگو
               Center(
                 child: Container(
                   width: 110,
@@ -392,39 +390,16 @@ ISSUE DESCRIPTION
             content: SingleChildScrollView(
               child: Text(
                 '''
-💎 نسخه 1.9.0 (جدید)
-• بازطراحی کامل رابط کاربری با سبک شیشه‌ای
-• پس‌زمینه دینامیک بر اساس وضعیت هوا
-• انیمیشن‌های جدید صفحه اصلی
-• لیست جستجوهای پیشرفته
-• طراحی جدید Settings و About
+💎 نسخه 1.9.0
+• بازطراحی کامل رابط کاربری
+• پس‌زمینه دینامیک
+• انیمیشن‌های جدید
 
 🌈 نسخه 1.8.0
 • ارتقا به Material 3
 
 ⭐ نسخه 1.7.0
 • رفع باگ‌ها و بهبود پایداری
-
-✨ نسخه 1.6.0
-• انیمیشن‌های جدید
-
-🎨 نسخه 1.5.0
-• طراحی جدید صفحه درباره ما
-
-🌈 نسخه 1.4.0
-• بهبود آیکون‌های وضعیت آب‌وهوا
-
-🛠 نسخه 1.3.0
-• رفع مشکل نمایش اطلاعات
-
-🌍 نسخه 1.2.0
-• ذخیره چند شهر
-
-🗣 نسخه 1.1.0
-• اصلاح ترجمه‌ها
-
-🚀 نسخه 1.0.0
-• انتشار اولیه
 ''',
                 style: TextStyle(
                   color: theme.colorScheme.onSurfaceVariant,

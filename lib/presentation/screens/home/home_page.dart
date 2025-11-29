@@ -29,7 +29,6 @@ class _HomePageState extends State<HomePage> {
   late final FocusNode _searchFocusNode;
 
   bool _showSearchOverlay = false;
-  DateTime? _searchStartTime;
 
   late final VoidCallback _focusListener;
 
@@ -84,7 +83,6 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _showSearchOverlay = true;
-      _searchStartTime = DateTime.now();
     });
 
     await vm.fetchWeatherByCity(query);
@@ -96,23 +94,6 @@ class _HomePageState extends State<HomePage> {
     final vm = context.watch<WeatherViewModel>();
     final l10n = AppLocalizations.of(context)!;
 
-    /// از ستینگ: رنگ و بلور
-    final bgColor = vm.userBackgroundColor;
-    final useBlur = vm.useBlur;
-
-    /// مدیریت حداقل زمان نمایش لودینگ
-    if (_showSearchOverlay && !vm.isLoading) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        const minMs = 900;
-        final started = _searchStartTime ?? DateTime.now();
-        final elapsed = DateTime.now().difference(started).inMilliseconds;
-        final remain = (minMs - elapsed).clamp(0, minMs);
-
-        if (remain > 0) await Future.delayed(Duration(milliseconds: remain));
-        if (mounted) setState(() => _showSearchOverlay = false);
-      });
-    }
-
     final bool isInitialLoading =
         vm.isLoading && (vm.location.isEmpty || vm.currentWeather == null);
 
@@ -122,13 +103,11 @@ class _HomePageState extends State<HomePage> {
 
       body: Stack(
         children: [
-          /// 🔹 پس‌زمینه یکپارچه
-          AppBackground(color: bgColor, blur: useBlur),
+          const AppBackground(),
 
-          /// 🔹 محتوای اصلی
           RefreshIndicator(
             color: Colors.white,
-            backgroundColor: Colors.white.withValues(alpha: 38), // 0.15
+            backgroundColor: Colors.white.withValues(alpha: 38),
             onRefresh: vm.refresh,
             child: CustomScrollView(
               controller: _scrollController,
@@ -178,13 +157,12 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          /// 🔹 لایه گلس لودینگ سرچ
           if (_showSearchOverlay)
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
                 child: Container(
-                  color: Colors.black.withValues(alpha: 82), // 0.32
+                  color: Colors.black.withValues(alpha: 82),
                   child: const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
@@ -243,19 +221,19 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(32),
         gradient: const LinearGradient(
           colors: [
-            Color.fromARGB(46, 255, 255, 255), // 0.18
-            Color.fromARGB(20, 255, 255, 255), // 0.08
+            Color.fromARGB(46, 255, 255, 255),
+            Color.fromARGB(20, 255, 255, 255),
           ],
         ),
         border: Border.all(
-          color: const Color.fromARGB(56, 255, 255, 255), // 0.22
+          color: Color.fromARGB(56, 255, 255, 255),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color.fromARGB(36, 0, 0, 0), // 0.14
+            color: Color.fromARGB(36, 0, 0, 0),
             blurRadius: 22,
-            offset: const Offset(0, 10),
+            offset: Offset(0, 10),
           ),
         ],
       ),

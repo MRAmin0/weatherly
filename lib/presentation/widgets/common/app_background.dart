@@ -1,39 +1,18 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class AppBackground extends StatelessWidget {
-  final Color color;
-  final bool blur;
-
-  const AppBackground({super.key, required this.color, required this.blur});
+  const AppBackground({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // بک‌گراند ساده با گرادیانت خیلی ملایم از رنگ کاربر
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            color,
-            // کمی تیره‌تر کردن انتهای صفحه
-            Color.alphaBlend(
-              const Color(0x26000000), // مشکی با ~15% شفافیت
-              color,
-            ),
-          ],
-        ),
-      ),
-      child: blur
-          ? BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
-              child: Container(
-                // لایه‌ی خیلی نازک روی blur
-                color: Colors.black.withAlpha(38), // ≈ 0.15
-              ),
-            )
-          : const SizedBox.shrink(),
-    );
+    final theme = Theme.of(context);
+    final brightness = theme.brightness;
+
+    // رنگ بک‌گراند متناسب با مود
+    final Color backgroundColor = brightness == Brightness.dark
+        ? const Color(0xFF0F0F0F) // دارک مود زیبا
+        : const Color(0xFFF7F4F8); // لایت مود مینیمال و خاص
+
+    return Container(color: backgroundColor);
   }
 }

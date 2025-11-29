@@ -22,8 +22,7 @@ class WeatherViewModel extends ChangeNotifier {
   Color seedColor = Colors.deepPurple;
   bool useSystemColor = false;
 
-  // 🎨 بک‌گراند انتخاب‌شده توسط کاربر
-  Color userBackgroundColor = const Color(0xFF0D47A1); // آبی تیره ملایم
+  // 🎨 NEW — blur toggle
   bool useBlur = true;
 
   String defaultCity = 'Tehran';
@@ -67,27 +66,18 @@ class WeatherViewModel extends ChangeNotifier {
 
     // رنگ تم (seed)
     final seedColorValue = prefs.getInt('seedColor');
-    if (seedColorValue != null) {
-      seedColor = Color(seedColorValue);
-    }
+    if (seedColorValue != null) seedColor = Color(seedColorValue);
 
-    // 🎨 رنگ بک‌گراند
-    final bgColorValue = prefs.getInt('bgColor');
-    if (bgColorValue != null) {
-      userBackgroundColor = Color(bgColorValue);
-    }
-
-    // 🔁 استفاده از بلور
+    // 🌫️ Blur state (NEW)
     useBlur = prefs.getBool('useBlur') ?? true;
 
     final themeStr = prefs.getString('themeMode');
     if (themeStr == 'light') {
       themeMode = ThemeMode.light;
-    } else if (themeStr == 'dark') {
+    } else if (themeStr == 'dark')
       themeMode = ThemeMode.dark;
-    } else {
+    else
       themeMode = ThemeMode.system;
-    }
 
     notifyListeners();
   }
@@ -96,13 +86,12 @@ class WeatherViewModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     if (value is bool) {
       await prefs.setBool(key, value);
-    } else if (value is String) {
+    } else if (value is String)
       await prefs.setString(key, value);
-    } else if (value is List<String>) {
+    else if (value is List<String>)
       await prefs.setStringList(key, value);
-    } else if (value is int) {
+    else if (value is int)
       await prefs.setInt(key, value);
-    }
   }
 
   // ------------------------- SETTINGS ACTIONS -------------------------
@@ -129,7 +118,6 @@ class WeatherViewModel extends ChangeNotifier {
     if (seedColor.toARGB32() == color.toARGB32()) return;
     seedColor = color;
     await _savePref('seedColor', color.toARGB32());
-
     if (useSystemColor) {
       await setUseSystemColor(false);
     } else {
@@ -158,15 +146,7 @@ class WeatherViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 🎨 تنظیم رنگ بک‌گراند
-  Future<void> setUserBackgroundColor(Color color) async {
-    if (userBackgroundColor.toARGB32() == color.toARGB32()) return;
-    userBackgroundColor = color;
-    await _savePref('bgColor', color.toARGB32());
-    notifyListeners();
-  }
-
-  // 🌫 روشن/خاموش کردن بلور
+  // 🌫️ NEW — toggle blur
   Future<void> setUseBlur(bool value) async {
     if (useBlur == value) return;
     useBlur = value;
@@ -262,10 +242,8 @@ class WeatherViewModel extends ChangeNotifier {
 
         if (!dailyMap.containsKey(dayKey)) {
           dailyMap[dayKey] = map;
-        } else {
-          if (dateStr.contains('12:00:00')) {
-            dailyMap[dayKey] = map;
-          }
+        } else if (dateStr.contains('12:00:00')) {
+          dailyMap[dayKey] = map;
         }
       }
 
@@ -276,16 +254,14 @@ class WeatherViewModel extends ChangeNotifier {
           maxTemp: (item['main']['temp_max'] as num?)?.toDouble() ?? 0.0,
           humidity: (item['main']['humidity'] as num?)?.toInt() ?? 0,
           windSpeed: (item['wind']['speed'] as num?)?.toDouble() ?? 0.0,
-          main: item['weather'][0]['main'] as String? ?? 'Clear',
+          main: item['weather'][0]['main'] ?? 'Clear',
           weatherType: mapWeatherType(item['weather'][0]['main'] as String),
         );
       }).toList();
 
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) {
-        print('Forecast fetch error: $e');
-      }
+      if (kDebugMode) print('Forecast fetch error: $e');
     }
   }
 
@@ -295,11 +271,10 @@ class WeatherViewModel extends ChangeNotifier {
       if (result != null &&
           result['list'] is List &&
           (result['list'] as List).isNotEmpty) {
-        final list = result['list'] as List;
-        final firstItem = list[0] as Map<String, dynamic>;
-        final main = firstItem['main'] as Map<String, dynamic>;
+        final first = (result['list'] as List)[0] as Map<String, dynamic>;
+        final main = first['main'] as Map<String, dynamic>;
         aqi = (main['aqi'] as num?)?.toInt();
-        final components = firstItem['components'] as Map<String, dynamic>;
+        final components = first['components'] as Map<String, dynamic>;
         pm2_5 = (components['pm2_5'] as num?)?.toDouble();
       } else {
         aqi = null;
@@ -307,9 +282,7 @@ class WeatherViewModel extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) {
-        print('AQI fetch error: $e');
-      }
+      if (kDebugMode) print('AQI fetch error: $e');
     }
   }
 
@@ -317,7 +290,7 @@ class WeatherViewModel extends ChangeNotifier {
     if (pm2_5 == null) return 0;
     final pm = pm2_5!;
     if (pm <= 12.0) {
-      return ((50 - 0) / (12.0 - 0) * (pm - 0) + 0).round();
+      return ((50 - 0) / (12 - 0) * (pm - 0) + 0).round();
     } else if (pm <= 35.4) {
       return ((100 - 51) / (35.4 - 12.1) * (pm - 12.1) + 51).round();
     } else if (pm <= 55.4) {
@@ -380,13 +353,11 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   Future<void> _addRecent(String city) async {
-    final normalized = city.trim();
-    if (normalized.isEmpty) return;
-    recent.removeWhere((e) => e.toLowerCase() == normalized.toLowerCase());
-    recent.insert(0, normalized);
-    if (recent.length > 5) {
-      recent = recent.sublist(0, 5);
-    }
+    final name = city.trim();
+    if (name.isEmpty) return;
+    recent.removeWhere((e) => e.toLowerCase() == name.toLowerCase());
+    recent.insert(0, name);
+    if (recent.length > 5) recent = recent.sublist(0, 5);
     await _savePref('recent', recent);
     notifyListeners();
   }
@@ -397,9 +368,7 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   void _handleError(dynamic e, StackTrace st, String context) {
-    if (kDebugMode) {
-      print('$context error: $e\n$st');
-    }
+    if (kDebugMode) print('$context error: $e\n$st');
     error = 'خطا در برقراری ارتباط';
     _setLoading(false);
   }
