@@ -74,10 +74,11 @@ class WeatherViewModel extends ChangeNotifier {
     final themeStr = prefs.getString('themeMode');
     if (themeStr == 'light') {
       themeMode = ThemeMode.light;
-    } else if (themeStr == 'dark')
+    } else if (themeStr == 'dark') {
       themeMode = ThemeMode.dark;
-    else
+    } else {
       themeMode = ThemeMode.system;
+    }
 
     notifyListeners();
   }
@@ -86,12 +87,13 @@ class WeatherViewModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     if (value is bool) {
       await prefs.setBool(key, value);
-    } else if (value is String)
+    } else if (value is String) {
       await prefs.setString(key, value);
-    else if (value is List<String>)
+    } else if (value is List<String>) {
       await prefs.setStringList(key, value);
-    else if (value is int)
+    } else if (value is int) {
       await prefs.setInt(key, value);
+    }
   }
 
   // ------------------------- SETTINGS ACTIONS -------------------------
