@@ -68,9 +68,7 @@ class _HomePageState extends State<HomePage> {
         context: context,
         builder: (context) => const AlertDialog(
           title: Text("عدم اتصال به اینترنت"),
-          content: Text(
-            "برای استفاده از برنامه، اتصال اینترنت خود را بررسی کنید.",
-          ),
+          content: Text("برای استفاده از برنامه، اتصال اینترنت خود را بررسی کنید."),
         ),
       );
     }
@@ -116,25 +114,27 @@ class _HomePageState extends State<HomePage> {
       key: _scaffoldKey,
       drawer: WeatherDrawer(vm: vm, l10n: l10n),
 
-      // پس‌زمینه شیشه‌ای تمام صفحه
       body: Stack(
         children: [
-          // 🔹 Blur Background
+          // 🔹 Full Glass Blur Background
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-              child: Container(color: Colors.black.withOpacity(0.20)),
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.20),
+              ),
             ),
           ),
 
-          // 🔹 محتوای اصلی
+          // 🔹 Main Content
           RefreshIndicator(
-            color: theme.colorScheme.primary,
-            backgroundColor: Colors.white.withOpacity(0.25),
+            color: Colors.white,
+            backgroundColor: Colors.white.withValues(alpha: 0.15),
             onRefresh: vm.refresh,
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
+                /// APP BAR
                 SliverAppBar(
                   backgroundColor: Colors.transparent,
                   elevation: 0,
@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                     delegate: SliverChildListDelegate([
                       const SizedBox(height: 16),
 
-                      // 🔍 Search
+                      /// SEARCH BOX
                       HomeSearchSection(
                         searchController: _searchController,
                         searchFocusNode: _searchFocusNode,
@@ -169,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                         if (isInitialLoading)
                           const _CenteredLoader()
                         else
-                          _buildWeatherContent(context, vm, l10n, theme),
+                          _buildWeatherContent(context, vm, l10n),
                       ],
 
                       const SizedBox(height: 120),
@@ -180,13 +180,13 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          // 🔹 Search overlay (Glass)
+          /// 🔹 Search Glass Overlay
           if (_showSearchOverlay)
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
                 child: Container(
-                  color: Colors.black.withOpacity(0.32),
+                  color: Colors.black.withValues(alpha: 0.32),
                   child: const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
@@ -199,11 +199,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildWeatherContent(
-    BuildContext context,
-    WeatherViewModel vm,
-    AppLocalizations l10n,
-    ThemeData theme,
-  ) {
+      BuildContext context,
+      WeatherViewModel vm,
+      AppLocalizations l10n,
+      ) {
     if (vm.error != null) {
       return Padding(
         padding: const EdgeInsets.only(top: 60),
@@ -239,7 +238,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    // 🔹 کارت شیشه‌ای اصلی
+    // 🔹 Main Weather Glass Card
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -247,14 +246,17 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(32),
         gradient: LinearGradient(
           colors: [
-            Colors.white.withOpacity(0.18),
-            Colors.white.withOpacity(0.08),
+            Colors.white.withValues(alpha: 0.18),
+            Colors.white.withValues(alpha: 0.08),
           ],
         ),
-        border: Border.all(color: Colors.white.withOpacity(0.22), width: 1.2),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.22),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.14),
+            color: Colors.black.withValues(alpha: 0.14),
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
@@ -264,7 +266,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           CurrentWeatherSection(viewModel: vm, l10n: l10n),
           const SizedBox(height: 18),
-          Divider(color: Colors.white.withOpacity(0.18)),
+          Divider(color: Colors.white.withValues(alpha: 0.18)),
           const SizedBox(height: 18),
           DetailsRow(viewModel: vm, l10n: l10n),
         ],

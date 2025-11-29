@@ -22,7 +22,7 @@ class WeatherDetailBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark
             ? theme.colorScheme.surface.withAlpha(40)
-            : theme.colorScheme.surfaceVariant.withAlpha(150),
+            : theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: theme.dividerColor.withAlpha(30)),
       ),

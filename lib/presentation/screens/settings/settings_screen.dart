@@ -16,9 +16,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  double _scrollOffset = 0;
-  double _maxScroll = 0;
-
   // رنگ‌های ثابت برای انتخاب تم
   static const List<Color> _seedColorOptions = [
     Colors.deepPurple,
@@ -118,10 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // محتوای اصلی
       body: NotificationListener<ScrollNotification>(
         onNotification: (notif) {
-          setState(() {
-            _scrollOffset = notif.metrics.pixels;
-            _maxScroll = notif.metrics.maxScrollExtent;
-          });
+          setState(() {});
           return false;
         },
         child: ListView(
@@ -300,7 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (states.contains(WidgetState.selected)) {
             return theme.colorScheme.primary.withValues(alpha: 0.25);
           }
-          return theme.colorScheme.surfaceVariant;
+          return theme.colorScheme.surfaceContainerHighest;
         }),
         foregroundColor: WidgetStateProperty.all(textColor),
         side: WidgetStatePropertyAll(BorderSide(color: theme.dividerColor)),

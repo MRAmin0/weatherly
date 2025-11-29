@@ -1,3 +1,5 @@
+import 'package:weatherly_app/core/extensions/color_opacity.dart';
+
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -43,8 +45,8 @@ class _SplashScreenState extends State<SplashScreen>
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => const WeatherScreen(),
-        transitionsBuilder: (_, animation, __, child) =>
+        pageBuilder: (_, _, _) => const WeatherScreen(),
+        transitionsBuilder: (_, animation, _, child) =>
             FadeTransition(opacity: animation, child: child),
         transitionDuration: const Duration(milliseconds: 900),
       ),
@@ -84,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen>
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
-              child: Container(color: Colors.white.withValues(alpha: 0.06)),
+              child: Container(color: Colors.white.op(0.06)),
             ),
           ),
 
@@ -102,20 +104,17 @@ class _SplashScreenState extends State<SplashScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.white.withValues(alpha: 0.22),
-                          Colors.white.withValues(alpha: 0.10),
-                        ],
+                        colors: [Colors.white.op(0.22), Colors.white.op(0.10)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.18),
+                        color: Colors.white.op(0.18),
                         width: 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.25),
+                          color: Colors.black.op(0.25),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -138,10 +137,7 @@ class _SplashScreenState extends State<SplashScreen>
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.5,
                       shadows: [
-                        Shadow(
-                          color: Colors.black.withValues(alpha: 0.32),
-                          blurRadius: 10,
-                        ),
+                        Shadow(color: Colors.black.op(0.32), blurRadius: 10),
                       ],
                     ),
                   ),
@@ -151,7 +147,7 @@ class _SplashScreenState extends State<SplashScreen>
                   Text(
                     "Forecast • Air Quality • Live Weather",
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: Colors.white.op(0.85),
                       fontSize: 14,
                       letterSpacing: 0.6,
                     ),
