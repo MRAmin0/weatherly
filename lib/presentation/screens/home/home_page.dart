@@ -228,12 +228,12 @@ class _HomePageState extends State<HomePage> {
         color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.1),
-          width: 1.0,
+          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
