@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'glass_box.dart';
+import '../../../../presentation/widgets/common/glass_container.dart';
 import '../../../../core/utils/weather_formatters.dart';
 import '../../../../core/utils/city_utils.dart';
 
@@ -48,30 +48,35 @@ class HourlyList extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),
-            child: GlassBox(
+            child: GlassContainer(
               isDark: isDark,
-              radius: 16,
+              borderRadius: 16,
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    isPersian ? toPersianDigits(time) : time,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+              child: SizedBox(
+                width:
+                    60, // Keep fixed width for alignment within the glass container
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isPersian ? toPersianDigits(time) : time,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  SvgPicture.asset(iconPath, width: 32, height: 32),
-                  Text(
-                    isPersian ? toPersianDigits(tempText) : tempText,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
+                    SvgPicture.asset(iconPath, width: 32, height: 32),
+                    Text(
+                      isPersian ? toPersianDigits(tempText) : tempText,
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

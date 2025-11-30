@@ -20,8 +20,9 @@ class HomeSearchSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const inputColor = Colors.white;
-    final hintColor = Colors.white.withValues(alpha: 0.7);
+    final theme = Theme.of(context);
+    final inputColor = theme.colorScheme.onSurface;
+    final hintColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Column(
       children: [
@@ -35,15 +36,14 @@ class HomeSearchSection extends StatelessWidget {
             textInputAction: TextInputAction.search,
             onSubmitted: (_) => onSearchPressed(),
             onChanged: viewModel.searchChanged,
-            style: const TextStyle(
-              color: inputColor,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: inputColor, fontWeight: FontWeight.w600),
             decoration: InputDecoration(
               hintText: l10n.enterCityName,
               counterText: "",
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.15),
+              fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.5,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide(
@@ -84,9 +84,11 @@ class HomeSearchSection extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(top: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: theme.colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -105,11 +107,14 @@ class HomeSearchSection extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final suggestion = viewModel.suggestions[index];
                   final city = suggestion['name'] as String? ?? '';
+                  final country = suggestion['country'] as String? ?? '';
+                  final displayText = country.isNotEmpty
+                      ? '$country, $city'
+                      : city;
 
                   return InkWell(
                     onTap: () {
-                      searchController.text = city;
-                      viewModel.fetchWeatherByCity(city);
+                      viewModel.selectCitySuggestion(suggestion);
                       searchFocusNode.unfocus();
                     },
                     child: Container(
@@ -121,7 +126,9 @@ class HomeSearchSection extends StatelessWidget {
                         border: Border(
                           bottom: index < viewModel.suggestions.length - 1
                               ? BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.1),
+                                  color: theme.colorScheme.outline.withValues(
+                                    alpha: 0.2,
+                                  ),
                                   width: 0.5,
                                 )
                               : BorderSide.none,
@@ -131,15 +138,15 @@ class HomeSearchSection extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.location_on_outlined,
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: theme.colorScheme.primary,
                             size: 20,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              city,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              displayText,
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 15,
                               ),
@@ -147,7 +154,7 @@ class HomeSearchSection extends StatelessWidget {
                           ),
                           Icon(
                             Icons.arrow_forward_ios,
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: theme.colorScheme.onSurfaceVariant,
                             size: 14,
                           ),
                         ],

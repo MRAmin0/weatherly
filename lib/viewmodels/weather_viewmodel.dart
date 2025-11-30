@@ -22,9 +22,6 @@ class WeatherViewModel extends ChangeNotifier {
   Color seedColor = Colors.deepPurple;
   bool useSystemColor = false;
 
-  // 🎨 NEW — blur toggle
-  bool useBlur = true;
-
   String defaultCity = 'Tehran';
 
   // ------------------------- WEATHER STATE -------------------------
@@ -67,9 +64,6 @@ class WeatherViewModel extends ChangeNotifier {
     // رنگ تم (seed)
     final seedColorValue = prefs.getInt('seedColor');
     if (seedColorValue != null) seedColor = Color(seedColorValue);
-
-    // 🌫️ Blur state (NEW)
-    useBlur = prefs.getBool('useBlur') ?? true;
 
     final themeStr = prefs.getString('themeMode');
     if (themeStr == 'light') {
@@ -145,14 +139,6 @@ class WeatherViewModel extends ChangeNotifier {
     if (city.isEmpty) return;
     defaultCity = city;
     await _savePref('defaultCity', city);
-    notifyListeners();
-  }
-
-  // 🌫️ NEW — toggle blur
-  Future<void> setUseBlur(bool value) async {
-    if (useBlur == value) return;
-    useBlur = value;
-    await _savePref('useBlur', value);
     notifyListeners();
   }
 

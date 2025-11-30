@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
+import 'package:weatherly_app/presentation/widgets/common/glass_container.dart';
 
 class WeatherDrawer extends StatelessWidget {
   final WeatherViewModel vm;
@@ -74,15 +75,10 @@ class WeatherDrawer extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Container(
+                    GlassContainer(
+                      isDark: false, // Always light/white glass for header icon
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                        ),
-                      ),
+                      borderRadius: 16,
                       child: Icon(
                         Icons.cloud_circle_rounded,
                         size: 40,
@@ -216,13 +212,10 @@ class WeatherDrawer extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           contentPadding: const EdgeInsetsDirectional.only(start: 16, end: 8),
-          leading: Container(
+          leading: GlassContainer(
+            isDark: false,
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-            ),
+            borderRadius: 10,
             child: Icon(
               isPinnedSection ? Icons.push_pin : Icons.history,
               size: 20,

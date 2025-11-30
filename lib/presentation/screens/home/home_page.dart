@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,7 +5,6 @@ import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/data/services/network_service.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
-import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 import 'package:weatherly_app/presentation/widgets/home/home_search_section.dart';
 import 'package:weatherly_app/presentation/widgets/home/current_weather_section.dart';
 import 'package:weatherly_app/presentation/widgets/home/details_row.dart';
@@ -103,8 +101,6 @@ class _HomePageState extends State<HomePage> {
 
       body: Stack(
         children: [
-          const AppBackground(),
-
           RefreshIndicator(
             color: Colors.white,
             backgroundColor: Colors.white.withValues(alpha: 38),
@@ -119,8 +115,8 @@ class _HomePageState extends State<HomePage> {
                   centerTitle: true,
                   title: Text(
                     l10n.weatherly,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 22,
                     ),
@@ -159,13 +155,10 @@ class _HomePageState extends State<HomePage> {
 
           if (_showSearchOverlay)
             Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 82),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
+              child: Container(
+                color: Colors.black.withValues(alpha: 128),
+                child: const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
                 ),
               ),
             ),
@@ -198,7 +191,10 @@ class _HomePageState extends State<HomePage> {
         child: Center(
           child: Text(
             l10n.startBySearching,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 16,
+            ),
             textAlign: TextAlign.center,
           ),
         ),
@@ -214,38 +210,36 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
+    final theme = Theme.of(context);
+    final child = Column(
+      children: [
+        CurrentWeatherSection(viewModel: vm, l10n: l10n),
+        const SizedBox(height: 18),
+        Divider(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+        const SizedBox(height: 18),
+        DetailsRow(viewModel: vm, l10n: l10n),
+      ],
+    );
+
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(32),
-        gradient: const LinearGradient(
-          colors: [
-            Color.fromARGB(46, 255, 255, 255),
-            Color.fromARGB(20, 255, 255, 255),
-          ],
-        ),
         border: Border.all(
-          color: Color.fromARGB(56, 255, 255, 255),
-          width: 1.2,
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+          width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Color.fromARGB(36, 0, 0, 0),
-            blurRadius: 22,
-            offset: Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        children: [
-          CurrentWeatherSection(viewModel: vm, l10n: l10n),
-          const SizedBox(height: 18),
-          const Divider(color: Color.fromARGB(46, 255, 255, 255)),
-          const SizedBox(height: 18),
-          DetailsRow(viewModel: vm, l10n: l10n),
-        ],
-      ),
+      child: child,
     );
   }
 }

@@ -9,10 +9,20 @@ class AppBackground extends StatelessWidget {
     final brightness = theme.brightness;
 
     // رنگ بک‌گراند متناسب با مود
-    final Color backgroundColor = brightness == Brightness.dark
-        ? const Color(0xFF0F0F0F) // دارک مود زیبا
-        : const Color(0xFFF7F4F8); // لایت مود مینیمال و خاص
+    // گرادینت برای حالت مات و عمق‌دار
+    final Decoration decoration = BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: brightness == Brightness.dark
+            ? [const Color(0xFF1A1A1A), const Color(0xFF000000)]
+            : [
+                const Color(0xFFF2F2F7), // Light gray/blueish white
+                const Color(0xFFE5E5EA), // Slightly darker gray
+              ],
+      ),
+    );
 
-    return Container(color: backgroundColor);
+    return Container(decoration: decoration);
   }
 }

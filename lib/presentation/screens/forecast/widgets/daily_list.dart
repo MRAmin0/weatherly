@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/utils/weather_formatters.dart';
 import '../../../../core/utils/city_utils.dart';
-import 'glass_box.dart';
+import '../../../../presentation/widgets/common/glass_container.dart';
 import 'day_detail_sheet.dart';
 
 class DailyList extends StatelessWidget {
@@ -79,9 +79,9 @@ class DailyList extends StatelessWidget {
                   isPersian: isPersian,
                 );
               },
-              child: GlassBox(
+              child: GlassContainer(
                 isDark: isDark,
-                radius: 20,
+                borderRadius: 20,
                 padding: const EdgeInsets.all(14),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

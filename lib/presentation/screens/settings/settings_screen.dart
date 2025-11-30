@@ -6,6 +6,7 @@ import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/presentation/screens/about/about_screen.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
+import 'package:weatherly_app/presentation/widgets/common/glass_container.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onGoToRecentCity;
@@ -130,9 +131,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 // LANGUAGE
                 _buildSectionTitle(context, l10n.language, textColor),
-                _buildSectionCard(
-                  context,
-                  ListTile(
+                GlassContainer(
+                  isDark: theme.brightness == Brightness.dark,
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
                     leading: const Icon(Icons.language_outlined),
                     title: Text(
                       l10n.language,
@@ -149,46 +151,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 // DISPLAY MODE
                 _buildSectionTitle(context, l10n.displayMode, textColor),
-                _buildSectionCard(
-                  context,
-                  Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: _buildThemeModeSelector(
-                      context,
-                      l10n,
-                      vm,
-                      textColor,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // EFFECTS TOGGLE (BLUR ↔ MATERIAL)
-                _buildSectionTitle(context, l10n.displayEffects, textColor),
-                _buildSectionCard(
-                  context,
-                  SwitchListTile(
-                    title: Text(
-                      vm.useBlur ? l10n.blurEnabled : l10n.blurDisabled,
-                      style: TextStyle(color: textColor),
-                    ),
-                    subtitle: Text(
-                      vm.useBlur
-                          ? l10n.blurDescription
-                          : l10n.materialDescription,
-                      style: TextStyle(color: subTextColor),
-                    ),
-                    value: vm.useBlur,
-                    onChanged: (val) => vm.setUseBlur(val),
-                  ),
+                GlassContainer(
+                  isDark: theme.brightness == Brightness.dark,
+                  child: _buildThemeModeSelector(context, l10n, vm, textColor),
                 ),
                 const SizedBox(height: 24),
 
                 // THEME COLOR
                 _buildSectionTitle(context, l10n.themeColor, textColor),
-                _buildSectionCard(
-                  context,
-                  Column(
+                GlassContainer(
+                  isDark: theme.brightness == Brightness.dark,
+                  padding: EdgeInsets.zero,
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SwitchListTile(
@@ -257,9 +231,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   l10n.temperatureUnitCelsius,
                   textColor,
                 ),
-                _buildSectionCard(
-                  context,
-                  SwitchListTile(
+                GlassContainer(
+                  isDark: theme.brightness == Brightness.dark,
+                  padding: EdgeInsets.zero,
+                  child: SwitchListTile(
                     title: Text(
                       l10n.temperatureUnitCelsius,
                       style: TextStyle(color: textColor),
@@ -276,9 +251,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 // ABOUT
                 _buildSectionTitle(context, l10n.aboutApp, textColor),
-                _buildSectionCard(
-                  context,
-                  ListTile(
+                GlassContainer(
+                  isDark: theme.brightness == Brightness.dark,
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
                     leading: const Icon(Icons.info_outline),
                     title: Text(
                       l10n.aboutApp,
@@ -351,26 +327,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await vm.setUseSystemColor(mode == ThemeMode.system);
       },
       showSelectedIcon: false,
-    );
-  }
-
-  Widget _buildSectionCard(BuildContext context, Widget child) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.06)
-            : Colors.black.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.12)
-              : Colors.black.withValues(alpha: 0.08),
-        ),
-      ),
-      child: child,
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
+import 'package:weatherly_app/presentation/widgets/common/glass_container.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -130,28 +131,10 @@ ISSUE DESCRIPTION
               const SizedBox(height: 16),
 
               Center(
-                child: Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.05)
-                        : theme.colorScheme.primary.withValues(alpha: 0.08),
-                    border: Border.all(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.2)
-                          : theme.colorScheme.primary.withValues(alpha: 0.25),
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
+                child: GlassContainer(
+                  isDark: isDark,
+                  borderRadius: 100,
+                  padding: const EdgeInsets.all(24),
                   child: Icon(
                     Icons.cloud_circle_rounded,
                     size: 60,
@@ -162,9 +145,9 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 24),
 
-              _glassCard(
-                theme: theme,
+              GlassContainer(
                 isDark: isDark,
+                margin: const EdgeInsets.only(bottom: 12),
                 child: Text(
                   l10n.appDescription,
                   textAlign: TextAlign.center,
@@ -177,9 +160,9 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              _glassCard(
-                theme: theme,
+              GlassContainer(
                 isDark: isDark,
+                margin: const EdgeInsets.only(bottom: 12),
                 child: Column(
                   children: [
                     ListTile(
@@ -229,9 +212,9 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              _glassCard(
-                theme: theme,
+              GlassContainer(
                 isDark: isDark,
+                margin: const EdgeInsets.only(bottom: 12),
                 child: Column(
                   children: [
                     ListTile(
@@ -285,9 +268,9 @@ ISSUE DESCRIPTION
 
               const SizedBox(height: 20),
 
-              _glassCard(
-                theme: theme,
+              GlassContainer(
                 isDark: isDark,
+                margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   leading: const Icon(
                     Icons.bug_report_outlined,
@@ -313,37 +296,6 @@ ISSUE DESCRIPTION
           ),
         ],
       ),
-    );
-  }
-
-  Widget _glassCard({
-    required ThemeData theme,
-    required bool isDark,
-    required Widget child,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.06)
-            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.20)
-              : theme.colorScheme.outlineVariant,
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.10),
-            blurRadius: 10,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: child,
     );
   }
 

@@ -50,17 +50,33 @@ class WeatherApiService {
       if (response.statusCode != 200) return const [];
 
       final data = json.decode(response.body) as List<dynamic>;
-      return data.map<Map<String, dynamic>>((item) {
+      final uniqueItems = <String, Map<String, dynamic>>{};
+
+      for (var item in data) {
         final m = item as Map<String, dynamic>;
-        return {
-          'name': m['name'],
-          'lat': m['lat'],
-          'lon': m['lon'],
-          'country': m['country'] ?? '',
-          'state': m['state'] ?? '',
-          'local_names': (m['local_names'] as Map<String, dynamic>?) ?? {},
-        };
-      }).toList();
+        final name = m['name'] as String;
+        final lat = (m['lat'] as num).toDouble();
+        final lon = (m['lon'] as num).toDouble();
+        final country = m['country'] ?? '';
+        final state = m['state'] ?? '';
+
+        // Create a unique key based on name, country, and state.
+        // We ignore coordinates to aggressively merge duplicates.
+        final key = '${name.toLowerCase()}_${country}_$state';
+
+        if (!uniqueItems.containsKey(key)) {
+          uniqueItems[key] = {
+            'name': name,
+            'lat': lat,
+            'lon': lon,
+            'country': country,
+            'state': state,
+            'local_names': (m['local_names'] as Map<String, dynamic>?) ?? {},
+          };
+        }
+      }
+
+      return uniqueItems.values.toList();
     } catch (e) {
       if (kDebugMode) {
         print('Geocoding error: $e');

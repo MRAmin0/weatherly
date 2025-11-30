@@ -43,7 +43,7 @@ class CurrentWeatherSection extends StatelessWidget {
             fontWeight: FontWeight.w900,
             fontSize: 90,
             height: 1.0,
-            color: Colors.white,
+            color: theme.colorScheme.onSurface,
             shadows: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -58,24 +58,23 @@ class CurrentWeatherSection extends StatelessWidget {
           current.cityName,
           style: theme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.white.withValues(alpha: 0.9),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
           ),
         ),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: theme.colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
-              width: 1,
+              color: theme.colorScheme.outline.withValues(alpha: 0.1),
             ),
           ),
           child: Text(
             translateWeatherDescription(current.main, lang: viewModel.lang),
             style: theme.textTheme.titleMedium?.copyWith(
-              color: Colors.white,
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),

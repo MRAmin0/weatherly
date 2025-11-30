@@ -4,8 +4,6 @@ import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:provider/provider.dart';
 
-import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
-
 import 'package:weatherly_app/presentation/screens/home/home_page.dart';
 import 'package:weatherly_app/presentation/screens/forecast/forecast_screen.dart';
 import 'package:weatherly_app/presentation/screens/settings/settings_screen.dart';
@@ -55,20 +53,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme.colorScheme.surface,
 
-      body: Stack(
-        children: [
-          const AppBackground(),
-
-          PageView(
-            controller: _controller,
-            onPageChanged: (index) {
-              setState(() => _selectedIndex = index);
-            },
-            children: pages,
-          ),
-        ],
+      body: PageView(
+        controller: _controller,
+        onPageChanged: (index) {
+          setState(() => _selectedIndex = index);
+        },
+        children: pages,
       ),
 
       bottomNavigationBar: NavigationBarTheme(
@@ -94,7 +86,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         child: NavigationBar(
           selectedIndex: _selectedIndex,
           onDestinationSelected: _onItemTap,
-          backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.5),
+          backgroundColor: theme.colorScheme.surface,
           indicatorColor: theme.colorScheme.secondaryContainer,
           destinations: [
             NavigationDestination(
