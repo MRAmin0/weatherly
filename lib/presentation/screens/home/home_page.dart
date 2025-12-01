@@ -10,6 +10,7 @@ import 'package:weatherly_app/presentation/widgets/home/current_weather_section.
 import 'package:weatherly_app/presentation/widgets/home/details_row.dart';
 import 'package:weatherly_app/presentation/widgets/home/weather_drawer.dart';
 import 'package:weatherly_app/presentation/screens/accuweather_screen.dart';
+import 'package:weatherly_app/presentation/screens/openweathermap_screen.dart';
 
 class HomePage extends StatefulWidget {
   final Function(bool) onSearchFocusChange;
@@ -145,24 +146,7 @@ class _HomePageState extends State<HomePage> {
                         else
                           _buildWeatherContent(context, vm, l10n),
                         const SizedBox(height: 24),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AccuWeatherScreen(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.wb_sunny),
-                          label: const Text('AccuWeather Real-time'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 24,
-                            ),
-                          ),
-                        ),
+                        _buildProviderCards(context),
                       ],
 
                       const SizedBox(height: 120),
@@ -260,6 +244,104 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       child: child,
+    );
+  }
+
+  Widget _buildProviderCards(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        Text(
+          'Weather Providers',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildProviderCard(
+                context,
+                title: 'AccuWeather',
+                subtitle: 'Real-time',
+                icon: Icons.wb_sunny,
+                color: Colors.orange,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AccuWeatherScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildProviderCard(
+                context,
+                title: 'OpenWeather',
+                subtitle: 'Real-time',
+                icon: Icons.cloud,
+                color: Colors.blue,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OpenWeatherMapScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProviderCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.3), width: 2),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 40, color: color),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
