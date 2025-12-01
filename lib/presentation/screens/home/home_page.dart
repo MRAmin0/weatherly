@@ -9,6 +9,7 @@ import 'package:weatherly_app/presentation/widgets/home/home_search_section.dart
 import 'package:weatherly_app/presentation/widgets/home/current_weather_section.dart';
 import 'package:weatherly_app/presentation/widgets/home/details_row.dart';
 import 'package:weatherly_app/presentation/widgets/home/weather_drawer.dart';
+import 'package:weatherly_app/presentation/screens/accuweather_screen.dart';
 
 class HomePage extends StatefulWidget {
   final Function(bool) onSearchFocusChange;
@@ -143,6 +144,25 @@ class _HomePageState extends State<HomePage> {
                           const _CenteredLoader()
                         else
                           _buildWeatherContent(context, vm, l10n),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AccuWeatherScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.wb_sunny),
+                          label: const Text('AccuWeather Real-time'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 24,
+                            ),
+                          ),
+                        ),
                       ],
 
                       const SizedBox(height: 120),
