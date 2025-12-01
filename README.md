@@ -25,7 +25,7 @@
 
 | صفحه اصلی | پیش‌بینی هفتگی | تنظیمات |
 |:---:|:---:|:---:|
-| ![Home](Screenshots/1.png) | ![Forecast](Screenshots/2.png) | ![Settings](Screenshots/3.png) |
+| ![Home](Screenshots/2.png) | ![Forecast](Screenshots/1.png) | ![Settings](Screenshots/2.png) |
 
 </div>
 
@@ -71,7 +71,7 @@
 
 [![Download APK](https://img.shields.io/badge/Download-APK_v1.9.0-6A5ACD?style=for-the-badge&logo=android)](https://github.com/MRAmin0/Weatherly/releases/download/v1.9.0/weatherly-v1.9.0.apk)
 
-**حجم فایل:** ~15 MB | **نسخه اندروید:** 5.0+ <span dir="ltr">(API Level 21)</span>
+**حجم فایل:** ~50MB | **نسخه اندروید:** 7.0+ <span dir="ltr">(API Level 21)</span>
 
 </div>
 
