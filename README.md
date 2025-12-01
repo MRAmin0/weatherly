@@ -8,12 +8,12 @@
 
 با طراحی مینیمال، عملکرد سریع و تجربهٔ کاربری حرفه‌ای
 
-[![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)](https://github.com/MRAmin0/Weatherly/releases)
+[![Version](https://img.shields.io/badge/version-1.9.0-blue.svg)](https://github.com/MRAmin0/Weatherly/releases)
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.7+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.2+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**[🌐 نسخهٔ وب](https://weatherly-zeta.vercel.app/)** • **[📥 دانلود APK](https://github.com/MRAmin0/Weatherly/releases/download/v1.8.0/weatherly-v1.8.0.apk)** • **[🛍 مشاهده در مایکت](https://myket.ir/app/com.weathely.app)**
+**[🌐 نسخهٔ وب](https://weatherly-zeta.vercel.app/)** • **[📥 دانلود APK](https://github.com/MRAmin0/Weatherly/releases/download/v1.9.0/weatherly-v1.9.0.apk)**
 
 </div>
 
@@ -65,21 +65,11 @@ Weatherly با تمرکز بر سادگی، سرعت و دقت طراحی شده
 
 ## 📦 دانلود و نصب
 
-### دانلود از مایکت
-
-<div align="center">
-
-[![Myket](https://img.shields.io/badge/Download_from-Myket-00A6FF?style=for-the-badge&logo=android)](https://myket.ir/app/com.weathely.app)
-
-**نصب آسان و به‌روزرسانی خودکار**
-
-</div>
-
 ### دانلود مستقیم APK
 
 <div align="center">
 
-[![Download APK](https://img.shields.io/badge/Download-APK_v1.8.0-6A5ACD?style=for-the-badge&logo=android)](https://github.com/MRAmin0/Weatherly/releases/download/v1.8.0/weatherly-v1.8.0.apk)
+[![Download APK](https://img.shields.io/badge/Download-APK_v1.9.0-6A5ACD?style=for-the-badge&logo=android)](https://github.com/MRAmin0/Weatherly/releases/download/v1.9.0/weatherly-v1.9.0.apk)
 
 **حجم فایل:** ~15 MB | **نسخه اندروید:** 5.0+ <span dir="ltr">(API Level 21)</span>
 
@@ -191,153 +181,18 @@ Screenshots/                     # اسکرین‌شات‌های برنامه
 
 ## 📝 تاریخچه تغییرات (Changelog)
 
-### 🌈 نسخه 1.8.0 (آخرین نسخه)
+### 🚀 نسخه 1.9.0 (آخرین نسخه)
+- ⚡ افزایش سرعت لود صفحه اصلی
+- ✨ بهینه‌سازی انیمیشن‌ها برای تجربه روان‌تر
+- 📶 بهبود نمایش خطا در حالت بدون اینترنت
+- 🌡 رفع مشکلات جزئی در نمایش دما و آیکن‌ها
+- 📦 کاهش حجم بیلد و بهینه‌سازی وابستگی‌ها
+- 🔍 دقت بیشتر در جستجوی شهرها
+
+### 🌈 نسخه 1.8.0
 - ✨ هماهنگی کامل رنگ‌های رابط با <span dir="ltr">ColorScheme</span>
 - 🎨 به‌روزرسانی پس‌زمینه، سرچ‌بار و کارت <span dir="ltr">AQI</span>
 - 🌈 پشتیبانی از رنگ پویا (<span dir="ltr">Material You</span>)
 - 🎭 امکان انتخاب دستی تم رابط کاربری
-- 📐 پشتیبانی کامل از <span dir="ltr">Material Design 3</span>
-- ✨ انیمیشن‌های جدید (چرخش، پالس، اسلاید و جلوه‌های تعاملی)
+- 📐 پشتیبانی کامل از
 
-### ⭐ نسخه 1.7.0
-- 🐛 رفع باگ‌های جزئی و بهبود پایداری
-- 📡 نمایش پیام مناسب هنگام ورود بدون اینترنت
-
-### ✨ نسخه 1.6.0
-- 🎬 اضافه شدن انیمیشن‌های جدید در صفحه اصلی
-
-### 🎨 نسخه 1.5.0
-- 📄 طراحی جدید صفحه «درباره برنامه»
-- 📝 اضافه شدن بخش تاریخچه تغییرات
-
-### 🌈 نسخه 1.4.0
-- 🖼 بهبود نمایش آیکون‌های آب‌وهوا
-- ⚡ افزایش سرعت بارگذاری اطلاعات
-
-### 🛠 نسخه 1.3.0
-- 🔧 رفع مشکل عدم نمایش اطلاعات در برخی دستگاه‌ها
-
-### 🌍 نسخه 1.2.0
-- 💾 اضافه شدن قابلیت ذخیره چند شهر مختلف
-
-### 🗣 نسخه 1.1.0
-- 🌐 بهبود ترجمه‌ها و اصلاح متن‌ها
-
-### 🚀 نسخه 1.0.0
-- 🎉 انتشار اولیه برنامه
-- 🌤 نمایش وضعیت فعلی آب‌وهوا
-- 📅 پیش‌بینی ۵ روزه
-
----
-
-## 🧪 تست و توسعه
-
-### دستورات مفید
-
-**تحلیل کد:**
-```bash
-flutter analyze
-```
-
-**اجرای تست‌ها:**
-```bash
-flutter test
-```
-
-**اجرای نسخه وب:**
-```bash
-flutter run -d chrome
-```
-
-**بررسی وابستگی‌های قدیمی:**
-```bash
-flutter pub outdated
-```
-
-**فرمت کردن کد:**
-```bash
-dart format .
-```
-
----
-
-## 🌐 افزودن زبان جدید
-
-برای اضافه کردن زبان جدید به برنامه:
-
-1. فایل <span dir="ltr">ARB</span> جدید در پوشه `l10n/` ایجاد کنید (مثلاً `app_ar.arb` برای عربی)
-2. تمام کلیدهای موجود در `app_en.arb` را کپی کرده و ترجمه کنید
-3. دستور `flutter gen-l10n` را اجرا کنید
-4. کد زبان را به لیست `supportedLocales` در `main.dart` اضافه کنید
-
-مثال ساختار فایل <span dir="ltr">ARB</span>:
-```json
-{
-  "@@locale": "ar",
-  "appTitle": "ويذرلي",
-  "searchCity": "ابحث عن مدينة..."
-}
-```
-
----
-
-## 🤝 مشارکت در پروژه
-
-مشارکت شما در بهبود Weatherly استقبال می‌شود! 
-
-### نحوه مشارکت:
-
-1. **فورک** <span dir="ltr">(Fork)</span> کردن مخزن
-2. ایجاد **برنچ** <span dir="ltr">(Branch)</span> جدید (`git checkout -b feature/amazing-feature`)
-3. **کامیت** <span dir="ltr">(Commit)</span> کردن تغییرات (`git commit -m 'Add amazing feature'`)
-4. **پوش** <span dir="ltr">(Push)</span> به برنچ (`git push origin feature/amazing-feature`)
-5. ایجاد **پول ریکوئست** <span dir="ltr">(Pull Request)</span>
-
-### گزارش مشکلات
-
-اگر باگ یا مشکلی پیدا کردید، لطفاً یک <span dir="ltr">[Issue](https://github.com/MRAmin0/Weatherly/issues)</span> ایجاد کنید و موارد زیر را شامل شود:
-
-- توضیح دقیق مشکل
-- مراحل بازتولید باگ
-- اسکرین‌شات (در صورت امکان)
-- اطلاعات دستگاه و نسخه برنامه
-
----
-
-## 🙏 تقدیر و تشکر
-
-این پروژه از ابزارها و سرویس‌های زیر استفاده می‌کند:
-
-- 🌦 **دریافت داده‌های آب‌وهوا:** <span dir="ltr">[Open-Meteo API](https://open-meteo.com/)</span>
-- 📦 **مدیریت** <span dir="ltr">State</span>**:** <span dir="ltr">[Provider](https://pub.dev/packages/provider)</span>
-- 🎨 **سیستم طراحی:** <span dir="ltr">[Material Design 3](https://m3.material.io/)</span>
-- 🚀 **فریم‌ورک توسعه:** <span dir="ltr">[Flutter](https://flutter.dev/)</span>
-
----
-
-## 📄 مجوز
-
-این پروژه تحت مجوز <span dir="ltr">MIT</span> منتشر شده است. برای جزئیات بیشتر فایل <span dir="ltr">[LICENSE](LICENSE)</span> را مطالعه کنید.
-
----
-
-## 👨‍💻 سازنده
-
-**توسعه‌دهنده:** Amin Monajati
-
-- 📧 ایمیل: aminmonajati9@gmail.com
-- 🐙 GitHub: [@MRAmin0](https://github.com/MRAmin0)
-- 🌐 وب‌سایت: [mramin0.github.io](https://mramin0.github.io)
-
----
-
-<div align="center">
-
-**ساخته شده با ❤️ و ☕**
-
-اگر این پروژه برایتان مفید بود، لطفاً یک ⭐️ بدهید!
-
-[![GitHub stars](https://img.shields.io/github/stars/MRAmin0/Weatherly?style=social)](https://github.com/MRAmin0/Weatherly/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/MRAmin0/Weatherly?style=social)](https://github.com/MRAmin0/Weatherly/network/members)
-
-</div>
