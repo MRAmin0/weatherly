@@ -1,0 +1,129 @@
+{
+  "info": {
+    "_postman_id": "weatherly-accuweather",
+    "name": "Weatherly AccuWeather",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "City Search",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://dataservice.accuweather.com/locations/v1/cities/search?apikey={{API_KEY}}&q=Tehran",
+          "protocol": "http",
+          "host": ["dataservice", "accuweather", "com"],
+          "path": ["locations", "v1", "cities", "search"],
+          "query": [
+            {
+              "key": "apikey",
+              "value": "{{API_KEY}}"
+            },
+            {
+              "key": "q",
+              "value": "Tehran"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Current Conditions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://dataservice.accuweather.com/currentconditions/v1/{{LOCATION_KEY}}?apikey={{API_KEY}}",
+          "protocol": "http",
+          "host": ["dataservice", "accuweather", "com"],
+          "path": ["currentconditions", "v1", "{{LOCATION_KEY}}"],
+          "query": [
+            {
+              "key": "apikey",
+              "value": "{{API_KEY}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "1-Day Forecast",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://dataservice.accuweather.com/forecasts/v1/daily/1day/{{LOCATION_KEY}}?apikey={{API_KEY}}&metric=true",
+          "protocol": "http",
+          "host": ["dataservice", "accuweather", "com"],
+          "path": ["forecasts", "v1", "daily", "1day", "{{LOCATION_KEY}}"],
+          "query": [
+            {
+              "key": "apikey",
+              "value": "{{API_KEY}}"
+            },
+            {
+              "key": "metric",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5-Day Forecast",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://dataservice.accuweather.com/forecasts/v1/daily/5day/{{LOCATION_KEY}}?apikey={{API_KEY}}&metric=true",
+          "protocol": "http",
+          "host": ["dataservice", "accuweather", "com"],
+          "path": ["forecasts", "v1", "daily", "5day", "{{LOCATION_KEY}}"],
+          "query": [
+            {
+              "key": "apikey",
+              "value": "{{API_KEY}}"
+            },
+            {
+              "key": "metric",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "API_KEY",
+      "value": "YOUR_ACCUWEATHER_API_KEY",
+      "type": "string"
+    },
+    {
+      "key": "LOCATION_KEY",
+      "value": "210841",
+      "type": "string"
+    }
+  ]
+}
