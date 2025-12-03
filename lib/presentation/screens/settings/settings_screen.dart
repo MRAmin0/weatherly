@@ -149,6 +149,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 24),
 
+                // WEATHER PROVIDER
+                _buildSectionTitle(context, l10n.weatherProvider, textColor),
+                GlassContainer(
+                  isDark: theme.brightness == Brightness.dark,
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.weatherProviderDescription,
+                        style: TextStyle(color: subTextColor, fontSize: 13),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildProviderOption(
+                              context,
+                              provider: 'accuweather',
+                              title: l10n.accuweather,
+                              icon: Icons.wb_sunny,
+                              color: Colors.orange,
+                              isSelected: vm.weatherProvider == 'accuweather',
+                              onTap: () => vm.setWeatherProvider('accuweather'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildProviderOption(
+                              context,
+                              provider: 'openweather',
+                              title: l10n.openweathermap,
+                              icon: Icons.cloud,
+                              color: Colors.blue,
+                              isSelected: vm.weatherProvider == 'openweather',
+                              onTap: () => vm.setWeatherProvider('openweather'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 // DISPLAY MODE
                 _buildSectionTitle(context, l10n.displayMode, textColor),
                 GlassContainer(
@@ -342,6 +387,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
           color: textColor.withValues(alpha: 0.9),
           fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProviderOption(
+    BuildContext context, {
+    required String provider,
+    required String title,
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? color.withOpacity(0.15)
+              : theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? color : color.withOpacity(0.3),
+            width: isSelected ? 2.5 : 1.5,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 36,
+              color: isSelected ? color : color.withOpacity(0.7),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? theme.colorScheme.onSurface
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (isSelected) ...[
+              const SizedBox(height: 4),
+              Icon(Icons.check_circle, size: 18, color: color),
+            ],
+          ],
         ),
       ),
     );

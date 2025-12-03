@@ -120,7 +120,7 @@ class OpenWeatherMapScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${data.temperature.toStringAsFixed(1)}',
+                  data.temperature.toStringAsFixed(1),
                   style: theme.textTheme.displayLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 72,
@@ -389,7 +389,7 @@ class OpenWeatherMapScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 2),
                     Text(
-                      '${forecast.windSpeed.toStringAsFixed(1)}',
+                      forecast.windSpeed.toStringAsFixed(1),
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -406,8 +406,9 @@ class OpenWeatherMapScreen extends StatelessWidget {
     if (iconCode.contains('01')) return Icons.wb_sunny;
     if (iconCode.contains('02')) return Icons.wb_cloudy;
     if (iconCode.contains('03') || iconCode.contains('04')) return Icons.cloud;
-    if (iconCode.contains('09') || iconCode.contains('10'))
+    if (iconCode.contains('09') || iconCode.contains('10')) {
       return Icons.water_drop;
+    }
     if (iconCode.contains('11')) return Icons.thunderstorm;
     if (iconCode.contains('13')) return Icons.ac_unit;
     if (iconCode.contains('50')) return Icons.foggy;

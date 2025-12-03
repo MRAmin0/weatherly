@@ -115,7 +115,7 @@ class AccuWeatherScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${data.temperature.toStringAsFixed(1)}',
+                  data.temperature.toStringAsFixed(1),
                   style: theme.textTheme.displayLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 72,
