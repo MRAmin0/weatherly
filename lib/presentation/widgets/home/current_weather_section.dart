@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
-import 'package:weatherly_app/core/utils/weather_formatters.dart';
 import 'package:weatherly_app/core/utils/city_utils.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 

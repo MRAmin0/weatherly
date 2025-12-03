@@ -58,9 +58,9 @@ class WeatherDetailsGrid extends StatelessWidget {
         ? toPersianDigits(aqiScore.toString())
         : aqiScore.toString();
     String aqiText;
-    if (aqiScore <= 50)
+    if (aqiScore <= 50) {
       aqiText = isPersian ? "خوب" : "Good";
-    else if (aqiScore <= 100)
+    } else if (aqiScore <= 100)
       aqiText = isPersian ? "متوسط" : "Moderate";
     else
       aqiText = isPersian ? "ناسالم" : "Unhealthy";
