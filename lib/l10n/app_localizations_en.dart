@@ -45,7 +45,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutApp => 'About the App';
 
   @override
-  String get appDescription => 'Weatherly helps you check weather conditions with beautiful UI.';
+  String get appDescription =>
+      'Weatherly helps you check weather conditions with beautiful UI.';
 
   @override
   String get projectOnGithub => 'Project on GitHub';
@@ -84,16 +85,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeAccentColor => 'UI theme color';
 
   @override
-  String get customizeThemeDescription => 'Pick a color you like to personalize Weatherly.';
+  String get customizeThemeDescription =>
+      'Pick a color you like to personalize Weatherly.';
 
   @override
   String get useSystemColor => 'Use System Color';
 
   @override
-  String get useSystemColorDescription => 'Use Material You dynamic colors when available.';
+  String get useSystemColorDescription =>
+      'Use Material You dynamic colors when available.';
 
   @override
-  String get systemColorNotAvailable => 'Dynamic colors not supported on this device.';
+  String get systemColorNotAvailable =>
+      'Dynamic colors not supported on this device.';
 
   @override
   String get showHourlyTemperature => 'Show hourly temperature';
@@ -141,7 +145,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearAll => 'Clear all';
 
   @override
-  String get locationPermissionDenied => 'Location permissions are currently disabled.';
+  String get locationPermissionDenied =>
+      'Location permissions are currently disabled.';
 
   @override
   String get requestAgain => 'Request again';
@@ -165,10 +170,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clear => 'Clear';
 
   @override
-  String get startBySearching => 'Start by searching for a city to see weather details.';
+  String get startBySearching =>
+      'Start by searching for a city to see weather details.';
 
   @override
-  String get forecastSearchPrompt => 'Search for a city first to see the forecast.';
+  String get forecastSearchPrompt =>
+      'Search for a city first to see the forecast.';
 
   @override
   String get fiveDayForecast => '5-day outlook';
@@ -198,13 +205,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aqiStatusGood => 'Good';
 
   @override
-  String get aqiRecommendationCaution => 'Sensitive groups should limit extended outdoor exertion.';
+  String get aqiRecommendationCaution =>
+      'Sensitive groups should limit extended outdoor exertion.';
 
   @override
   String get aqiStatusModerate => 'Moderate';
 
   @override
-  String get aqiRecommendationAvoid => 'Consider reducing heavy outdoor activity.';
+  String get aqiRecommendationAvoid =>
+      'Consider reducing heavy outdoor activity.';
 
   @override
   String get aqiStatusPoor => 'Poor';
@@ -235,18 +244,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentLocations => 'Recent Locations';
-
-  @override
-  String get weatherProvider => 'Weather Provider';
-
-  @override
-  String get weatherProviderDescription => 'Choose your preferred weather data source';
-
-  @override
-  String get accuweather => 'AccuWeather';
-
-  @override
-  String get openweathermap => 'OpenWeatherMap';
 
   @override
   String get displayEffects => 'Display Effects';
