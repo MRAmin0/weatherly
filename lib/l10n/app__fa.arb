@@ -94,11 +94,6 @@
   "pinnedLocations": "مکان‌های سنجاق‌شده",
   "recentLocations": "مکان‌های اخیر",
 
-  "weatherProvider": "ارائه‌دهنده آب‌وهوا",
-  "weatherProviderDescription": "منبع داده آب‌وهوای خود را انتخاب کنید",
-  "accuweather": "AccuWeather",
-  "openweathermap": "OpenWeatherMap",
-
   "displayEffects": "افکت‌های نمایشی",
   "blurEnabled": "پس‌زمینه محو (Blur)",
   "blurDisabled": "پس‌زمینه متریال",

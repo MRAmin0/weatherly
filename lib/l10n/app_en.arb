@@ -89,11 +89,6 @@
   "pinnedLocations": "Pinned Locations",
   "recentLocations": "Recent Locations",
 
-  "weatherProvider": "Weather Provider",
-  "weatherProviderDescription": "Choose your preferred weather data source",
-  "accuweather": "AccuWeather",
-  "openweathermap": "OpenWeatherMap",
-
   "displayEffects": "Display Effects",
   "blurEnabled": "Blur enabled",
   "blurDisabled": "Blur disabled",

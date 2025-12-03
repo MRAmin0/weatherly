@@ -7,7 +7,7 @@ import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
 import 'package:weatherly_app/presentation/widgets/home/home_search_section.dart';
 import 'package:weatherly_app/presentation/widgets/home/current_weather_section.dart';
-import 'package:weatherly_app/presentation/widgets/home/weather_details_grid.dart';
+import 'package:weatherly_app/presentation/widgets/home/details_row.dart';
 import 'package:weatherly_app/presentation/widgets/home/weather_drawer.dart';
 
 class HomePage extends StatefulWidget {
@@ -85,10 +85,6 @@ class _HomePageState extends State<HomePage> {
 
     await vm.fetchWeatherByCity(query);
     _searchController.clear();
-
-    setState(() {
-      _showSearchOverlay = false;
-    });
   }
 
   @override
@@ -118,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                   pinned: true,
                   centerTitle: true,
                   title: Text(
-                    l10n.home,
+                    l10n.weatherly,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
@@ -221,7 +217,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 18),
         Divider(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
         const SizedBox(height: 18),
-        WeatherDetailsGrid(viewModel: vm, l10n: l10n),
+        DetailsRow(viewModel: vm, l10n: l10n),
       ],
     );
 

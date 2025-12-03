@@ -37,7 +37,6 @@ class WeatherViewModel extends ChangeNotifier {
   String? error;
   bool useCelsius = true;
   String lang = 'fa';
-  String weatherProvider = 'openweather';
 
   List<String> recent = [];
   List<Map<String, dynamic>> suggestions = [];
@@ -58,7 +57,6 @@ class WeatherViewModel extends ChangeNotifier {
 
     useCelsius = prefs.getBool('useCelsius') ?? true;
     lang = prefs.getString('lang') ?? 'fa';
-    weatherProvider = prefs.getString('weatherProvider') ?? 'openweather';
     recent = prefs.getStringList('recent') ?? [];
     useSystemColor = prefs.getBool('useSystemColor') ?? false;
     defaultCity = prefs.getString('defaultCity') ?? 'Tehran';
@@ -141,13 +139,6 @@ class WeatherViewModel extends ChangeNotifier {
     if (city.isEmpty) return;
     defaultCity = city;
     await _savePref('defaultCity', city);
-    notifyListeners();
-  }
-
-  Future<void> setWeatherProvider(String provider) async {
-    if (weatherProvider == provider) return;
-    weatherProvider = provider;
-    await _savePref('weatherProvider', provider);
     notifyListeners();
   }
 
