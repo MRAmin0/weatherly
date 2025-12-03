@@ -13,7 +13,7 @@
 [![Dart](https://img.shields.io/badge/Dart-3.9.2+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**[🌐 نسخهٔ وب](https://weatherly-zeta.vercel.app/)** • **[📥 دانلود APK](https://github.com/MRAmin0/Weatherly/releases/download/v1.8.0/weatherly-v1.8.0.apk)** • **[🛍 مشاهده در مایکت](https://myket.ir/app/com.weathely.app)**
+**[🌐 نسخهٔ وب](https://weatherly-zeta.vercel.app/)** • **[📥 دانلود APK](https://github.com/MRAmin0/Weatherly/releases/download/v1.8.0/weatherly-v1.8.0.apk)** • **[🛍 مشاهده در مایکت](https://myket.ir/app/com.weatherly.app)**
 
 </div>
 
@@ -73,7 +73,7 @@ Weatherly با تمرکز بر سادگی، سرعت و دقت طراحی شده
 
 <div align="center">
 
-[![Myket](https://img.shields.io/badge/Download_from-Myket-00A6FF?style=for-the-badge&logo=android)](https://myket.ir/app/com.weathely.app)
+[![Myket](https://img.shields.io/badge/Download_from-Myket-00A6FF?style=for-the-badge&logo=android)](https://myket.ir/app/com.weatherly.app)
 
 **نصب آسان و به‌روزرسانی خودکار**
 
