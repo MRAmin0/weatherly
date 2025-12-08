@@ -33,6 +33,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Color(0xFF006C4C),
   ];
 
+  final ScrollController _scrollController = ScrollController();
+  double _titleOpacity = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final offset = _scrollController.offset;
+    final newOpacity = (1.0 - (offset / 100)).clamp(0.0, 1.0);
+    if (newOpacity != _titleOpacity) {
+      setState(() {
+        _titleOpacity = newOpacity;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _showLanguageDialog(AppLocalizations l10n, WeatherViewModel vm) {
     showDialog(
       context: context,
@@ -104,11 +130,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(color: theme.colorScheme.primary),
-        title: Text(
-          l10n.settings,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
+        title: AnimatedOpacity(
+          duration: const Duration(milliseconds: 150),
+          opacity: _titleOpacity,
+          child: Text(
+            l10n.settings,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -122,6 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               return false;
             },
             child: ListView(
+              controller: _scrollController,
               padding: EdgeInsets.fromLTRB(
                 16,
                 16,

@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   late final FocusNode _searchFocusNode;
 
   bool _showSearchOverlay = false;
+  double _titleOpacity = 1.0;
 
   late final VoidCallback _focusListener;
 
@@ -37,6 +38,8 @@ class _HomePageState extends State<HomePage> {
     _scrollController = ScrollController();
     _searchController = TextEditingController();
     _searchFocusNode = FocusNode();
+
+    _scrollController.addListener(_onScroll);
 
     _focusListener = () {
       widget.onSearchFocusChange(_searchFocusNode.hasFocus);
@@ -50,8 +53,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _onScroll() {
+    final offset = _scrollController.offset;
+    // Fade out from 0 to 100 pixels of scroll
+    final newOpacity = (1.0 - (offset / 100)).clamp(0.0, 1.0);
+    if (newOpacity != _titleOpacity) {
+      setState(() {
+        _titleOpacity = newOpacity;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _searchController.dispose();
     _searchFocusNode.removeListener(_focusListener);
@@ -119,12 +134,16 @@ class _HomePageState extends State<HomePage> {
                   elevation: 0,
                   pinned: true,
                   centerTitle: true,
-                  title: Text(
-                    l10n.localeName == 'fa' ? 'خانه' : 'Home',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
+                  title: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 150),
+                    opacity: _titleOpacity,
+                    child: Text(
+                      l10n.localeName == 'fa' ? 'خانه' : 'Home',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
                     ),
                   ),
                 ),

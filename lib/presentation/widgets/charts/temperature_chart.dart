@@ -52,7 +52,7 @@ class TemperatureChart extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
-      height: 250, // Increased height for bottom labels
+      height: 300,
       width: double.infinity,
       child: LineChart(
         LineChartData(
@@ -74,7 +74,7 @@ class TemperatureChart extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 60, // Space for time and icon
+                reservedSize: 90,
                 interval: 1,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
@@ -82,7 +82,6 @@ class TemperatureChart extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
 
-                  // Show label for every item
                   final item = hourlyData[index];
                   final timeStr = formatLocalHour(item.time, 0);
                   final timeLabel = isPersian
@@ -91,6 +90,15 @@ class TemperatureChart extends StatelessWidget {
                   final iconPath = weatherIconAsset(
                     weatherTypeToApiName(item.weatherType),
                   );
+
+                  // Temperature with unit
+                  final rawTemp = item.temperature;
+                  final temp = useCelsius ? rawTemp : (rawTemp * 9 / 5) + 32;
+                  final unit = useCelsius ? '°C' : '°F';
+                  final tempText = "${temp.toStringAsFixed(0)}$unit";
+                  final tempLabel = isPersian
+                      ? toPersianDigits(tempText)
+                      : tempText;
 
                   return SideTitleWidget(
                     axisSide: meta.axisSide,
@@ -101,17 +109,21 @@ class TemperatureChart extends StatelessWidget {
                         Text(
                           timeLabel,
                           style: TextStyle(
-                            color: textColor.withValues(alpha: 0.7),
-                            fontSize: 10,
+                            color: textColor.withValues(alpha: 0.8),
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        SvgPicture.asset(
-                          iconPath,
-                          width: 24,
-                          height: 24,
-                          // colorFilter: ColorFilter.mode(textColor, BlendMode.srcIn), // Optional: tint icons? Standard weather icons usually colorful.
+                        SvgPicture.asset(iconPath, width: 28, height: 28),
+                        const SizedBox(height: 2),
+                        Text(
+                          tempLabel,
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),

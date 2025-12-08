@@ -17,6 +17,32 @@ class ForecastScreen extends StatefulWidget {
 }
 
 class _ForecastScreenState extends State<ForecastScreen> {
+  final ScrollController _scrollController = ScrollController();
+  double _titleOpacity = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final offset = _scrollController.offset;
+    final newOpacity = (1.0 - (offset / 100)).clamp(0.0, 1.0);
+    if (newOpacity != _titleOpacity) {
+      setState(() {
+        _titleOpacity = newOpacity;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -69,6 +95,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
             backgroundColor: textColor.withAlpha(40),
             onRefresh: vm.refresh,
             child: SingleChildScrollView(
+              controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
@@ -132,7 +159,11 @@ class _ForecastScreenState extends State<ForecastScreen> {
         return Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            title: Text(l10n.forecast),
+            title: AnimatedOpacity(
+              duration: const Duration(milliseconds: 150),
+              opacity: _titleOpacity,
+              child: Text(l10n.forecast),
+            ),
             centerTitle: true,
             backgroundColor: Colors.transparent,
             elevation: 0,
