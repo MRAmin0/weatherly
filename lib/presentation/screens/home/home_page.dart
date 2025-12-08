@@ -85,6 +85,12 @@ class _HomePageState extends State<HomePage> {
 
     await vm.fetchWeatherByCity(query);
     _searchController.clear();
+
+    if (mounted) {
+      setState(() {
+        _showSearchOverlay = false;
+      });
+    }
   }
 
   @override

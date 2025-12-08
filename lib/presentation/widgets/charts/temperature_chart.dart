@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:weatherly_app/data/models/hourly_forecast.dart';
-import 'package:intl/intl.dart';
 import 'package:weatherly_app/core/utils/city_utils.dart';
+import 'package:weatherly_app/core/utils/weather_formatters.dart';
 
 class TemperatureChart extends StatelessWidget {
   final List<HourlyForecastEntry> hourlyData;
@@ -35,6 +36,7 @@ class TemperatureChart extends StatelessWidget {
     final maxY = spots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
 
     final primaryColor = Theme.of(context).colorScheme.primary;
+    final textColor = Theme.of(context).colorScheme.onSurface;
 
     return Container(
       decoration: BoxDecoration(
@@ -49,8 +51,8 @@ class TemperatureChart extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.only(top: 20, right: 20),
-      height: 200,
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
+      height: 250, // Increased height for bottom labels
       width: double.infinity,
       child: LineChart(
         LineChartData(
@@ -58,10 +60,68 @@ class TemperatureChart extends StatelessWidget {
           maxX: spots.length.toDouble() - 1,
           minY: minY - 2,
           maxY: maxY + 2,
-          titlesData: const FlTitlesData(show: false),
+          titlesData: FlTitlesData(
+            show: true,
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 60, // Space for time and icon
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index >= hourlyData.length) {
+                    return const SizedBox.shrink();
+                  }
+
+                  // Show label for every item
+                  final item = hourlyData[index];
+                  final timeStr = formatLocalHour(item.time, 0);
+                  final timeLabel = isPersian
+                      ? toPersianDigits(timeStr)
+                      : timeStr;
+                  final iconPath = weatherIconAsset(
+                    weatherTypeToApiName(item.weatherType),
+                  );
+
+                  return SideTitleWidget(
+                    axisSide: meta.axisSide,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 8),
+                        Text(
+                          timeLabel,
+                          style: TextStyle(
+                            color: textColor.withValues(alpha: 0.7),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        SvgPicture.asset(
+                          iconPath,
+                          width: 24,
+                          height: 24,
+                          // colorFilter: ColorFilter.mode(textColor, BlendMode.srcIn), // Optional: tint icons? Standard weather icons usually colorful.
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
-          // ✅ Add betweenBarsData at LineChartData level
           betweenBarsData: [
             BetweenBarsData(
               fromIndex: 0,
@@ -78,7 +138,6 @@ class TemperatureChart extends StatelessWidget {
           ],
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
-              // ✅ Updated: Use getTooltipColor instead of tooltipBgColor
               getTooltipColor: (touchedSpot) =>
                   Colors.black.withValues(alpha: 0.8),
               tooltipRoundedRadius: 12,
@@ -86,14 +145,16 @@ class TemperatureChart extends StatelessWidget {
               tooltipMargin: 8,
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((LineBarSpot touchedSpot) {
-                  final time = formatTime(
-                    hourlyData[touchedSpot.spotIndex].time,
-                    isPersian,
-                  );
+                  final item = hourlyData[touchedSpot.spotIndex];
+                  final time = formatLocalHour(item.time, 0);
+                  final timeStr = isPersian ? toPersianDigits(time) : time;
+
                   final temp = touchedSpot.y.toStringAsFixed(0);
+                  final tempStr = isPersian ? toPersianDigits(temp) : temp;
                   final unit = useCelsius ? '°C' : '°F';
+
                   return LineTooltipItem(
-                    '$time\n$temp$unit',
+                    '$timeStr\n$tempStr$unit',
                     const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -108,24 +169,25 @@ class TemperatureChart extends StatelessWidget {
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              dotData: const FlDotData(show: false),
-              // ✅ Updated: Use gradient instead of single color for line
-              gradient: LinearGradient(colors: [Colors.white, Colors.white]),
-              // ✅ Updated: Use showingIndicators for spot line
-              showingIndicators: [],
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 4,
+                    color: Colors.white,
+                    strokeWidth: 2,
+                    strokeColor: primaryColor,
+                  );
+                },
+              ),
+              gradient: const LinearGradient(
+                colors: [Colors.white, Colors.white],
+              ),
+              barWidth: 3,
             ),
           ],
         ),
       ),
     );
   }
-}
-
-String formatTime(DateTime time, bool isPersian) {
-  final formatter = DateFormat('HH:mm');
-  String result = formatter.format(time);
-  if (isPersian) {
-    return toPersianDigits(result);
-  }
-  return result;
 }

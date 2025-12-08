@@ -7,7 +7,7 @@ import 'package:weatherly_app/presentation/widgets/charts/temperature_chart.dart
 import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 
 import 'widgets/location_header.dart';
-import 'widgets/hourly_list.dart';
+import 'widgets/location_header.dart';
 import 'widgets/daily_list.dart';
 
 class ForecastScreen extends StatefulWidget {
@@ -91,39 +91,6 @@ class _ForecastScreenState extends State<ForecastScreen> {
                       hourlyData: vm.hourly,
                       useCelsius: vm.useCelsius,
                       isPersian: isPersian,
-                    ),
-                    const SizedBox(height: 24),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Text(
-                            l10n.hourlyTemperatureTitle,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "(${vm.useCelsius ? '°C' : '°F'})",
-                            style: TextStyle(color: subTextColor),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: HourlyList(
-                        items: vm.hourly,
-                        isPersian: isPersian,
-                        useCelsius: vm.useCelsius,
-                        isDark: isDark,
-                        textColor: textColor,
-                        subTextColor: subTextColor,
-                        offset: vm.hourlyOffset ?? 0,
-                      ),
                     ),
                     const SizedBox(height: 24),
                   ],

@@ -54,6 +54,17 @@ class CurrentWeatherSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
+
+        // --- Real Feel ---
+        _buildRealFeel(
+          context,
+          current.feelsLike,
+          viewModel.useCelsius,
+          isPersian,
+          unit,
+        ),
+
+        const SizedBox(height: 8),
         Text(
           current.cityName,
           style: theme.textTheme.headlineMedium?.copyWith(
@@ -88,6 +99,32 @@ class CurrentWeatherSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildRealFeel(
+    BuildContext context,
+    double feelsLike,
+    bool useCelsius,
+    bool isPersian,
+    String unit,
+  ) {
+    final theme = Theme.of(context);
+
+    final realFeelVal = useCelsius ? feelsLike : (feelsLike * 9 / 5) + 32;
+    final realFeelStr = isPersian
+        ? toPersianDigits(realFeelVal.toStringAsFixed(0))
+        : realFeelVal.toStringAsFixed(0);
+
+    final label = isPersian ? "حس واقعی" : "Real Feel";
+
+    return Text(
+      "$label: $realFeelStr$unit",
+      style: theme.textTheme.bodyLarge?.copyWith(
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+      ),
     );
   }
 }

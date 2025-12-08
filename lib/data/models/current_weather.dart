@@ -8,6 +8,7 @@ class CurrentWeather {
   final double windSpeed;
   final int humidity;
   final String main;
+  final double feelsLike;
 
   CurrentWeather({
     required this.cityName,
@@ -16,6 +17,7 @@ class CurrentWeather {
     required this.windSpeed,
     required this.humidity,
     required this.main,
+    required this.feelsLike,
   });
 
   // Getters for UI compatibility
@@ -34,6 +36,7 @@ class CurrentWeather {
       description: weather['description'] ?? '',
       main: weather['main'] ?? 'Clear',
       temperature: (mainData['temp'] as num).toDouble(),
+      feelsLike: (mainData['feels_like'] as num).toDouble(),
       humidity: (mainData['humidity'] as num).toInt(),
       windSpeed: (wind['speed'] as num).toDouble(),
     );

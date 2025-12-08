@@ -66,76 +66,83 @@ class DailyList extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () {
-                showDayDetailSheet(
-                  context: context,
-                  dayTitle: titleText,
-                  description: description,
-                  humidity: humidity,
-                  windSpeed: windSpeed,
-                  aqi: aqiScore,
-                  isPersian: isPersian,
-                );
-              },
-              child: GlassContainer(
-                isDark: isDark,
-                borderRadius: 20,
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      titleText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
+            child: SizedBox(
+              width: 115,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  showDayDetailSheet(
+                    context: context,
+                    dayTitle: titleText,
+                    description: description,
+                    humidity: humidity,
+                    windSpeed: windSpeed,
+                    aqi: aqiScore,
+                    isPersian: isPersian,
+                  );
+                },
+                child: GlassContainer(
+                  isDark: isDark,
+                  borderRadius: 20,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 8,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        titleText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
                       ),
-                    ),
-                    SvgPicture.asset(iconPath, width: 42, height: 42),
-                    Text(
-                      description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: subTextColor),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.arrow_upward_rounded,
-                          size: 16,
-                          color: Colors.orangeAccent,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          isPersian ? toPersianDigits(maxText) : maxText,
-                          style: TextStyle(
-                            color: textColor,
-                            fontWeight: FontWeight.bold,
+                      SvgPicture.asset(iconPath, width: 42, height: 42),
+                      Text(
+                        description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: subTextColor, fontSize: 12),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.arrow_upward_rounded,
+                            size: 16,
+                            color: Colors.orangeAccent,
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.arrow_downward_rounded,
-                          size: 16,
-                          color: Colors.lightBlueAccent,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          isPersian ? toPersianDigits(minText) : minText,
-                          style: TextStyle(color: subTextColor),
-                        ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(width: 4),
+                          Text(
+                            isPersian ? toPersianDigits(maxText) : maxText,
+                            style: TextStyle(
+                              color: textColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.arrow_downward_rounded,
+                            size: 16,
+                            color: Colors.lightBlueAccent,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isPersian ? toPersianDigits(minText) : minText,
+                            style: TextStyle(color: subTextColor, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

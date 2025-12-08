@@ -8,6 +8,12 @@ String toPersianDigits(String input) {
   for (int i = 0; i < english.length; i++) {
     input = input.replaceAll(english[i], persian[i]);
   }
+
+  // Fix for negative numbers in RTL context: force LTR direction
+  if (input.contains('-')) {
+    return '\u200E$input';
+  }
+
   return input;
 }
 
