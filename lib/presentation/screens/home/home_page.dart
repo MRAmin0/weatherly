@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                   pinned: true,
                   centerTitle: true,
                   title: Text(
-                    l10n.weatherly,
+                    l10n.localeName == 'fa' ? 'خانه' : 'Home',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,

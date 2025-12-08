@@ -7,7 +7,6 @@ import 'package:weatherly_app/presentation/widgets/charts/temperature_chart.dart
 import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 
 import 'widgets/location_header.dart';
-import 'widgets/location_header.dart';
 import 'widgets/daily_list.dart';
 
 class ForecastScreen extends StatefulWidget {
