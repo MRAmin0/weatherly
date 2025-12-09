@@ -45,7 +45,8 @@ class AppLocalizationsFa extends AppLocalizations {
   String get aboutApp => 'درباره برنامه';
 
   @override
-  String get appDescription => 'ودرلی به شما کمک می‌کند وضعیت آب‌وهوا را با رابط کاربری زیبا چک کنید.';
+  String get appDescription =>
+      'ودرلی به شما کمک می‌کند وضعیت آب‌وهوا را با رابط کاربری زیبا چک کنید.';
 
   @override
   String get projectOnGithub => 'پروژه در گیت‌هاب';
@@ -84,16 +85,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get themeAccentColor => 'رنگ پوسته';
 
   @override
-  String get customizeThemeDescription => 'رنگی را برای شخصی‌سازی ودرلی انتخاب کنید.';
+  String get customizeThemeDescription =>
+      'رنگی را برای شخصی‌سازی ودرلی انتخاب کنید.';
 
   @override
   String get useSystemColor => 'استفاده از رنگ سیستم';
 
   @override
-  String get useSystemColorDescription => 'استفاده از رنگ‌های متریال Dynamic در صورت موجود بودن.';
+  String get useSystemColorDescription =>
+      'استفاده از رنگ‌های متریال Dynamic در صورت موجود بودن.';
 
   @override
-  String get systemColorNotAvailable => 'رنگ‌های داینامیک در این دستگاه پشتیبانی نمی‌شود.';
+  String get systemColorNotAvailable =>
+      'رنگ‌های داینامیک در این دستگاه پشتیبانی نمی‌شود.';
 
   @override
   String get showHourlyTemperature => 'نمایش دمای ساعتی';
@@ -165,10 +169,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get clear => 'پاک کردن';
 
   @override
-  String get startBySearching => 'برای مشاهده جزئیات آب‌وهوا، نام شهری را جستجو کنید.';
+  String get startBySearching =>
+      'برای مشاهده جزئیات آب‌وهوا، نام شهری را جستجو کنید.';
 
   @override
-  String get forecastSearchPrompt => 'برای مشاهده پیش‌بینی، ابتدا یک شهر را جستجو کنید.';
+  String get forecastSearchPrompt =>
+      'برای مشاهده پیش‌بینی، ابتدا یک شهر را جستجو کنید.';
 
   @override
   String get fiveDayForecast => 'چشم‌انداز ۵ روزه';
@@ -198,25 +204,29 @@ class AppLocalizationsFa extends AppLocalizations {
   String get aqiStatusGood => 'خوب';
 
   @override
-  String get aqiRecommendationCaution => 'گروه‌های حساس باید فعالیت طولانی‌مدت در فضای باز را محدود کنند.';
+  String get aqiRecommendationCaution =>
+      'گروه‌های حساس باید فعالیت طولانی‌مدت در فضای باز را محدود کنند.';
 
   @override
   String get aqiStatusModerate => 'متوسط';
 
   @override
-  String get aqiRecommendationAvoid => 'بهتر است فعالیت سنگین در فضای باز را کاهش دهید.';
+  String get aqiRecommendationAvoid =>
+      'بهتر است فعالیت سنگین در فضای باز را کاهش دهید.';
 
   @override
   String get aqiStatusPoor => 'ناسالم';
 
   @override
-  String get aqiRecommendationMask => 'در صورت امکان در فضای باز از ماسک استفاده کنید.';
+  String get aqiRecommendationMask =>
+      'در صورت امکان در فضای باز از ماسک استفاده کنید.';
 
   @override
   String get aqiStatusVeryPoor => 'بسیار ناسالم';
 
   @override
-  String get aqiRecommendationNoActivity => 'از فعالیت در فضای باز خودداری کنید.';
+  String get aqiRecommendationNoActivity =>
+      'از فعالیت در فضای باز خودداری کنید.';
 
   @override
   String get themeColor => 'رنگ پوسته';
@@ -246,22 +256,26 @@ class AppLocalizationsFa extends AppLocalizations {
   String get blurDisabled => 'پس‌زمینه متریال';
 
   @override
-  String get blurDescription => 'افکت شیشه‌ای فعال است — سطوح متریال غیرفعال می‌شوند';
+  String get blurDescription =>
+      'افکت شیشه‌ای فعال است — سطوح متریال غیرفعال می‌شوند';
 
   @override
-  String get materialDescription => 'افکت محو غیرفعال است — سطوح متریال فعال می‌شوند';
+  String get materialDescription =>
+      'افکت محو غیرفعال است — سطوح متریال فعال می‌شوند';
 
   @override
   String get smartNotifications => 'نوتیفیکیشن هوشمند';
 
   @override
-  String get smartNotificationsDesc => 'موقع باز کردن اپ نکات آب‌وهوایی دریافت کن';
+  String get smartNotificationsDesc =>
+      'موقع باز کردن اپ نکات آب‌وهوایی دریافت کن';
 
   @override
   String get dailyNotifications => 'هشدار صبحگاهی';
 
   @override
-  String get dailyNotificationsDesc => 'هر روز صبح ساعت ۷ خلاصه آب‌وهوا دریافت کن';
+  String get dailyNotificationsDesc =>
+      'هر روز صبح ساعت ۷ خلاصه آب‌وهوا دریافت کن';
 
   @override
   String get notificationTimeLabel => 'زمان نوتیفیکیشن';

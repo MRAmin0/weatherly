@@ -166,6 +166,11 @@ class NotificationService {
     debugPrint('Daily notification scheduled for $hour:$minute');
   }
 
+  /// Cancel daily notification
+  Future<void> cancelDailyNotification() async {
+    await _notifications.cancel(0);
+  }
+
   /// Cancel all scheduled notifications
   Future<void> cancelAllScheduled() async {
     await _notifications.cancelAll();

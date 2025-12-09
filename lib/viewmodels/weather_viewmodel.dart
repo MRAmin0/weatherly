@@ -178,24 +178,24 @@ class WeatherViewModel extends ChangeNotifier {
 
   // ------------------------- NOTIFICATION SETTINGS -------------------------
   Future<void> setSmartNotifications(bool value) async {
-    if (smartNotificationsEnabled == value) return;
     smartNotificationsEnabled = value;
     notifyListeners(); // Update UI immediately
     await _savePref('smartNotifications', value);
   }
 
   Future<void> setDailyNotifications(bool value) async {
-    if (dailyNotificationsEnabled == value) return;
     dailyNotificationsEnabled = value;
     notifyListeners(); // Update UI immediately
 
     await _savePref('dailyNotifications', value);
 
+    if (kIsWeb) return;
+
     try {
       if (value) {
         await _scheduleDailyNotification();
       } else {
-        await _notificationService.cancelAllScheduled();
+        await _notificationService.cancelDailyNotification();
       }
     } catch (e) {
       debugPrint('Error setting daily notification: $e');
@@ -210,12 +210,16 @@ class WeatherViewModel extends ChangeNotifier {
     await _savePref('dailyNotificationHour', hour);
     await _savePref('dailyNotificationMinute', minute);
 
+    if (kIsWeb) return;
+
     if (dailyNotificationsEnabled) {
       await _scheduleDailyNotification();
     }
   }
 
   Future<void> _scheduleDailyNotification() async {
+    if (kIsWeb) return;
+
     final isFarsi = lang == 'fa';
     await _notificationService.scheduleDailyNotification(
       hour: dailyNotificationHour,
@@ -229,7 +233,8 @@ class WeatherViewModel extends ChangeNotifier {
 
   /// Show smart weather notification based on current conditions
   Future<void> showSmartNotification() async {
-    if (!smartNotificationsEnabled || _notificationShownThisSession) return;
+    if (kIsWeb || !smartNotificationsEnabled || _notificationShownThisSession)
+      return;
     if (currentWeather == null) return;
 
     try {
