@@ -4,7 +4,9 @@
 
 ![Weatherly Icon](assets/icon.png)
 
-**🇬🇧 [English](#english) | 🇮🇷 [فارسی](#فارسی)**
+**A modern, multilingual weather app with beautiful UI**
+
+Fast performance, minimal design, professional user experience
 
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/MRAmin0/Weatherly/releases)
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.7+-02569B?logo=flutter)](https://flutter.dev)
@@ -13,11 +15,11 @@
 
 **[🌐 Web Version](https://weatherly-zeta.vercel.app/)** • **[📥 Download APK](https://github.com/MRAmin0/Weatherly/releases/download/v2.0.0/weatherly-v2.0.0.apk)** • **[🛍 Myket](https://myket.ir/app/com.weatherly.app)**
 
+**🇮🇷 [نسخه فارسی](README_FA.md)**
+
 </div>
 
 ---
-
-# English
 
 ## 📸 Screenshots
 
@@ -57,38 +59,98 @@
 - 🇬🇧 **English (LTR)** — Standard international interface
 - 🔄 **Easy language switch** from settings
 
+### ⚙️ Advanced Features
+- 💾 **Auto-save** user preferences
+- 🌡 **Temperature unit** selection (Celsius/Fahrenheit)
+- 📍 **Save favorite cities**
+- 🎯 **Default city** configurable
+- 📶 **Offline mode** with smart caching
+
 ---
 
 ## 📦 Download
 
 ### From Myket
+
+<div align="center">
+
 [![Myket](https://img.shields.io/badge/Download_from-Myket-00A6FF?style=for-the-badge&logo=android)](https://myket.ir/app/com.weatherly.app)
 
+**Easy install with automatic updates**
+
+</div>
+
 ### Direct APK Download
+
+<div align="center">
+
 [![Download APK](https://img.shields.io/badge/Download-APK_v2.0.0-6A5ACD?style=for-the-badge&logo=android)](https://github.com/MRAmin0/Weatherly/releases/download/v2.0.0/weatherly-v2.0.0.apk)
 
 **File size:** ~57 MB | **Android:** 5.0+ (API 21)
+
+</div>
+
+### Web Version
+
+Use [Weatherly Web](https://weatherly-zeta.vercel.app/) without installation.
 
 ---
 
 ## 🚀 Development Setup
 
 ### Prerequisites
+
 ```bash
 Flutter SDK: 3.35.7+
 Dart SDK: 3.9.2+
+Android Studio / VS Code (optional)
 ```
 
-### Installation
+Check Flutter version:
+
+```bash
+flutter --version
+```
+
+### Installation Steps
+
+#### 1️⃣ Clone Repository
+
 ```bash
 git clone https://github.com/MRAmin0/Weatherly.git
 cd Weatherly
+```
+
+#### 2️⃣ Install Dependencies
+
+```bash
 flutter pub get
+```
+
+#### 3️⃣ Generate Localization Files (Required ⚠️)
+
+```bash
 flutter gen-l10n
+```
+
+> **Note:** Run this command after every change to ARB files in `l10n/` folder.
+
+#### 4️⃣ Run App
+
+For device/emulator:
+
+```bash
 flutter run
 ```
 
-### Build Release APK
+For browser:
+
+```bash
+flutter run -d chrome
+```
+
+For release APK:
+
 ```bash
 flutter build apk --release
 ```
@@ -108,7 +170,77 @@ flutter build apk --release
 - 🌈 Dynamic backgrounds
 - ✨ New animations
 
-[Full changelog →](CHANGELOG.md)
+### 🌈 Version 1.8.0
+- ✨ Full ColorScheme integration
+- 🎨 Updated backgrounds, search bar, AQI card
+- 🌈 Dynamic color support (Material You)
+- � Full Material Design 3 support
+
+### ⭐ Version 1.7.0
+- � Bug fixes and stability improvements
+- 📡 Proper message when offline
+
+---
+
+## 🧪 Testing & Development
+
+### Useful Commands
+
+```bash
+# Analyze code
+flutter analyze
+
+# Run tests
+flutter test
+
+# Run web version
+flutter run -d chrome
+
+# Check outdated dependencies
+flutter pub outdated
+
+# Format code
+dart format .
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions!
+
+### How to Contribute:
+
+1. **Fork** the repository
+2. Create a **branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit** changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to branch (`git push origin feature/amazing-feature`)
+5. Create a **Pull Request**
+
+### Report Issues
+
+Found a bug? Please create an [Issue](https://github.com/MRAmin0/Weatherly/issues) with:
+- Detailed description
+- Steps to reproduce
+- Screenshots (if possible)
+- Device info and app version
+
+---
+
+## 🙏 Acknowledgments
+
+This project uses:
+
+- 🌦 **Weather data:** [Open-Meteo API](https://open-meteo.com/)
+- 📦 **State management:** [Provider](https://pub.dev/packages/provider)
+- 🎨 **Design system:** [Material Design 3](https://m3.material.io/)
+- 🚀 **Framework:** [Flutter](https://flutter.dev/)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
@@ -118,118 +250,7 @@ flutter build apk --release
 
 - 📧 Email: aminmonajati9@gmail.com
 - 🐙 GitHub: [@MRAmin0](https://github.com/MRAmin0)
-
----
-
-# فارسی
-
-## 📸 نمای کلی
-
-<div align="center">
-
-|         صفحه اصلی          |         پیش‌بینی هفتگی         |            تنظیمات             |
-| :------------------------: | :----------------------------: | :----------------------------: |
-| ![Home](Screenshots/1.png) | ![Forecast](Screenshots/2.png) | ![Settings](Screenshots/3.png) |
-
-</div>
-
----
-
-## ✨ امکانات کلیدی
-
-### 🌤 اطلاعات آب‌وهوا
-- 🔍 **جستجوی هوشمند** شهرها با پیشنهادات لحظه‌ای
-- 🌡 **وضعیت فعلی** با جزئیات کامل (دما، رطوبت، باد، فشار)
-- 📅 **پیش‌بینی 5 روزه** با دقت بالا
-- ⏰ **پیش‌بینی ساعتی** برای برنامه‌ریزی دقیق‌تر
-- 💨 **شاخص کیفیت هوا (AQI)** با رنگ‌بندی استاندارد
-
-### 🔔 نوتیفیکیشن هوشمند (جدید در نسخه 2.0.0)
-- ☔ نکات هوشمند بر اساس آب‌وهوا ("چتر ببر!"، "عینک آفتابی بزن!")
-- ⏰ هشدار صبحگاهی با ساعت دلخواه
-- 🧪 دکمه تست برای پیش‌نمایش نوتیفیکیشن
-
-### 🎨 رابط کاربری
-- 🌈 **پشتیبانی کامل از Material Design 3** با Dynamic Color
-- 🎭 **پشتیبانی از Material You** (رنگ‌های پویا)
-- 🌓 **تم روشن/تاریک** با انتقال نرم
-- ✨ **انیمیشن‌های روان** (چرخش، پالس، اسلاید)
-- 📱 **طراحی واکنش‌گرا** برای موبایل و وب
-
-### 🌍 چندزبانه
-- 🇮🇷 **فارسی (RTL)** — پشتیبانی کامل از راست‌چین
-- 🇬🇧 **انگلیسی (LTR)** — رابط استاندارد بین‌المللی
-- 🔄 **تغییر آسان زبان** از بخش تنظیمات
-
----
-
-## 📦 دانلود و نصب
-
-### دانلود از مایکت
-[![Myket](https://img.shields.io/badge/دانلود_از-مایکت-00A6FF?style=for-the-badge&logo=android)](https://myket.ir/app/com.weatherly.app)
-
-### دانلود مستقیم APK
-[![Download APK](https://img.shields.io/badge/دانلود-APK_v2.0.0-6A5ACD?style=for-the-badge&logo=android)](https://github.com/MRAmin0/Weatherly/releases/download/v2.0.0/weatherly-v2.0.0.apk)
-
-**حجم فایل:** ~۵۷ مگابایت | **نسخه اندروید:** 5.0+ (API 21)
-
----
-
-## 🚀 راه‌اندازی پروژه
-
-### پیش‌نیازها
-```bash
-Flutter SDK: 3.35.7 یا بالاتر
-Dart SDK: 3.9.2 یا بالاتر
-```
-
-### نصب
-```bash
-git clone https://github.com/MRAmin0/Weatherly.git
-cd Weatherly
-flutter pub get
-flutter gen-l10n
-flutter run
-```
-
-### ساخت نسخه نهایی APK
-```bash
-flutter build apk --release
-```
-
----
-
-## 📝 تاریخچه تغییرات
-
-### 🔔 نسخه 2.0.0 (آخرین نسخه)
-- ✨ نوتیفیکیشن هوشمند آب‌وهوا
-- ⏰ هشدار صبحگاهی با ساعت دلخواه
-- 🧪 دکمه تست نوتیفیکیشن
-- 🐛 رفع باگ خطای اتصال
-
-### 💎 نسخه 1.9.0
-- 🎨 بازطراحی کامل رابط کاربری
-- 🌈 پس‌زمینه دینامیک
-- ✨ انیمیشن‌های جدید
-
----
-
-## 🤝 مشارکت در پروژه
-
-1. **Fork** کردن مخزن
-2. ایجاد **Branch** جدید (`git checkout -b feature/amazing-feature`)
-3. **Commit** کردن تغییرات (`git commit -m 'Add amazing feature'`)
-4. **Push** به برنچ (`git push origin feature/amazing-feature`)
-5. ایجاد **Pull Request**
-
----
-
-## 👨‍💻 سازنده
-
-**توسعه‌دهنده:** Amin Monajati
-
-- 📧 ایمیل: aminmonajati9@gmail.com
-- 🐙 GitHub: [@MRAmin0](https://github.com/MRAmin0)
+- 🌐 Website: [mramin0.github.io](https://mramin0.github.io)
 
 ---
 

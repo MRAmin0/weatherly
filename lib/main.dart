@@ -14,10 +14,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ConfigReader.initialize();
 
-  // Request notification permission on app start
-  final notificationService = NotificationService();
-  await notificationService.initialize();
-  await notificationService.requestPermission();
+  // Request notification permission on app start (mobile only)
+  if (!kIsWeb) {
+    try {
+      final notificationService = NotificationService();
+      await notificationService.initialize();
+      await notificationService.requestPermission();
+    } catch (e) {
+      debugPrint('Notification init error: $e');
+    }
+  }
 
   runApp(
     DevicePreview(
