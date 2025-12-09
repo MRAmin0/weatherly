@@ -8,10 +8,16 @@ import 'l10n/app_localizations.dart';
 import 'package:weatherly_app/presentation/screens/splash/splash_screen.dart';
 import 'viewmodels/weather_viewmodel.dart';
 import 'config/config_reader.dart';
+import 'package:weatherly_app/data/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ConfigReader.initialize();
+
+  // Request notification permission on app start
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+  await notificationService.requestPermission();
 
   runApp(
     DevicePreview(

@@ -8,6 +8,8 @@ import 'package:weatherly_app/data/models/daily_forecast.dart';
 import 'package:weatherly_app/data/models/hourly_forecast.dart';
 import 'package:weatherly_app/data/models/weather_type.dart';
 import 'package:weatherly_app/data/services/weather_api_service.dart';
+import 'package:weatherly_app/data/services/notification_service.dart';
+import 'package:weatherly_app/core/utils/weather_tips.dart';
 
 class WeatherViewModel extends ChangeNotifier {
   final WeatherApiService _api;
@@ -38,6 +40,14 @@ class WeatherViewModel extends ChangeNotifier {
   bool useCelsius = true;
   String lang = 'fa';
 
+  // ------------------------- NOTIFICATION STATE -------------------------
+  bool smartNotificationsEnabled = true;
+  bool dailyNotificationsEnabled = false;
+  int dailyNotificationHour = 7;
+  int dailyNotificationMinute = 0;
+  bool _notificationShownThisSession = false;
+  final NotificationService _notificationService = NotificationService();
+
   List<String> recent = [];
   List<Map<String, dynamic>> suggestions = [];
   Timer? _debounce;
@@ -61,6 +71,12 @@ class WeatherViewModel extends ChangeNotifier {
     useSystemColor = prefs.getBool('useSystemColor') ?? false;
     defaultCity = prefs.getString('defaultCity') ?? 'Tehran';
 
+    // Notification settings
+    smartNotificationsEnabled = prefs.getBool('smartNotifications') ?? true;
+    dailyNotificationsEnabled = prefs.getBool('dailyNotifications') ?? false;
+    dailyNotificationHour = prefs.getInt('dailyNotificationHour') ?? 7;
+    dailyNotificationMinute = prefs.getInt('dailyNotificationMinute') ?? 0;
+
     // رنگ تم (seed)
     final seedColorValue = prefs.getInt('seedColor');
     if (seedColorValue != null) seedColor = Color(seedColorValue);
@@ -74,7 +90,25 @@ class WeatherViewModel extends ChangeNotifier {
       themeMode = ThemeMode.system;
     }
 
+    // Initialize notification service
+    await _initNotifications();
+
     notifyListeners();
+  }
+
+  Future<void> _initNotifications() async {
+    try {
+      await _notificationService.initialize();
+      await _notificationService.requestPermission();
+
+      // Setup daily notification if enabled
+      if (dailyNotificationsEnabled) {
+        await _scheduleDailyNotification();
+      }
+    } catch (e) {
+      debugPrint('Error initializing notifications: $e');
+      // Don't throw - notification errors shouldn't block app startup
+    }
   }
 
   Future<void> _savePref(String key, dynamic value) async {
@@ -142,6 +176,81 @@ class WeatherViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ------------------------- NOTIFICATION SETTINGS -------------------------
+  Future<void> setSmartNotifications(bool value) async {
+    if (smartNotificationsEnabled == value) return;
+    smartNotificationsEnabled = value;
+    notifyListeners(); // Update UI immediately
+    await _savePref('smartNotifications', value);
+  }
+
+  Future<void> setDailyNotifications(bool value) async {
+    if (dailyNotificationsEnabled == value) return;
+    dailyNotificationsEnabled = value;
+    notifyListeners(); // Update UI immediately
+
+    await _savePref('dailyNotifications', value);
+
+    try {
+      if (value) {
+        await _scheduleDailyNotification();
+      } else {
+        await _notificationService.cancelAllScheduled();
+      }
+    } catch (e) {
+      debugPrint('Error setting daily notification: $e');
+    }
+  }
+
+  Future<void> setDailyNotificationTime(int hour, int minute) async {
+    dailyNotificationHour = hour;
+    dailyNotificationMinute = minute;
+    notifyListeners(); // Update UI immediately
+
+    await _savePref('dailyNotificationHour', hour);
+    await _savePref('dailyNotificationMinute', minute);
+
+    if (dailyNotificationsEnabled) {
+      await _scheduleDailyNotification();
+    }
+  }
+
+  Future<void> _scheduleDailyNotification() async {
+    final isFarsi = lang == 'fa';
+    await _notificationService.scheduleDailyNotification(
+      hour: dailyNotificationHour,
+      minute: dailyNotificationMinute,
+      title: isFarsi ? '☀️ هوای امروز' : '☀️ Today\'s Weather',
+      body: isFarsi
+          ? 'به اپ ودرلی سر بزن تا وضعیت هوا رو ببینی!'
+          : 'Check Weatherly for today\'s forecast!',
+    );
+  }
+
+  /// Show smart weather notification based on current conditions
+  Future<void> showSmartNotification() async {
+    if (!smartNotificationsEnabled || _notificationShownThisSession) return;
+    if (currentWeather == null) return;
+
+    try {
+      final isFarsi = lang == 'fa';
+      final tip = WeatherTips.generateTip(
+        weather: currentWeather!,
+        isFarsi: isFarsi,
+      );
+
+      await _notificationService.showWeatherNotification(
+        title: tip.fullTitle,
+        body: tip.message,
+      );
+
+      _notificationShownThisSession = true;
+    } catch (e) {
+      debugPrint('Error showing smart notification: $e');
+      // Don't rethrow - notification errors shouldn't break the app
+    }
+  }
+
   // حذف شهر از لیست اخیر
   Future<void> removeRecent(String city) async {
     recent.removeWhere((e) => e.toLowerCase() == city.toLowerCase());
@@ -197,6 +306,9 @@ class WeatherViewModel extends ChangeNotifier {
     final lon = (coord['lon'] as num).toDouble();
 
     await Future.wait([fetchAqi(lat, lon), fetchHourlyAndDaily(lat, lon)]);
+
+    // Show smart notification after successful weather fetch
+    await showSmartNotification();
 
     _setLoading(false);
   }

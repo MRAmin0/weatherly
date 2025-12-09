@@ -7,6 +7,7 @@ import 'package:weatherly_app/presentation/screens/about/about_screen.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 import 'package:weatherly_app/presentation/widgets/common/glass_container.dart';
+import 'package:weatherly_app/data/services/notification_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onGoToRecentCity;
@@ -109,6 +110,103 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
       },
+    );
+  }
+
+  String _formatTime(int hour, int minute) {
+    final h = hour.toString().padLeft(2, '0');
+    final m = minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  Future<void> _showTimePicker(
+    BuildContext context,
+    WeatherViewModel vm,
+  ) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: vm.dailyNotificationHour,
+        minute: vm.dailyNotificationMinute,
+      ),
+      initialEntryMode:
+          TimePickerEntryMode.dial, // Shows both input fields and clock dial
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            timePickerTheme: TimePickerThemeData(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      await vm.setDailyNotificationTime(picked.hour, picked.minute);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              vm.lang == 'fa'
+                  ? 'هشدار صبحگاهی روی ${_formatTime(picked.hour, picked.minute)} تنظیم شد'
+                  : 'Daily alert set for ${_formatTime(picked.hour, picked.minute)}',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _testDailyNotification(
+    BuildContext context,
+    WeatherViewModel vm,
+  ) async {
+    // Show snackbar immediately
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          vm.lang == 'fa'
+              ? '✅ نوتیفیکیشن تست ارسال شد!'
+              : '✅ Test notification sent!',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    // Initialize and request permission first
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+    final hasPermission = await notificationService.requestPermission();
+
+    if (!hasPermission) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              vm.lang == 'fa'
+                  ? '⚠️ لطفاً دسترسی نوتیفیکیشن را فعال کنید'
+                  : '⚠️ Please enable notification permission',
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Show test notification
+    final isFarsi = vm.lang == 'fa';
+    await notificationService.showWeatherNotification(
+      title: isFarsi ? '☀️ هوای امروز' : '☀️ Today\'s Weather',
+      body: isFarsi
+          ? 'این یک نوتیفیکیشن تستی است!'
+          : 'This is a test notification!',
     );
   }
 
@@ -276,6 +374,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     value: vm.useCelsius,
                     onChanged: vm.setUseCelsius,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // NOTIFICATIONS
+                _buildSectionTitle(context, l10n.smartNotifications, textColor),
+                GlassContainer(
+                  isDark: theme.brightness == Brightness.dark,
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        secondary: const Icon(
+                          Icons.notifications_active_outlined,
+                        ),
+                        title: Text(
+                          l10n.smartNotifications,
+                          style: TextStyle(color: textColor),
+                        ),
+                        subtitle: Text(
+                          l10n.smartNotificationsDesc,
+                          style: TextStyle(color: subTextColor),
+                        ),
+                        value: vm.smartNotificationsEnabled,
+                        onChanged: vm.setSmartNotifications,
+                      ),
+                      Divider(height: 1, indent: 16, endIndent: 16),
+                      SwitchListTile(
+                        secondary: const Icon(Icons.alarm_outlined),
+                        title: Text(
+                          l10n.dailyNotifications,
+                          style: TextStyle(color: textColor),
+                        ),
+                        subtitle: Text(
+                          vm.lang == 'fa'
+                              ? 'هر روز ساعت ${_formatTime(vm.dailyNotificationHour, vm.dailyNotificationMinute)} خلاصه آب‌وهوا'
+                              : 'Daily summary at ${_formatTime(vm.dailyNotificationHour, vm.dailyNotificationMinute)}',
+                          style: TextStyle(color: subTextColor),
+                        ),
+                        value: vm.dailyNotificationsEnabled,
+                        onChanged: vm.setDailyNotifications,
+                      ),
+                      // Time picker - only show when daily notifications are enabled
+                      if (vm.dailyNotificationsEnabled) ...[
+                        Divider(height: 1, indent: 16, endIndent: 16),
+                        ListTile(
+                          leading: const Icon(Icons.schedule_outlined),
+                          title: Text(
+                            l10n.notificationTimeLabel,
+                            style: TextStyle(color: textColor),
+                          ),
+                          subtitle: Text(
+                            _formatTime(
+                              vm.dailyNotificationHour,
+                              vm.dailyNotificationMinute,
+                            ),
+                            style: TextStyle(color: subTextColor),
+                          ),
+                          trailing: Icon(
+                            Icons.edit_outlined,
+                            color: subTextColor,
+                          ),
+                          onTap: () => _showTimePicker(context, vm),
+                        ),
+                        Divider(height: 1, indent: 16, endIndent: 16),
+                        ListTile(
+                          leading: const Icon(Icons.play_arrow_outlined),
+                          title: Text(
+                            vm.lang == 'fa'
+                                ? 'تست نوتیفیکیشن'
+                                : 'Test Notification',
+                            style: TextStyle(color: textColor),
+                          ),
+                          subtitle: Text(
+                            vm.lang == 'fa'
+                                ? 'ببین نوتیف چطوری نشون داده میشه'
+                                : 'See how the notification looks',
+                            style: TextStyle(color: subTextColor),
+                          ),
+                          onTap: () => _testDailyNotification(context, vm),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),

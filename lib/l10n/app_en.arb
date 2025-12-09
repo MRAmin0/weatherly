@@ -93,5 +93,11 @@
   "blurEnabled": "Blur enabled",
   "blurDisabled": "Blur disabled",
   "blurDescription": "Enable glass blur background",
-  "materialDescription": "Disable blur and use Material surfaces"
+  "materialDescription": "Disable blur and use Material surfaces",
+
+  "smartNotifications": "Smart Notifications",
+  "smartNotificationsDesc": "Get weather tips when you open the app",
+  "dailyNotifications": "Daily Morning Alert",
+  "dailyNotificationsDesc": "Receive a weather summary every morning at 7 AM",
+  "notificationTimeLabel": "Notification time"
 }

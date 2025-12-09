@@ -98,5 +98,11 @@
   "blurEnabled": "پس‌زمینه محو (Blur)",
   "blurDisabled": "پس‌زمینه متریال",
   "blurDescription": "افکت شیشه‌ای فعال است — سطوح متریال غیرفعال می‌شوند",
-  "materialDescription": "افکت محو غیرفعال است — سطوح متریال فعال می‌شوند"
+  "materialDescription": "افکت محو غیرفعال است — سطوح متریال فعال می‌شوند",
+
+  "smartNotifications": "نوتیفیکیشن هوشمند",
+  "smartNotificationsDesc": "موقع باز کردن اپ نکات آب‌وهوایی دریافت کن",
+  "dailyNotifications": "هشدار صبحگاهی",
+  "dailyNotificationsDesc": "هر روز صبح ساعت ۷ خلاصه آب‌وهوا دریافت کن",
+  "notificationTimeLabel": "زمان نوتیفیکیشن"
 }
