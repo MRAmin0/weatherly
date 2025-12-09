@@ -4,20 +4,124 @@
 
 ![Weatherly Icon](assets/icon.png)
 
-**اپلیکیشن مدرن و چندزبانه برای مشاهدهٔ دقیق وضعیت آب‌وهوا**
+**🇬🇧 [English](#english) | 🇮🇷 [فارسی](#فارسی)**
 
-با طراحی مینیمال، عملکرد سریع و تجربهٔ کاربری حرفه‌ای
-
-[![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)](https://github.com/MRAmin0/Weatherly/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/MRAmin0/Weatherly/releases)
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.7+-02569B?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.9.2+-0175C2?logo=dart)](https://dart.dev)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**[🌐 نسخهٔ وب](https://weatherly-zeta.vercel.app/)** • **[📥 دانلود APK](https://github.com/MRAmin0/Weatherly/releases/download/v1.8.0/weatherly-v1.8.0.apk)** • **[🛍 مشاهده در مایکت](https://myket.ir/app/com.weatherly.app)**
+**[🌐 Web Version](https://weatherly-zeta.vercel.app/)** • **[📥 Download APK](https://github.com/MRAmin0/Weatherly/releases/download/v2.0.0/weatherly-v2.0.0.apk)** • **[🛍 Myket](https://myket.ir/app/com.weatherly.app)**
 
 </div>
 
 ---
+
+# English
+
+## 📸 Screenshots
+
+<div align="center">
+
+|         Home          |         Forecast         |            Settings             |
+| :------------------------: | :----------------------------: | :----------------------------: |
+| ![Home](Screenshots/1.png) | ![Forecast](Screenshots/2.png) | ![Settings](Screenshots/3.png) |
+
+</div>
+
+---
+
+## ✨ Key Features
+
+### 🌤 Weather Info
+- 🔍 **Smart city search** with live suggestions
+- 🌡 **Current weather** with full details (temp, humidity, wind, pressure)
+- 📅 **5-day forecast** with high accuracy
+- ⏰ **Hourly forecast** for precise planning
+- 💨 **Air Quality Index (AQI)** with color coding
+
+### 🔔 Smart Notifications (NEW in v2.0.0)
+- ☔ Weather-based tips ("Take an umbrella!", "Wear sunglasses!")
+- ⏰ Daily morning alerts with customizable time
+- 🧪 Test notification button for preview
+
+### 🎨 User Interface
+- 🌈 **Material Design 3** with Dynamic Color
+- 🎭 **Material You** support (Dynamic colors)
+- 🌓 **Light/Dark theme** with smooth transition
+- ✨ **Smooth animations** (rotate, pulse, slide)
+- 📱 **Responsive design** for mobile and web
+
+### 🌍 Multilingual
+- 🇮🇷 **Persian (RTL)** — Full right-to-left support
+- 🇬🇧 **English (LTR)** — Standard international interface
+- 🔄 **Easy language switch** from settings
+
+---
+
+## 📦 Download
+
+### From Myket
+[![Myket](https://img.shields.io/badge/Download_from-Myket-00A6FF?style=for-the-badge&logo=android)](https://myket.ir/app/com.weatherly.app)
+
+### Direct APK Download
+[![Download APK](https://img.shields.io/badge/Download-APK_v2.0.0-6A5ACD?style=for-the-badge&logo=android)](https://github.com/MRAmin0/Weatherly/releases/download/v2.0.0/weatherly-v2.0.0.apk)
+
+**File size:** ~57 MB | **Android:** 5.0+ (API 21)
+
+---
+
+## 🚀 Development Setup
+
+### Prerequisites
+```bash
+Flutter SDK: 3.35.7+
+Dart SDK: 3.9.2+
+```
+
+### Installation
+```bash
+git clone https://github.com/MRAmin0/Weatherly.git
+cd Weatherly
+flutter pub get
+flutter gen-l10n
+flutter run
+```
+
+### Build Release APK
+```bash
+flutter build apk --release
+```
+
+---
+
+## 📝 Changelog
+
+### 🔔 Version 2.0.0 (Latest)
+- ✨ Smart weather notifications
+- ⏰ Daily morning alerts with custom time
+- 🧪 Test notification button
+- 🐛 Fixed connection error on startup
+
+### 💎 Version 1.9.0
+- 🎨 Complete UI redesign
+- 🌈 Dynamic backgrounds
+- ✨ New animations
+
+[Full changelog →](CHANGELOG.md)
+
+---
+
+## 👨‍💻 Author
+
+**Developer:** Amin Monajati
+
+- 📧 Email: aminmonajati9@gmail.com
+- 🐙 GitHub: [@MRAmin0](https://github.com/MRAmin0)
+
+---
+
+# فارسی
 
 ## 📸 نمای کلی
 
@@ -33,314 +137,90 @@
 
 ## ✨ امکانات کلیدی
 
-Weatherly با تمرکز بر سادگی، سرعت و دقت طراحی شده است:
-
 ### 🌤 اطلاعات آب‌وهوا
-
 - 🔍 **جستجوی هوشمند** شهرها با پیشنهادات لحظه‌ای
-- 🌡 **وضعیت فعلی** با جزئیات کامل (دما، رطوبت، باد، فشار هوا)
+- 🌡 **وضعیت فعلی** با جزئیات کامل (دما، رطوبت، باد، فشار)
 - 📅 **پیش‌بینی 5 روزه** با دقت بالا
 - ⏰ **پیش‌بینی ساعتی** برای برنامه‌ریزی دقیق‌تر
-- 💨 **شاخص کیفیت هوا** <span dir="ltr">(AQI)</span> با رنگ‌بندی استاندارد
+- 💨 **شاخص کیفیت هوا (AQI)** با رنگ‌بندی استاندارد
+
+### 🔔 نوتیفیکیشن هوشمند (جدید در نسخه 2.0.0)
+- ☔ نکات هوشمند بر اساس آب‌وهوا ("چتر ببر!"، "عینک آفتابی بزن!")
+- ⏰ هشدار صبحگاهی با ساعت دلخواه
+- 🧪 دکمه تست برای پیش‌نمایش نوتیفیکیشن
 
 ### 🎨 رابط کاربری
-
-- 🌈 **پشتیبانی کامل از** <span dir="ltr">Material Design 3</span> با <span dir="ltr">Dynamic Color</span>
-- 🎭 **پشتیبانی از** <span dir="ltr">Material You</span> (رنگ‌های پویا)
+- 🌈 **پشتیبانی کامل از Material Design 3** با Dynamic Color
+- 🎭 **پشتیبانی از Material You** (رنگ‌های پویا)
 - 🌓 **تم روشن/تاریک** با انتقال نرم
-- ✨ **انیمیشن‌های روان** (چرخش، پالس، اسلاید و جلوه‌های تعاملی)
+- ✨ **انیمیشن‌های روان** (چرخش، پالس، اسلاید)
 - 📱 **طراحی واکنش‌گرا** برای موبایل و وب
 
 ### 🌍 چندزبانه
-
-- 🇮🇷 **فارسی** <span dir="ltr">(RTL)</span> — پشتیبانی کامل از راست‌چین
-- 🇬🇧 **انگلیسی** <span dir="ltr">(LTR)</span> — رابط استاندارد بین‌المللی
+- 🇮🇷 **فارسی (RTL)** — پشتیبانی کامل از راست‌چین
+- 🇬🇧 **انگلیسی (LTR)** — رابط استاندارد بین‌المللی
 - 🔄 **تغییر آسان زبان** از بخش تنظیمات
-
-### ⚙️ قابلیت‌های پیشرفته
-
-- 💾 **ذخیره خودکار** تنظیمات کاربر
-- 🌡 **انتخاب واحد دما** (سلسیوس/فارنهایت)
-- 📍 **ذخیره شهرهای مورد علاقه**
-- 🎯 **شهر پیش‌فرض** قابل تنظیم
-- 📶 **عملکرد آفلاین** با کش هوشمند
 
 ---
 
 ## 📦 دانلود و نصب
 
 ### دانلود از مایکت
-
-<div align="center">
-
-[![Myket](https://img.shields.io/badge/Download_from-Myket-00A6FF?style=for-the-badge&logo=android)](https://myket.ir/app/com.weatherly.app)
-
-**نصب آسان و به‌روزرسانی خودکار**
-
-</div>
+[![Myket](https://img.shields.io/badge/دانلود_از-مایکت-00A6FF?style=for-the-badge&logo=android)](https://myket.ir/app/com.weatherly.app)
 
 ### دانلود مستقیم APK
+[![Download APK](https://img.shields.io/badge/دانلود-APK_v2.0.0-6A5ACD?style=for-the-badge&logo=android)](https://github.com/MRAmin0/Weatherly/releases/download/v2.0.0/weatherly-v2.0.0.apk)
 
-<div align="center">
-
-[![Download APK](https://img.shields.io/badge/Download-APK_v1.8.0-6A5ACD?style=for-the-badge&logo=android)](https://github.com/MRAmin0/Weatherly/releases/download/v1.8.0/weatherly-v1.8.0.apk)
-
-**حجم فایل:** ~15 MB | **نسخه اندروید:** 5.0+ <span dir="ltr">(API Level 21)</span>
-
-</div>
-
-### استفاده از نسخه وب
-
-برای استفاده بدون نیاز به نصب، می‌توانید از [نسخه وب Weatherly](https://weatherly-zeta.vercel.app/) استفاده کنید.
+**حجم فایل:** ~۵۷ مگابایت | **نسخه اندروید:** 5.0+ (API 21)
 
 ---
 
-## 🚀 راه‌اندازی پروژه (برای توسعه‌دهندگان)
+## 🚀 راه‌اندازی پروژه
 
 ### پیش‌نیازها
-
-قبل از شروع، مطمئن شوید که موارد زیر نصب شده‌اند:
-
 ```bash
 Flutter SDK: 3.35.7 یا بالاتر
 Dart SDK: 3.9.2 یا بالاتر
-Android Studio / VS Code (اختیاری)
 ```
 
-بررسی نسخه فلاتر:
-
-```bash
-flutter --version
-```
-
-### مراحل نصب
-
-#### 1️⃣ کلون کردن مخزن
-
+### نصب
 ```bash
 git clone https://github.com/MRAmin0/Weatherly.git
 cd Weatherly
-```
-
-#### 2️⃣ نصب وابستگی‌ها
-
-```bash
 flutter pub get
-```
-
-#### 3️⃣ تولید فایل‌های چندزبانه (الزامی ⚠️)
-
-```bash
 flutter gen-l10n
-```
-
-> **نکته مهم:** پس از هر تغییر در فایل‌های <span dir="ltr">ARB</span> (در پوشه `l10n/`), باید این دستور را مجدداً اجرا کنید.
-
-#### 4️⃣ اجرای برنامه
-
-برای اجرا روی دستگاه/شبیه‌ساز:
-
-```bash
 flutter run
 ```
 
-برای اجرا روی مرورگر:
-
-```bash
-flutter run -d chrome
-```
-
-برای ساخت نسخه نهایی <span dir="ltr">APK</span>:
-
+### ساخت نسخه نهایی APK
 ```bash
 flutter build apk --release
 ```
 
 ---
 
-## 🗂 ساختار پروژه
+## 📝 تاریخچه تغییرات
 
-```text
-lib/
-├── main.dart                    # نقطه ورود برنامه و مدیریت تم/زبان
-├── config/                      # تنظیمات و پیکربندی‌ها
-├── l10n/                        # فایل‌های ترجمه و چندزبانه
-│   ├── app_fa.arb              # ترجمه فارسی
-│   └── app_en.arb              # ترجمه انگلیسی
-├── models/                      # مدل‌های داده
-├── screens/                     # صفحات اصلی برنامه
-│   ├── about_screen.dart       # صفحه درباره
-│   ├── forecast_screen.dart    # صفحه پیش‌بینی
-│   ├── home_page.dart          # صفحه اصلی
-│   ├── settings_screen.dart    # صفحه تنظیمات
-│   └── weather_screen.dart     # صفحه جزئیات آب‌وهوا
-├── services/                    # سرویس‌های API
-│   └── weather_service.dart    # سرویس دریافت داده‌های آب‌وهوا
-├── utils/                       # ابزارها و توابع کمکی
-│   └── weather_utils.dart      # توابع کمکی آب‌وهوا
-├── viewmodels/                  # لایه ViewModel
-├── widgets/                     # ویجت‌های قابل استفاده مجدد
-│   ├── animations/             # انیمیشن‌های سفارشی
-│   ├── home/                   # ویجت‌های صفحه اصلی
-│   ├── air_quality_card.dart   # کارت کیفیت هوا
-│   └── weather_list_items.dart # آیتم‌های لیست آب‌وهوا
+### 🔔 نسخه 2.0.0 (آخرین نسخه)
+- ✨ نوتیفیکیشن هوشمند آب‌وهوا
+- ⏰ هشدار صبحگاهی با ساعت دلخواه
+- 🧪 دکمه تست نوتیفیکیشن
+- 🐛 رفع باگ خطای اتصال
 
-assets/
-├── icon.png                     # آیکون برنامه
-└── images/                      # تصاویر و آیکون‌های آب‌وهوا
-
-Screenshots/                     # اسکرین‌شات‌های برنامه
-├── 1.png
-├── 2.png
-└── 3.png
-```
-
----
-
-## 📝 تاریخچه تغییرات (Changelog)
-
-### 🌈 نسخه 1.8.0 (آخرین نسخه)
-
-- ✨ هماهنگی کامل رنگ‌های رابط با <span dir="ltr">ColorScheme</span>
-- 🎨 به‌روزرسانی پس‌زمینه، سرچ‌بار و کارت <span dir="ltr">AQI</span>
-- 🌈 پشتیبانی از رنگ پویا (<span dir="ltr">Material You</span>)
-- 🎭 امکان انتخاب دستی تم رابط کاربری
-- 📐 پشتیبانی کامل از <span dir="ltr">Material Design 3</span>
-- ✨ انیمیشن‌های جدید (چرخش، پالس، اسلاید و جلوه‌های تعاملی)
-
-### ⭐ نسخه 1.7.0
-
-- 🐛 رفع باگ‌های جزئی و بهبود پایداری
-- 📡 نمایش پیام مناسب هنگام ورود بدون اینترنت
-
-### ✨ نسخه 1.6.0
-
-- 🎬 اضافه شدن انیمیشن‌های جدید در صفحه اصلی
-
-### 🎨 نسخه 1.5.0
-
-- 📄 طراحی جدید صفحه «درباره برنامه»
-- 📝 اضافه شدن بخش تاریخچه تغییرات
-
-### 🌈 نسخه 1.4.0
-
-- 🖼 بهبود نمایش آیکون‌های آب‌وهوا
-- ⚡ افزایش سرعت بارگذاری اطلاعات
-
-### 🛠 نسخه 1.3.0
-
-- 🔧 رفع مشکل عدم نمایش اطلاعات در برخی دستگاه‌ها
-
-### 🌍 نسخه 1.2.0
-
-- 💾 اضافه شدن قابلیت ذخیره چند شهر مختلف
-
-### 🗣 نسخه 1.1.0
-
-- 🌐 بهبود ترجمه‌ها و اصلاح متن‌ها
-
-### 🚀 نسخه 1.0.0
-
-- 🎉 انتشار اولیه برنامه
-- 🌤 نمایش وضعیت فعلی آب‌وهوا
-- 📅 پیش‌بینی ۵ روزه
-
----
-
-## 🧪 تست و توسعه
-
-### دستورات مفید
-
-**تحلیل کد:**
-
-```bash
-flutter analyze
-```
-
-**اجرای تست‌ها:**
-
-```bash
-flutter test
-```
-
-**اجرای نسخه وب:**
-
-```bash
-flutter run -d chrome
-```
-
-**بررسی وابستگی‌های قدیمی:**
-
-```bash
-flutter pub outdated
-```
-
-**فرمت کردن کد:**
-
-```bash
-dart format .
-```
-
----
-
-## 🌐 افزودن زبان جدید
-
-برای اضافه کردن زبان جدید به برنامه:
-
-1. فایل <span dir="ltr">ARB</span> جدید در پوشه `l10n/` ایجاد کنید (مثلاً `app_ar.arb` برای عربی)
-2. تمام کلیدهای موجود در `app_en.arb` را کپی کرده و ترجمه کنید
-3. دستور `flutter gen-l10n` را اجرا کنید
-4. کد زبان را به لیست `supportedLocales` در `main.dart` اضافه کنید
-
-مثال ساختار فایل <span dir="ltr">ARB</span>:
-
-```json
-{
-  "@@locale": "ar",
-  "appTitle": "ويذرلي",
-  "searchCity": "ابحث عن مدينة..."
-}
-```
+### 💎 نسخه 1.9.0
+- 🎨 بازطراحی کامل رابط کاربری
+- 🌈 پس‌زمینه دینامیک
+- ✨ انیمیشن‌های جدید
 
 ---
 
 ## 🤝 مشارکت در پروژه
 
-مشارکت شما در بهبود Weatherly استقبال می‌شود!
-
-### نحوه مشارکت:
-
-1. **فورک** <span dir="ltr">(Fork)</span> کردن مخزن
-2. ایجاد **برنچ** <span dir="ltr">(Branch)</span> جدید (`git checkout -b feature/amazing-feature`)
-3. **کامیت** <span dir="ltr">(Commit)</span> کردن تغییرات (`git commit -m 'Add amazing feature'`)
-4. **پوش** <span dir="ltr">(Push)</span> به برنچ (`git push origin feature/amazing-feature`)
-5. ایجاد **پول ریکوئست** <span dir="ltr">(Pull Request)</span>
-
-### گزارش مشکلات
-
-اگر باگ یا مشکلی پیدا کردید، لطفاً یک <span dir="ltr">[Issue](https://github.com/MRAmin0/Weatherly/issues)</span> ایجاد کنید و موارد زیر را شامل شود:
-
-- توضیح دقیق مشکل
-- مراحل بازتولید باگ
-- اسکرین‌شات (در صورت امکان)
-- اطلاعات دستگاه و نسخه برنامه
-
----
-
-## 🙏 تقدیر و تشکر
-
-این پروژه از ابزارها و سرویس‌های زیر استفاده می‌کند:
-
-- 🌦 **دریافت داده‌های آب‌وهوا:** <span dir="ltr">[Open-Meteo API](https://open-meteo.com/)</span>
-- 📦 **مدیریت** <span dir="ltr">State</span>**:** <span dir="ltr">[Provider](https://pub.dev/packages/provider)</span>
-- 🎨 **سیستم طراحی:** <span dir="ltr">[Material Design 3](https://m3.material.io/)</span>
-- 🚀 **فریم‌ورک توسعه:** <span dir="ltr">[Flutter](https://flutter.dev/)</span>
-
----
-
-## 📄 مجوز
-
-این پروژه تحت مجوز <span dir="ltr">MIT</span> منتشر شده است. برای جزئیات بیشتر فایل <span dir="ltr">[LICENSE](LICENSE)</span> را مطالعه کنید.
+1. **Fork** کردن مخزن
+2. ایجاد **Branch** جدید (`git checkout -b feature/amazing-feature`)
+3. **Commit** کردن تغییرات (`git commit -m 'Add amazing feature'`)
+4. **Push** به برنچ (`git push origin feature/amazing-feature`)
+5. ایجاد **Pull Request**
 
 ---
 
@@ -350,15 +230,14 @@ dart format .
 
 - 📧 ایمیل: aminmonajati9@gmail.com
 - 🐙 GitHub: [@MRAmin0](https://github.com/MRAmin0)
-- 🌐 وب‌سایت: [mramin0.github.io](https://mramin0.github.io)
 
 ---
 
 <div align="center">
 
-**ساخته شده با ❤️ و ☕**
+**Made with ❤️ and ☕**
 
-اگر این پروژه برایتان مفید بود، لطفاً یک ⭐️ بدهید!
+If you found this project useful, please give it a ⭐️!
 
 [![GitHub stars](https://img.shields.io/github/stars/MRAmin0/Weatherly?style=social)](https://github.com/MRAmin0/Weatherly/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/MRAmin0/Weatherly?style=social)](https://github.com/MRAmin0/Weatherly/network/members)
