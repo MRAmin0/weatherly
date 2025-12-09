@@ -53,6 +53,3 @@ android/key.properties
 **/*.keystore
 **/build/
 **/outputs/mapping/
-filenames.txt
-lib/list.txt
-list.txt

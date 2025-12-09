@@ -10,11 +10,16 @@ import 'viewmodels/weather_viewmodel.dart';
 import 'config/config_reader.dart';
 import 'package:weatherly_app/data/services/notification_service.dart';
 
+import 'package:weatherly_app/data/services/background_service_export.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ConfigReader.initialize();
 
-  // Request notification permission on app start (mobile only)
+  // Initialize background tasks (mobile only, handled internally)
+  await initializeWorkmanager();
+
+  // Request notification permission on app start (mobile only check handled in service)
   if (!kIsWeb) {
     try {
       final notificationService = NotificationService();

@@ -233,8 +233,9 @@ class WeatherViewModel extends ChangeNotifier {
 
   /// Show smart weather notification based on current conditions
   Future<void> showSmartNotification() async {
-    if (kIsWeb || !smartNotificationsEnabled || _notificationShownThisSession)
+    if (kIsWeb || !smartNotificationsEnabled || _notificationShownThisSession) {
       return;
+    }
     if (currentWeather == null) return;
 
     try {
