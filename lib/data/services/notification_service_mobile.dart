@@ -35,7 +35,7 @@ class NotificationService {
 
     // Android initialization settings
     const androidSettings = AndroidInitializationSettings(
-      '@drawable/ic_notification',
+      '@mipmap/ic_launcher',
     );
 
     // iOS initialization settings
@@ -98,12 +98,12 @@ class NotificationService {
     }
 
     const androidDetails = AndroidNotificationDetails(
-      'weatherly_weather',
+      'weatherly_weather_v2',
       'Weather Alerts',
       channelDescription: 'Smart weather tips and alerts',
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
-      icon: '@drawable/ic_notification',
+      icon: '@mipmap/ic_launcher',
       styleInformation: BigTextStyleInformation(''),
     );
 
@@ -154,12 +154,12 @@ class NotificationService {
     }
 
     const androidDetails = AndroidNotificationDetails(
-      'weatherly_daily',
+      'weatherly_daily_v2',
       'Daily Weather',
       channelDescription: 'Daily morning weather summary',
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
-      icon: '@drawable/ic_notification',
+      icon: '@mipmap/ic_launcher',
       styleInformation: BigTextStyleInformation(''),
     );
 
@@ -182,8 +182,6 @@ class NotificationService {
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time, // Repeat daily
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
     );
 
     debugPrint('Daily notification scheduled for $hour:$minute');
