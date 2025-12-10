@@ -19,15 +19,14 @@ void main() async {
   // Initialize background tasks (mobile only, handled internally)
   await initializeWorkmanager();
 
-  // Request notification permission on app start (mobile only check handled in service)
-  if (!kIsWeb) {
-    try {
-      final notificationService = NotificationService();
-      await notificationService.initialize();
-      await notificationService.requestPermission();
-    } catch (e) {
-      debugPrint('Notification init error: $e');
-    }
+  // Request notification permission on app start
+  // Now enabled for Web too
+  try {
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+    await notificationService.requestPermission();
+  } catch (e) {
+    debugPrint('Notification init error: $e');
   }
 
   runApp(

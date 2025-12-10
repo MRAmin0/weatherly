@@ -118,8 +118,13 @@ class CurrentWeatherSection extends StatelessWidget {
 
     final label = isPersian ? "حس واقعی" : "Real Feel";
 
+    // Use LTR Mark (\u200E) to force the number and unit to display correctly in RTL
+    final formattedStr = isPersian
+        ? "\u200E$realFeelStr$unit"
+        : "$realFeelStr$unit";
+
     return Text(
-      "$label: $realFeelStr$unit",
+      "$label: $formattedStr",
       style: theme.textTheme.bodyLarge?.copyWith(
         fontSize: 18,
         fontWeight: FontWeight.w500,

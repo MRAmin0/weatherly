@@ -19,9 +19,10 @@ class LocationHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800),
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: GlassBox(
           isDark: isDark,
           padding: const EdgeInsets.all(20),

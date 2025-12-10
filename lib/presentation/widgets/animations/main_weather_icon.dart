@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:weatherly_app/data/models/weather_type.dart';
 import 'package:weatherly_app/presentation/widgets/animations/weather_animator.dart';
 // lib/widgets/animations/svg_assets.dart
+import 'package:flutter/cupertino.dart';
 import 'package:weatherly_app/presentation/widgets/animations/icon/svg_assets.dart';
 
 class MainWeatherIcon extends StatelessWidget {
@@ -51,7 +52,7 @@ class MainWeatherIcon extends StatelessWidget {
 
       case WeatherType.rain:
       case WeatherType.drizzle:
-        iconData = Icons.water_drop;
+        iconData = CupertinoIcons.cloud_rain;
         iconColor = Colors.lightBlueAccent;
         break;
 
