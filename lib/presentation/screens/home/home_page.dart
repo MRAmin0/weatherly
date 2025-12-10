@@ -123,65 +123,84 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           RefreshIndicator(
-            color: Colors.white,
-            backgroundColor: Colors.white.withValues(alpha: 38),
+            color: Theme.of(context).colorScheme.primary,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             onRefresh: vm.refresh,
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverAppBar(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  pinned: true,
-                  centerTitle: true,
-                  title: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 150),
-                    opacity: _titleOpacity,
-                    child: Text(
-                      l10n.localeName == 'fa' ? 'خانه' : 'Home',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: [
+                          // Custom AppBar area (formerly SliverAppBar)
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Center(
+                                child: AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 150),
+                                  opacity: 1.0, // Always visible now
+                                  child: Text(
+                                    l10n.localeName == 'fa' ? 'خانه' : 'Home',
+                                    style: TextStyle(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          HomeSearchSection(
+                            searchController: _searchController,
+                            searchFocusNode: _searchFocusNode,
+                            viewModel: vm,
+                            l10n: l10n,
+                            onSearchPressed: () => _performSearch(vm),
+                          ),
+
+                          if (!_searchFocusNode.hasFocus) ...[
+                            const SizedBox(height: 16),
+                            if (isInitialLoading)
+                              const SizedBox(
+                                height: 400,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                            else
+                              // Use simple container, logic matches original but no Expanded needed if content is small
+                              // or use Spacer to balance?
+                              // The user wants it to "Fit in one page".
+                              // We will let it take natural size.
+                              _buildWeatherContent(context, vm, l10n),
+                          ],
+                          // Add some bottom padding for safety but not 120
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ),
                   ),
-                ),
-
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      const SizedBox(height: 16),
-
-                      HomeSearchSection(
-                        searchController: _searchController,
-                        searchFocusNode: _searchFocusNode,
-                        viewModel: vm,
-                        l10n: l10n,
-                        onSearchPressed: () => _performSearch(vm),
-                      ),
-
-                      if (!_searchFocusNode.hasFocus) ...[
-                        const SizedBox(height: 24),
-                        if (isInitialLoading)
-                          const _CenteredLoader()
-                        else
-                          _buildWeatherContent(context, vm, l10n),
-                      ],
-
-                      const SizedBox(height: 120),
-                    ]),
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-
           if (_showSearchOverlay)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withValues(alpha: 128),
+                color: Colors.black.withOpacity(0.5),
                 child: const Center(
                   child: CircularProgressIndicator(color: Colors.white),
                 ),
@@ -265,18 +284,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       child: child,
-    );
-  }
-}
-
-class _CenteredLoader extends StatelessWidget {
-  const _CenteredLoader();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 120),
-      child: Center(child: CircularProgressIndicator()),
     );
   }
 }

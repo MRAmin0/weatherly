@@ -18,27 +18,9 @@ class ForecastScreen extends StatefulWidget {
 
 class _ForecastScreenState extends State<ForecastScreen> {
   final ScrollController _scrollController = ScrollController();
-  double _titleOpacity = 1.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    final offset = _scrollController.offset;
-    final newOpacity = (1.0 - (offset / 100)).clamp(0.0, 1.0);
-    if (newOpacity != _titleOpacity) {
-      setState(() {
-        _titleOpacity = newOpacity;
-      });
-    }
-  }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -94,85 +76,101 @@ class _ForecastScreenState extends State<ForecastScreen> {
             color: textColor,
             backgroundColor: textColor.withAlpha(40),
             onRefresh: vm.refresh,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  LocationHeader(
-                    city: vm.location,
-                    subtitle: l10n.localeName == 'fa'
-                        ? "پیش‌بینی ۵ روز آینده"
-                        : "Next 5 Days Forecast",
-                    isDark: isDark,
-                    textColor: textColor,
-                    subTextColor: subTextColor,
-                  ),
-                  const SizedBox(height: 24),
-
-                  if (vm.hourly.isNotEmpty) ...[
-                    TemperatureChart(
-                      hourlyData: vm.hourly,
-                      useCelsius: vm.useCelsius,
-                      isPersian: isPersian,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
                     ),
-                    const SizedBox(height: 24),
-                  ],
-
-                  if (vm.daily5.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
-                            l10n.dailyForecastTitle,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
+                          // Custom AppBar area matching HomePage
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Center(
+                                child: Text(
+                                  l10n.forecast,
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          DailyList(
-                            items: vm.daily5,
-                            isPersian: isPersian,
-                            useCelsius: vm.useCelsius,
+                          const SizedBox(height: 8),
+
+                          LocationHeader(
+                            city: vm.location,
+                            subtitle: l10n.localeName == 'fa'
+                                ? "پیش‌بینی ۵ روز آینده"
+                                : "Next 5 Days Forecast",
                             isDark: isDark,
                             textColor: textColor,
                             subTextColor: subTextColor,
-                            langCode: vm.lang,
-                            aqiScore: vm.calculatedAqiScore,
                           ),
+                          const SizedBox(height: 24),
+
+                          if (vm.hourly.isNotEmpty) ...[
+                            TemperatureChart(
+                              hourlyData: vm.hourly,
+                              useCelsius: vm.useCelsius,
+                              isPersian: isPersian,
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+
+                          if (vm.daily5.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.dailyForecastTitle,
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  DailyList(
+                                    items: vm.daily5,
+                                    isPersian: isPersian,
+                                    useCelsius: vm.useCelsius,
+                                    isDark: isDark,
+                                    textColor: textColor,
+                                    subTextColor: subTextColor,
+                                    langCode: vm.lang,
+                                    aqiScore: vm.calculatedAqiScore,
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          const SizedBox(height: 20),
                         ],
                       ),
                     ),
-
-                  const SizedBox(height: 120),
-                ],
-              ),
+                  ),
+                );
+              },
             ),
           );
         }
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            title: AnimatedOpacity(
-              duration: const Duration(milliseconds: 150),
-              opacity: _titleOpacity,
-              child: Text(l10n.forecast),
-            ),
-            centerTitle: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            iconTheme: IconThemeData(color: textColor),
-            titleTextStyle: theme.textTheme.titleLarge?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
           body: Stack(children: [const AppBackground(), content]),
         );
       },

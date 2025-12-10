@@ -35,27 +35,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ];
 
   final ScrollController _scrollController = ScrollController();
-  double _titleOpacity = 1.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    final offset = _scrollController.offset;
-    final newOpacity = (1.0 - (offset / 100)).clamp(0.0, 1.0);
-    if (newOpacity != _titleOpacity) {
-      setState(() {
-        _titleOpacity = newOpacity;
-      });
-    }
-  }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -221,25 +203,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(
-          alpha: 0.85,
-        ),
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: theme.colorScheme.primary),
-        title: AnimatedOpacity(
-          duration: const Duration(milliseconds: 150),
-          opacity: _titleOpacity,
-          child: Text(
-            l10n.settings,
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: theme.colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
       body: Stack(
         children: [
           const AppBackground(),
@@ -249,243 +212,305 @@ class _SettingsScreenState extends State<SettingsScreen> {
               setState(() {});
               return false;
             },
-            child: ListView(
-              controller: _scrollController,
-              padding: EdgeInsets.fromLTRB(
-                16,
-                16,
-                16,
-                MediaQuery.of(context).padding.bottom + 160,
-              ),
-              children: [
-                // LANGUAGE
-                _buildSectionTitle(context, l10n.language, textColor),
-                GlassContainer(
-                  isDark: theme.brightness == Brightness.dark,
-                  padding: EdgeInsets.zero,
-                  child: ListTile(
-                    leading: const Icon(Icons.language_outlined),
-                    title: Text(
-                      l10n.language,
-                      style: TextStyle(color: textColor),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
                     ),
-                    subtitle: Text(
-                      vm.lang == 'fa' ? l10n.persian : l10n.english,
-                      style: TextStyle(color: subTextColor),
-                    ),
-                    onTap: () => _showLanguageDialog(l10n, vm),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // DISPLAY MODE
-                _buildSectionTitle(context, l10n.displayMode, textColor),
-                GlassContainer(
-                  isDark: theme.brightness == Brightness.dark,
-                  child: _buildThemeModeSelector(context, l10n, vm, textColor),
-                ),
-                const SizedBox(height: 24),
-
-                // THEME COLOR
-                _buildSectionTitle(context, l10n.themeColor, textColor),
-                GlassContainer(
-                  isDark: theme.brightness == Brightness.dark,
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SwitchListTile(
-                        title: Text(
-                          l10n.useSystemColor,
-                          style: TextStyle(color: textColor),
-                        ),
-                        subtitle: Text(
-                          l10n.systemColorSubtitle,
-                          style: TextStyle(color: subTextColor),
-                        ),
-                        value: vm.useSystemColor,
-                        onChanged: (val) => vm.setUseSystemColor(val),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        16,
+                        16,
+                        // Reduced bottom padding significantly
+                        MediaQuery.of(context).padding.bottom + 20,
                       ),
-                      Divider(height: 1, indent: 16, endIndent: 16),
-                      AnimatedOpacity(
-                        duration: const Duration(milliseconds: 300),
-                        opacity: vm.useSystemColor ? 0.35 : 1.0,
-                        child: IgnorePointer(
-                          ignoring: vm.useSystemColor,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              children: _seedColorOptions.map((color) {
-                                final isSelected =
-                                    vm.seedColor.toARGB32() == color.toARGB32();
-                                return GestureDetector(
-                                  onTap: () => vm.setSeedColor(color),
-                                  child: Container(
-                                    width: 42,
-                                    height: 42,
-                                    decoration: BoxDecoration(
-                                      color: color,
-                                      shape: BoxShape.circle,
-                                      border: isSelected
-                                          ? Border.all(
-                                              color: Colors.white,
-                                              width: 2.5,
-                                            )
-                                          : null,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Custom AppBar area matching HomePage
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Center(
+                                child: Text(
+                                  l10n.settings,
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // LANGUAGE
+                          _buildSectionTitle(context, l10n.language, textColor),
+                          GlassContainer(
+                            isDark: theme.brightness == Brightness.dark,
+                            padding: EdgeInsets.zero,
+                            child: ListTile(
+                              leading: const Icon(Icons.language_outlined),
+                              title: Text(
+                                l10n.language,
+                                style: TextStyle(color: textColor),
+                              ),
+                              subtitle: Text(
+                                vm.lang == 'fa' ? l10n.persian : l10n.english,
+                                style: TextStyle(color: subTextColor),
+                              ),
+                              onTap: () => _showLanguageDialog(l10n, vm),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // DISPLAY MODE
+                          _buildSectionTitle(
+                            context,
+                            l10n.displayMode,
+                            textColor,
+                          ),
+                          GlassContainer(
+                            isDark: theme.brightness == Brightness.dark,
+                            child: _buildThemeModeSelector(
+                              context,
+                              l10n,
+                              vm,
+                              textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // THEME COLOR
+                          _buildSectionTitle(
+                            context,
+                            l10n.themeColor,
+                            textColor,
+                          ),
+                          GlassContainer(
+                            isDark: theme.brightness == Brightness.dark,
+                            padding: EdgeInsets.zero,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SwitchListTile(
+                                  title: Text(
+                                    l10n.useSystemColor,
+                                    style: TextStyle(color: textColor),
+                                  ),
+                                  subtitle: Text(
+                                    l10n.systemColorSubtitle,
+                                    style: TextStyle(color: subTextColor),
+                                  ),
+                                  value: vm.useSystemColor,
+                                  onChanged: (val) => vm.setUseSystemColor(val),
+                                ),
+                                Divider(height: 1, indent: 16, endIndent: 16),
+                                AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: vm.useSystemColor ? 0.35 : 1.0,
+                                  child: IgnorePointer(
+                                    ignoring: vm.useSystemColor,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Wrap(
+                                        spacing: 12,
+                                        runSpacing: 12,
+                                        children: _seedColorOptions.map((
+                                          color,
+                                        ) {
+                                          final isSelected =
+                                              vm.seedColor.toARGB32() ==
+                                              color.toARGB32();
+                                          return GestureDetector(
+                                            onTap: () => vm.setSeedColor(color),
+                                            child: Container(
+                                              width: 42,
+                                              height: 42,
+                                              decoration: BoxDecoration(
+                                                color: color,
+                                                shape: BoxShape.circle,
+                                                border: isSelected
+                                                    ? Border.all(
+                                                        color: Colors.white,
+                                                        width: 2.5,
+                                                      )
+                                                    : null,
+                                              ),
+                                              child: isSelected
+                                                  ? const Icon(
+                                                      Icons.check,
+                                                      color: Colors.white,
+                                                      size: 20,
+                                                    )
+                                                  : null,
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
                                     ),
-                                    child: isSelected
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 20,
-                                          )
-                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // UNITS
+                          _buildSectionTitle(
+                            context,
+                            l10n.temperatureUnitCelsius,
+                            textColor,
+                          ),
+                          GlassContainer(
+                            isDark: theme.brightness == Brightness.dark,
+                            padding: EdgeInsets.zero,
+                            child: SwitchListTile(
+                              title: Text(
+                                l10n.temperatureUnitCelsius,
+                                style: TextStyle(color: textColor),
+                              ),
+                              subtitle: Text(
+                                l10n.celsiusFahrenheit,
+                                style: TextStyle(color: subTextColor),
+                              ),
+                              value: vm.useCelsius,
+                              onChanged: vm.setUseCelsius,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // NOTIFICATIONS
+                          _buildSectionTitle(
+                            context,
+                            l10n.smartNotifications,
+                            textColor,
+                          ),
+                          GlassContainer(
+                            isDark: theme.brightness == Brightness.dark,
+                            padding: EdgeInsets.zero,
+                            child: Column(
+                              children: [
+                                SwitchListTile(
+                                  secondary: const Icon(
+                                    Icons.notifications_active_outlined,
+                                  ),
+                                  title: Text(
+                                    l10n.smartNotifications,
+                                    style: TextStyle(color: textColor),
+                                  ),
+                                  subtitle: Text(
+                                    l10n.smartNotificationsDesc,
+                                    style: TextStyle(color: subTextColor),
+                                  ),
+                                  value: vm.smartNotificationsEnabled,
+                                  onChanged: vm.setSmartNotifications,
+                                ),
+                                Divider(height: 1, indent: 16, endIndent: 16),
+                                SwitchListTile(
+                                  secondary: const Icon(Icons.alarm_outlined),
+                                  title: Text(
+                                    l10n.dailyNotifications,
+                                    style: TextStyle(color: textColor),
+                                  ),
+                                  subtitle: Text(
+                                    vm.lang == 'fa'
+                                        ? 'هر روز ساعت ${_formatTime(vm.dailyNotificationHour, vm.dailyNotificationMinute)} خلاصه آب‌وهوا'
+                                        : 'Daily summary at ${_formatTime(vm.dailyNotificationHour, vm.dailyNotificationMinute)}',
+                                    style: TextStyle(color: subTextColor),
+                                  ),
+                                  value: vm.dailyNotificationsEnabled,
+                                  onChanged: vm.setDailyNotifications,
+                                ),
+                                if (vm.dailyNotificationsEnabled) ...[
+                                  Divider(height: 1, indent: 16, endIndent: 16),
+                                  ListTile(
+                                    leading: const Icon(
+                                      Icons.schedule_outlined,
+                                    ),
+                                    title: Text(
+                                      l10n.notificationTimeLabel,
+                                      style: TextStyle(color: textColor),
+                                    ),
+                                    subtitle: Text(
+                                      _formatTime(
+                                        vm.dailyNotificationHour,
+                                        vm.dailyNotificationMinute,
+                                      ),
+                                      style: TextStyle(color: subTextColor),
+                                    ),
+                                    trailing: Icon(
+                                      Icons.edit_outlined,
+                                      color: subTextColor,
+                                    ),
+                                    onTap: () => _showTimePicker(context, vm),
+                                  ),
+                                  Divider(height: 1, indent: 16, endIndent: 16),
+                                  ListTile(
+                                    leading: const Icon(
+                                      Icons.play_arrow_outlined,
+                                    ),
+                                    title: Text(
+                                      vm.lang == 'fa'
+                                          ? 'تست نوتیفیکیشن'
+                                          : 'Test Notification',
+                                      style: TextStyle(color: textColor),
+                                    ),
+                                    subtitle: Text(
+                                      vm.lang == 'fa'
+                                          ? 'ببین نوتیف چطوری نشون داده میشه'
+                                          : 'See how the notification looks',
+                                      style: TextStyle(color: subTextColor),
+                                    ),
+                                    onTap: () =>
+                                        _testDailyNotification(context, vm),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // ABOUT
+                          _buildSectionTitle(context, l10n.aboutApp, textColor),
+                          GlassContainer(
+                            isDark: theme.brightness == Brightness.dark,
+                            padding: EdgeInsets.zero,
+                            child: ListTile(
+                              leading: const Icon(Icons.info_outline),
+                              title: Text(
+                                l10n.aboutApp,
+                                style: TextStyle(color: textColor),
+                              ),
+                              trailing: Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: subTextColor,
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AboutScreen(),
                                   ),
                                 );
-                              }).toList(),
+                              },
                             ),
                           ),
-                        ),
+                          // Extra space to compensate layout needs if very short
+                          const SizedBox(height: 40),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // UNITS
-                _buildSectionTitle(
-                  context,
-                  l10n.temperatureUnitCelsius,
-                  textColor,
-                ),
-                GlassContainer(
-                  isDark: theme.brightness == Brightness.dark,
-                  padding: EdgeInsets.zero,
-                  child: SwitchListTile(
-                    title: Text(
-                      l10n.temperatureUnitCelsius,
-                      style: TextStyle(color: textColor),
                     ),
-                    subtitle: Text(
-                      l10n.celsiusFahrenheit,
-                      style: TextStyle(color: subTextColor),
-                    ),
-                    value: vm.useCelsius,
-                    onChanged: vm.setUseCelsius,
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // NOTIFICATIONS
-                _buildSectionTitle(context, l10n.smartNotifications, textColor),
-                GlassContainer(
-                  isDark: theme.brightness == Brightness.dark,
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      SwitchListTile(
-                        secondary: const Icon(
-                          Icons.notifications_active_outlined,
-                        ),
-                        title: Text(
-                          l10n.smartNotifications,
-                          style: TextStyle(color: textColor),
-                        ),
-                        subtitle: Text(
-                          l10n.smartNotificationsDesc,
-                          style: TextStyle(color: subTextColor),
-                        ),
-                        value: vm.smartNotificationsEnabled,
-                        onChanged: vm.setSmartNotifications,
-                      ),
-                      Divider(height: 1, indent: 16, endIndent: 16),
-                      SwitchListTile(
-                        secondary: const Icon(Icons.alarm_outlined),
-                        title: Text(
-                          l10n.dailyNotifications,
-                          style: TextStyle(color: textColor),
-                        ),
-                        subtitle: Text(
-                          vm.lang == 'fa'
-                              ? 'هر روز ساعت ${_formatTime(vm.dailyNotificationHour, vm.dailyNotificationMinute)} خلاصه آب‌وهوا'
-                              : 'Daily summary at ${_formatTime(vm.dailyNotificationHour, vm.dailyNotificationMinute)}',
-                          style: TextStyle(color: subTextColor),
-                        ),
-                        value: vm.dailyNotificationsEnabled,
-                        onChanged: vm.setDailyNotifications,
-                      ),
-                      // Time picker - only show when daily notifications are enabled
-                      if (vm.dailyNotificationsEnabled) ...[
-                        Divider(height: 1, indent: 16, endIndent: 16),
-                        ListTile(
-                          leading: const Icon(Icons.schedule_outlined),
-                          title: Text(
-                            l10n.notificationTimeLabel,
-                            style: TextStyle(color: textColor),
-                          ),
-                          subtitle: Text(
-                            _formatTime(
-                              vm.dailyNotificationHour,
-                              vm.dailyNotificationMinute,
-                            ),
-                            style: TextStyle(color: subTextColor),
-                          ),
-                          trailing: Icon(
-                            Icons.edit_outlined,
-                            color: subTextColor,
-                          ),
-                          onTap: () => _showTimePicker(context, vm),
-                        ),
-                        Divider(height: 1, indent: 16, endIndent: 16),
-                        ListTile(
-                          leading: const Icon(Icons.play_arrow_outlined),
-                          title: Text(
-                            vm.lang == 'fa'
-                                ? 'تست نوتیفیکیشن'
-                                : 'Test Notification',
-                            style: TextStyle(color: textColor),
-                          ),
-                          subtitle: Text(
-                            vm.lang == 'fa'
-                                ? 'ببین نوتیف چطوری نشون داده میشه'
-                                : 'See how the notification looks',
-                            style: TextStyle(color: subTextColor),
-                          ),
-                          onTap: () => _testDailyNotification(context, vm),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // ABOUT
-                _buildSectionTitle(context, l10n.aboutApp, textColor),
-                GlassContainer(
-                  isDark: theme.brightness == Brightness.dark,
-                  padding: EdgeInsets.zero,
-                  child: ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: Text(
-                      l10n.aboutApp,
-                      style: TextStyle(color: textColor),
-                    ),
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: subTextColor,
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AboutScreen()),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ],
