@@ -9,6 +9,8 @@ import 'package:weatherly_app/presentation/widgets/home/home_search_section.dart
 import 'package:weatherly_app/presentation/widgets/home/current_weather_section.dart';
 import 'package:weatherly_app/presentation/widgets/home/details_row.dart';
 import 'package:weatherly_app/presentation/widgets/home/weather_drawer.dart';
+import 'package:weatherly_app/presentation/widgets/animations/searching_radar.dart';
+import 'package:weatherly_app/presentation/widgets/home/recent_cities_slider.dart';
 
 class HomePage extends StatefulWidget {
   final Function(bool) onSearchFocusChange;
@@ -171,6 +173,9 @@ class _HomePageState extends State<HomePage> {
                             onSearchPressed: () => _performSearch(vm),
                           ),
 
+                          const SizedBox(height: 16),
+                          const RecentCitiesSlider(),
+
                           if (!_searchFocusNode.hasFocus) ...[
                             const SizedBox(height: 16),
                             if (isInitialLoading)
@@ -200,9 +205,13 @@ class _HomePageState extends State<HomePage> {
           if (_showSearchOverlay)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
+                color: Colors.black.withValues(
+                  alpha: 0.7,
+                ), // Slightly darker for better contrast
+                child: SearchingRadar(
+                  message: l10n.localeName == 'fa'
+                      ? 'در حال پیدا کردن ${vm.location.isEmpty ? 'شهر' : vm.location}...'
+                      : 'Finding ${vm.location.isEmpty ? 'City' : vm.location}...',
                 ),
               ),
             ),

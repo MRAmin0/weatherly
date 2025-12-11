@@ -27,8 +27,37 @@ class HomeSearchSection extends StatelessWidget {
     return Column(
       children: [
         // Search TextField
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0),
+        AnimatedBuilder(
+          animation: searchFocusNode,
+          builder: (context, child) {
+            final hasFocus = searchFocusNode.hasFocus;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              transform: Matrix4.diagonal3Values(
+                hasFocus ? 1.02 : 1.0,
+                hasFocus ? 1.02 : 1.0,
+                1.0,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: hasFocus
+                    ? [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.3,
+                          ),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : [],
+              ),
+              child: child,
+            );
+          },
           child: TextField(
             controller: searchController,
             focusNode: searchFocusNode,
@@ -60,7 +89,10 @@ class HomeSearchSection extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(color: inputColor, width: 1.5),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.primary,
+                  width: 2.0,
+                ),
               ),
               hintStyle: TextStyle(
                 color: hintColor,
