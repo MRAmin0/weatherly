@@ -24,7 +24,7 @@ void main() async {
   try {
     final notificationService = NotificationService();
     await notificationService.initialize();
-    await notificationService.requestPermission();
+    // await notificationService.requestPermission(); // Moved to SplashScreen
   } catch (e) {
     debugPrint('Notification init error: $e');
   }

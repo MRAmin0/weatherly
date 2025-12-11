@@ -1,10 +1,13 @@
-import 'package:weatherly_app/core/extensions/color_opacity.dart';
-
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:weatherly_app/core/extensions/color_opacity.dart';
 import 'package:weatherly_app/data/models/weather_type.dart';
+import 'package:weatherly_app/data/services/network_service.dart';
+import 'package:weatherly_app/data/services/notification_service.dart';
+import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/presentation/screens/weather_screen.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
@@ -36,9 +39,81 @@ class _SplashScreenState extends State<SplashScreen>
 
     _fadeController.forward();
 
-    Future.delayed(const Duration(milliseconds: 1700), () {
-      _navigateToHome();
-    });
+    // Start the startup sequence
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    // 1. Minimum Splash Delay (to show logo)
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    if (!mounted) return;
+
+    // 2. Check Internet
+    bool hasInternet = await NetworkService.hasInternet();
+    while (!hasInternet && mounted) {
+      await _showNoInternetDialog();
+      hasInternet = await NetworkService.hasInternet();
+    }
+
+    if (!mounted) return;
+
+    // 3. Request Permissions
+    await _requestPermissions();
+
+    if (!mounted) return;
+
+    // 4. Navigate
+    _navigateToHome();
+  }
+
+  Future<void> _showNoInternetDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Icon(
+          Icons.wifi_off_rounded,
+          size: 48,
+          color: Colors.orange,
+        ),
+        content: Text(
+          l10n.noInternetConnection,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(l10n.retry),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _requestPermissions() async {
+    // Notification Permission
+    try {
+      final notificationService = NotificationService();
+      await notificationService.initialize();
+      await notificationService.requestPermission();
+    } catch (e) {
+      debugPrint('Notification permission error: $e');
+    }
+
+    // GPS (Location) Permission
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+    } catch (e) {
+      debugPrint('Location permission error: $e');
+    }
   }
 
   void _navigateToHome() {

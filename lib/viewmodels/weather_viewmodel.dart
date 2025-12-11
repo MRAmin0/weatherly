@@ -432,10 +432,35 @@ class WeatherViewModel extends ChangeNotifier {
       notifyListeners();
       return;
     }
+
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       try {
         final results = await _api.fetchCitySuggestions(trimmed, lang: lang);
-        suggestions = results;
+
+        // تشخیص زبان ورودی (آیا کاراکتر فارسی دارد؟)
+        final isFarsiInput = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmed);
+
+        final processedResults = results.map((city) {
+          final localNames = city['local_names'] as Map<String, dynamic>?;
+          String displayName = city['name'];
+
+          if (localNames != null) {
+            if (isFarsiInput && localNames.containsKey('fa')) {
+              displayName = localNames['fa'];
+            } else if (!isFarsiInput && localNames.containsKey('en')) {
+              displayName = localNames['en'];
+            }
+          }
+
+          // ایجاد یک مپ جدید با نام اصلاح شده برای نمایش
+          return {
+            ...city,
+            'name': displayName,
+            'original_name': city['name'], // نگهداری نام اصلی
+          };
+        }).toList();
+
+        suggestions = processedResults;
       } catch (_) {
         suggestions = [];
       }

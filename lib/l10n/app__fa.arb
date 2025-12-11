@@ -104,5 +104,7 @@
   "smartNotificationsDesc": "موقع باز کردن اپ نکات آب‌وهوایی دریافت کن",
   "dailyNotifications": "هشدار صبحگاهی",
   "dailyNotificationsDesc": "هر روز صبح ساعت ۷ خلاصه آب‌وهوا دریافت کن",
-  "notificationTimeLabel": "زمان نوتیفیکیشن"
+  "notificationTimeLabel": "زمان نوتیفیکیشن",
+  "noInternetConnection": "اتصال اینترنت برقرار نیست. لطفاً اینترنت خود را چک کنید.",
+  "retry": "تلاش مجدد"
 }

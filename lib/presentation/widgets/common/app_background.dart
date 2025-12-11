@@ -17,8 +17,8 @@ class AppBackground extends StatelessWidget {
         colors: brightness == Brightness.dark
             ? [const Color(0xFF1A1A1A), const Color(0xFF000000)]
             : [
-                const Color(0xFFF2F2F7), // Light gray/blueish white
-                const Color(0xFFE5E5EA), // Slightly darker gray
+                theme.colorScheme.surface,
+                theme.colorScheme.surface,
               ],
       ),
     );

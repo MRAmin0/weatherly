@@ -34,3 +34,13 @@ const String cloudSvg = '''
     </g>
 </svg>
 ''';
+
+// قطره (برای بارش)
+const String dropSvg = '''
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+        d="M12 2C12 2 7 9 7 13C7 15.7614 9.23858 18 12 18C14.7614 18 17 15.7614 17 13C17 9 12 2 12 2Z"
+        fill="#40C4FF"
+    />
+</svg>
+''';

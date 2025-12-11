@@ -99,5 +99,7 @@
   "smartNotificationsDesc": "Get weather tips when you open the app",
   "dailyNotifications": "Daily Morning Alert",
   "dailyNotificationsDesc": "Receive a weather summary every morning at 7 AM",
-  "notificationTimeLabel": "Notification time"
+  "notificationTimeLabel": "Notification time",
+  "noInternetConnection": "No internet connection. Please check your connection.",
+  "retry": "Retry"
 }

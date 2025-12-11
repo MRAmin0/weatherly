@@ -3,8 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:weatherly_app/data/models/weather_type.dart';
 import 'package:weatherly_app/presentation/widgets/animations/weather_animator.dart';
 // lib/widgets/animations/svg_assets.dart
-import 'package:flutter/cupertino.dart';
+
 import 'package:weatherly_app/presentation/widgets/animations/icon/svg_assets.dart';
+import 'package:weatherly_app/presentation/widgets/animations/rain_drop_animator.dart';
 
 class MainWeatherIcon extends StatelessWidget {
   final WeatherType weatherType;
@@ -40,6 +41,56 @@ class MainWeatherIcon extends StatelessWidget {
       );
     }
 
+    // اگر هوا بارانی است (یا رعدوبرق/نم‌نم)
+    // نمایش ابر ثابت + قطرات متحرک
+    if (weatherType == WeatherType.rain ||
+        weatherType == WeatherType.drizzle ||
+        weatherType == WeatherType.thunderstorm) {
+      return SizedBox(
+        width: size,
+        height: size * 1.3, // ارتفاع بیشتر برای ریزش قطرات
+        child: Stack(
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.none,
+          children: [
+            // لایه ۱: ریزش قطرات (زیر ابر میاد ولی پوزیشنش تنظیم شده - پایین‌تر)
+            Positioned(
+              top: size * 0.60, // بارش پایین‌تر شروع شود
+              child: RainDropAnimator(width: size, height: size * 0.8),
+            ),
+
+            // لایه ۲: ابر متحرک (بالاتر رفته و خیلی بزرگتر شده)
+            Positioned(
+              top: -size * 0.25,
+              child: WeatherAnimator(
+                weatherType: WeatherType.clouds, // بازگرداندن انیمیشن
+                child: SvgPicture.string(
+                  cloudSvg,
+                  width: size * 1.35, // ۳۵ درصد بزرگتر
+                  height: size * 1.35,
+                ),
+              ),
+            ),
+
+            // لایه ۳ (اختیاری): اگر رعدوبرق باشد
+            if (weatherType == WeatherType.thunderstorm)
+              Positioned(
+                bottom: 0,
+                right: size * 0.2,
+                child: WeatherAnimator(
+                  weatherType: WeatherType.thunderstorm,
+                  child: const Icon(
+                    Icons.flash_on,
+                    color: Colors.amber,
+                    size: 48,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
     // برای سایر وضعیت‌های آب‌وهوایی، از آیکون‌های پیش‌فرض استفاده کن
     final IconData iconData;
     final Color iconColor;
@@ -48,17 +99,6 @@ class MainWeatherIcon extends StatelessWidget {
       case WeatherType.clouds:
         iconData = Icons.cloud_rounded;
         iconColor = Colors.grey.shade400;
-        break;
-
-      case WeatherType.rain:
-      case WeatherType.drizzle:
-        iconData = CupertinoIcons.cloud_rain;
-        iconColor = Colors.lightBlueAccent;
-        break;
-
-      case WeatherType.thunderstorm:
-        iconData = Icons.thunderstorm;
-        iconColor = Colors.deepPurpleAccent;
         break;
 
       case WeatherType.snow:

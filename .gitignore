@@ -53,3 +53,4 @@ android/key.properties
 **/*.keystore
 **/build/
 **/outputs/mapping/
+local.properties
