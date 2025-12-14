@@ -121,7 +121,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: _scaffoldKey,
       drawer: WeatherDrawer(vm: vm, l10n: l10n),
-
       body: Stack(
         children: [
           RefreshIndicator(
@@ -144,21 +143,42 @@ class _HomePageState extends State<HomePage> {
                           SafeArea(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Center(
-                                child: AnimatedOpacity(
-                                  duration: const Duration(milliseconds: 150),
-                                  opacity: 1.0, // Always visible now
-                                  child: Text(
-                                    l10n.localeName == 'fa' ? 'خانه' : 'Home',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 22,
+                              child: Row(
+                                children: [
+                                  // --- تغییر: دکمه منو اومد اول (سمت راست در فارسی) ---
+                                  IconButton(
+                                    icon: const Icon(Icons.menu),
+                                    onPressed: () {
+                                      _scaffoldKey.currentState?.openDrawer();
+                                    },
+                                  ),
+
+                                  Expanded(
+                                    child: Center(
+                                      child: AnimatedOpacity(
+                                        duration: const Duration(
+                                          milliseconds: 150,
+                                        ),
+                                        opacity: 1.0, // Always visible now
+                                        child: Text(
+                                          l10n.localeName == 'fa'
+                                              ? 'خانه'
+                                              : 'Home',
+                                          style: TextStyle(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 22,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+
+                                  // --- تغییر: فضای خالی رفت آخر (برای قرینه شدن) ---
+                                  const SizedBox(width: 48),
+                                ],
                               ),
                             ),
                           ),
@@ -205,8 +225,8 @@ class _HomePageState extends State<HomePage> {
           if (_showSearchOverlay)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withValues(
-                  alpha: 0.7,
+                color: Colors.black.withOpacity(
+                  0.7,
                 ), // Slightly darker for better contrast
                 child: SearchingRadar(
                   message: l10n.localeName == 'fa'
@@ -268,7 +288,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         CurrentWeatherSection(viewModel: vm, l10n: l10n),
         const SizedBox(height: 18),
-        Divider(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+        Divider(color: theme.colorScheme.outline.withOpacity(0.2)),
         const SizedBox(height: 18),
         DetailsRow(viewModel: vm, l10n: l10n),
       ],
@@ -281,12 +301,12 @@ class _HomePageState extends State<HomePage> {
         color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          color: theme.colorScheme.outline.withOpacity(0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
