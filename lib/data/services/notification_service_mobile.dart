@@ -35,7 +35,7 @@ class NotificationService {
 
     // Android initialization settings
     const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
+      '@drawable/ic_stat_name',
     );
 
     // iOS initialization settings
@@ -103,7 +103,7 @@ class NotificationService {
       channelDescription: 'Smart weather tips and alerts',
       importance: Importance.max,
       priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_stat_name',
       styleInformation: BigTextStyleInformation(''),
     );
 
@@ -159,7 +159,7 @@ class NotificationService {
       channelDescription: 'Daily morning weather summary',
       importance: Importance.max,
       priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_stat_name',
       styleInformation: BigTextStyleInformation(''),
     );
 
