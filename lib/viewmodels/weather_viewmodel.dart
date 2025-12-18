@@ -275,10 +275,22 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   // ------------------------- WEATHER LOGIC -------------------------
+  void _clearWeatherData() {
+    currentWeather = null;
+    hourly = [];
+    daily5 = [];
+    aqi = null;
+    pm2_5 = null;
+    error = null;
+  }
+
   Future<void> fetchWeatherByCity(String city) async {
     final text = city.trim();
     if (text.isEmpty) return;
+    
+    _clearWeatherData();
     _setLoading(true);
+
     try {
       final data = await _api.fetchCurrentWeather(cityName: text, lang: lang);
       if (data == null) {
@@ -293,7 +305,9 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchWeatherByCoordinates(double lat, double lon) async {
+    _clearWeatherData();
     _setLoading(true);
+
     try {
       final data = await _api.fetchCurrentWeather(
         lat: lat,
