@@ -10,6 +10,7 @@ import 'package:weatherly_app/data/models/weather_type.dart';
 import 'package:weatherly_app/data/services/weather_api_service.dart';
 import 'package:weatherly_app/data/services/notification_service.dart';
 import 'package:weatherly_app/core/utils/weather_tips.dart';
+import 'package:weatherly_app/data/services/background_service_export.dart';
 
 class WeatherViewModel extends ChangeNotifier {
   final WeatherApiService _api;
@@ -60,6 +61,8 @@ class WeatherViewModel extends ChangeNotifier {
     } else {
       await fetchByDefaultCity();
     }
+    // After first weather fetch, schedule background task if needed
+    await scheduleBackgroundWeatherCheck();
   }
 
   Future<void> _loadPrefs() async {
@@ -181,6 +184,13 @@ class WeatherViewModel extends ChangeNotifier {
     smartNotificationsEnabled = value;
     notifyListeners(); // Update UI immediately
     await _savePref('smartNotifications', value);
+
+    // Schedule or cancel the background task based on the new value
+    if (value) {
+      await scheduleBackgroundWeatherCheck();
+    } else {
+      await cancelBackgroundWeatherCheck();
+    }
   }
 
   Future<void> setDailyNotifications(bool value) async {

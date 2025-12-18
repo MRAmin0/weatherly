@@ -33,9 +33,9 @@ class NotificationService {
       }
     }
 
-    // Android initialization settings
+    // Android initialization settings with the correct icon
     const androidSettings = AndroidInitializationSettings(
-      '@drawable/ic_stat_name',
+      '@drawable/ic_notification', // CORRECTED ICON
     );
 
     // iOS initialization settings
@@ -68,8 +68,6 @@ class NotificationService {
   /// Request notification permission
   Future<bool> requestPermission() async {
     if (kIsWeb) {
-      // Permissions for Web not yet fully implemented in this plugin version without custom JS
-      // But we prevent the crash.
       return false;
     }
 
@@ -103,7 +101,7 @@ class NotificationService {
       channelDescription: 'Smart weather tips and alerts',
       importance: Importance.max,
       priority: Priority.high,
-      icon: '@drawable/ic_stat_name',
+      icon: '@drawable/ic_notification', // CORRECTED ICON
       styleInformation: BigTextStyleInformation(''),
     );
 
@@ -148,7 +146,6 @@ class NotificationService {
       minute,
     );
 
-    // If the time has passed today, schedule for tomorrow
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
@@ -159,7 +156,7 @@ class NotificationService {
       channelDescription: 'Daily morning weather summary',
       importance: Importance.max,
       priority: Priority.high,
-      icon: '@drawable/ic_stat_name',
+      icon: '@drawable/ic_notification', // CORRECTED ICON
       styleInformation: BigTextStyleInformation(''),
     );
 
