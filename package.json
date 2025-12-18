@@ -1,0 +1,7 @@
+{
+    "name": "weatherly",
+    "version": "2.0.0",
+    "scripts": {
+        "build": "flutter build web --release --web-renderer canvaskit"
+    }
+}

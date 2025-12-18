@@ -1,0 +1,14 @@
+{
+    "version": 2,
+    "public": true,
+    "framework": null,
+    "buildCommand": "flutter build web --release --web-renderer canvaskit",
+    "installCommand": "flutter pub get && flutter gen-l10n",
+    "outputDirectory": "build/web",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}

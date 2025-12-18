@@ -1,6 +1,5 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:weatherly_app/presentation/widgets/animations/icon/svg_assets.dart';
 
 class RainDropAnimator extends StatefulWidget {
   final double width;
@@ -17,92 +16,114 @@ class RainDropAnimator extends StatefulWidget {
 }
 
 class _RainDropAnimatorState extends State<RainDropAnimator>
-    with TickerProviderStateMixin {
-  late AnimationController _controller1;
-  late AnimationController _controller2;
-  late AnimationController _controller3;
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  final List<_RainDrop> _drops = [];
+  final math.Random _random = math.Random();
 
   @override
   void initState() {
     super.initState();
-    // Three drops with different speeds/offsets
-    _controller1 = AnimationController(
+    _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(seconds: 2),
     )..repeat();
 
-    _controller2 = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
+    _createDrops();
+  }
 
-    _controller3 = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
-
-    // Stagger start
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) _controller2.repeat();
-    });
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) _controller3.repeat();
-    });
+  void _createDrops() {
+    _drops.clear();
+    for (int i = 0; i < 25; i++) {
+      _drops.add(
+        _RainDrop(
+          x: _random.nextDouble(),
+          y: _random.nextDouble(),
+          speed: 0.05 + _random.nextDouble() * 0.1,
+          length: 10 + _random.nextDouble() * 15,
+          opacity: 0.2 + _random.nextDouble() * 0.5,
+        ),
+      );
+    }
   }
 
   @override
   void dispose() {
-    _controller1.dispose();
-    _controller2.dispose();
-    _controller3.dispose();
+    _controller.dispose();
     super.dispose();
-  }
-
-  Widget _buildDrop(
-    AnimationController controller,
-    double leftOffset,
-    double scale,
-  ) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        // Fall from top (0) to bottom (height)
-        final double y = controller.value * (widget.height * 1.5);
-        final double opacity = 1.0 - controller.value; // Fade out as it falls
-
-        // Reset check is automatic via repeat()
-
-        return Positioned(
-          top: y,
-          left: leftOffset,
-          child: Opacity(
-            opacity: opacity,
-            child: Transform.scale(
-              scale: scale,
-              child: SvgPicture.string(dropSvg, width: 24, height: 24),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // We render drops in a container of size width x height
     return SizedBox(
       width: widget.width,
       height: widget.height,
-      child: Stack(
-        children: [
-          // Left Drop
-          _buildDrop(_controller1, widget.width * 0.25, 0.7),
-          // Center Drop
-          _buildDrop(_controller2, widget.width * 0.45, 0.9),
-          // Right Drop
-          _buildDrop(_controller3, widget.width * 0.65, 0.8),
-        ],
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return CustomPaint(
+            painter: _RainPainter(
+              drops: _drops,
+              progress: _controller.value,
+              color: Colors.lightBlueAccent.withValues(alpha: 0.8),
+            ),
+          );
+        },
       ),
     );
   }
+}
+
+class _RainDrop {
+  final double x; // 0.0 to 1.0 (relative width)
+  final double y; // 0.0 to 1.0 (relative height)
+  final double speed;
+  final double length;
+  final double opacity;
+
+  _RainDrop({
+    required this.x,
+    required this.y,
+    required this.speed,
+    required this.length,
+    required this.opacity,
+  });
+}
+
+class _RainPainter extends CustomPainter {
+  final List<_RainDrop> drops;
+  final double progress;
+  final Color color;
+
+  _RainPainter({
+    required this.drops,
+    required this.progress,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 1.5;
+
+    for (var drop in drops) {
+      // Calculate current position with wraparound
+      double currentY = (drop.y + progress * drop.speed * 20) % 1.0;
+      double startX = drop.x * size.width;
+      double startY = currentY * size.height;
+
+      // Slight tilt for more organic look
+      double endX = startX + 2;
+      double endY = startY + drop.length;
+
+      // Draw the drop as a line
+      paint.color = color.withValues(alpha: drop.opacity);
+      canvas.drawLine(Offset(startX, startY), Offset(endX, endY), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _RainPainter oldDelegate) => true;
 }
