@@ -5,10 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherly_app/config/config_reader.dart'; // 1. Import ConfigReader
 
+import 'base_weather_service.dart';
 import '../models/hourly_forecast.dart';
 
 /// سرویس مخصوص OpenWeatherMap
-class WeatherApiService {
+class WeatherApiService implements BaseWeatherService {
   WeatherApiService({http.Client? httpClient})
     : _httpClient = httpClient ?? http.Client();
 

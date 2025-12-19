@@ -59,8 +59,11 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (!mounted) return;
 
-    // 3. Request Permissions
-    await _requestPermissions();
+    // 3. Request Permissions (Non-blocking)
+    unawaited(_requestPermissions());
+
+    // Small buffer for web interactions, but don't block
+    await Future.delayed(const Duration(milliseconds: 500));
 
     if (!mounted) return;
 

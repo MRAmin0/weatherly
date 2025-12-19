@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
+import 'package:weatherly_app/presentation/widgets/common/glass_container.dart';
 
 class RecentCitiesSlider extends StatelessWidget {
   const RecentCitiesSlider({super.key});
@@ -56,22 +57,15 @@ class RecentCitiesSlider extends StatelessWidget {
                   city.toLowerCase() == vm.defaultCity.toLowerCase();
 
               final foregroundColor = isSelected
-                  ? theme.colorScheme.onSecondaryContainer
-                  : theme.colorScheme.onSurfaceVariant;
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 0.8);
 
-              final backgroundColor = isSelected
-                  ? theme.colorScheme.secondaryContainer
-                  : theme.colorScheme.surfaceContainerHigh;
-
-              return Container(
-                decoration: BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.1),
-                    width: 1,
-                  ),
-                ),
+              return GlassContainer(
+                isDark: true,
+                padding: EdgeInsets.zero,
+                borderRadius: 24,
+                // Add border if selected for better visibility
+                blur: 10,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

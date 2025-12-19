@@ -11,11 +11,15 @@ import 'package:weatherly_app/data/services/weather_api_service.dart';
 import 'package:weatherly_app/data/services/notification_service.dart';
 import 'package:weatherly_app/core/utils/weather_tips.dart';
 import 'package:weatherly_app/data/services/background_service_export.dart';
+import 'package:weatherly_app/data/services/base_weather_service.dart';
+import 'package:weatherly_app/data/services/accuweather_service.dart';
+
+enum WeatherProvider { openWeather, accuWeather }
 
 class WeatherViewModel extends ChangeNotifier {
-  final WeatherApiService _api;
+  BaseWeatherService _api;
 
-  WeatherViewModel({WeatherApiService? apiService})
+  WeatherViewModel({BaseWeatherService? apiService})
     : _api = apiService ?? WeatherApiService() {
     scheduleMicrotask(_init);
   }
@@ -24,6 +28,7 @@ class WeatherViewModel extends ChangeNotifier {
   ThemeMode themeMode = ThemeMode.system;
   Color seedColor = Colors.deepPurple;
   bool useSystemColor = false;
+  WeatherProvider provider = WeatherProvider.openWeather;
 
   String defaultCity = 'Tehran';
 
@@ -35,6 +40,11 @@ class WeatherViewModel extends ChangeNotifier {
   List<DailyForecastEntry> daily5 = [];
   int? aqi;
   double? pm2_5;
+  double? pm10;
+  double? no2;
+  double? o3;
+  double? so2;
+  double? co;
 
   bool isLoading = false;
   String? error;
@@ -79,6 +89,13 @@ class WeatherViewModel extends ChangeNotifier {
     dailyNotificationsEnabled = prefs.getBool('dailyNotifications') ?? false;
     dailyNotificationHour = prefs.getInt('dailyNotificationHour') ?? 7;
     dailyNotificationMinute = prefs.getInt('dailyNotificationMinute') ?? 0;
+
+    final providerStr = prefs.getString('weatherProvider') ?? 'openWeather';
+    provider = providerStr == 'accuWeather'
+        ? WeatherProvider.accuWeather
+        : WeatherProvider.openWeather;
+
+    _updateApiService();
 
     // رنگ تم (seed)
     final seedColorValue = prefs.getInt('seedColor');
@@ -177,6 +194,22 @@ class WeatherViewModel extends ChangeNotifier {
     defaultCity = city;
     await _savePref('defaultCity', city);
     notifyListeners();
+  }
+
+  Future<void> setWeatherProvider(WeatherProvider newProvider) async {
+    if (provider == newProvider) return;
+    provider = newProvider;
+    await _savePref('weatherProvider', provider.name);
+    _updateApiService();
+    await refresh();
+  }
+
+  void _updateApiService() {
+    if (provider == WeatherProvider.accuWeather) {
+      _api = AccuWeatherService();
+    } else {
+      _api = WeatherApiService();
+    }
   }
 
   // ------------------------- NOTIFICATION SETTINGS -------------------------
@@ -279,15 +312,21 @@ class WeatherViewModel extends ChangeNotifier {
     currentWeather = null;
     hourly = [];
     daily5 = [];
+    daily5 = [];
     aqi = null;
     pm2_5 = null;
+    pm10 = null;
+    no2 = null;
+    o3 = null;
+    so2 = null;
+    co = null;
     error = null;
   }
 
   Future<void> fetchWeatherByCity(String city) async {
     final text = city.trim();
     if (text.isEmpty) return;
-    
+
     _clearWeatherData();
     _setLoading(true);
 
@@ -406,9 +445,19 @@ class WeatherViewModel extends ChangeNotifier {
         aqi = (main['aqi'] as num?)?.toInt();
         final components = first['components'] as Map<String, dynamic>;
         pm2_5 = (components['pm2_5'] as num?)?.toDouble();
+        pm10 = (components['pm10'] as num?)?.toDouble();
+        no2 = (components['no2'] as num?)?.toDouble();
+        o3 = (components['o3'] as num?)?.toDouble();
+        so2 = (components['so2'] as num?)?.toDouble();
+        co = (components['co'] as num?)?.toDouble();
       } else {
         aqi = null;
         pm2_5 = null;
+        pm10 = null;
+        no2 = null;
+        o3 = null;
+        so2 = null;
+        co = null;
       }
       notifyListeners();
     } catch (e) {
@@ -417,23 +466,95 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   int get calculatedAqiScore {
-    if (pm2_5 == null) return 0;
-    final pm = pm2_5!;
-    if (pm <= 12.0) {
-      return ((50 - 0) / (12 - 0) * (pm - 0) + 0).round();
-    } else if (pm <= 35.4) {
-      return ((100 - 51) / (35.4 - 12.1) * (pm - 12.1) + 51).round();
-    } else if (pm <= 55.4) {
-      return ((150 - 101) / (55.4 - 35.5) * (pm - 35.5) + 101).round();
-    } else if (pm <= 150.4) {
-      return ((200 - 151) / (150.4 - 55.5) * (pm - 55.5) + 151).round();
-    } else if (pm <= 250.4) {
-      return ((300 - 201) / (250.4 - 150.5) * (pm - 150.5) + 201).round();
-    } else if (pm <= 350.4) {
-      return ((400 - 301) / (350.4 - 250.5) * (pm - 250.5) + 301).round();
-    } else {
-      return ((500 - 401) / (500.4 - 350.5) * (pm - 350.5) + 401).round();
+    final List<int> subIndices = [];
+
+    // PM2.5 calculation
+    if (pm2_5 != null) {
+      subIndices.add(
+        _calculatePollutantAQI(
+          pm2_5!,
+          [0, 12, 35.4, 55.4, 150.4, 250.4, 350.4, 500.4],
+          [0, 50, 100, 150, 200, 300, 400, 500],
+        ),
+      );
     }
+
+    // PM10 calculation
+    if (pm10 != null) {
+      subIndices.add(
+        _calculatePollutantAQI(
+          pm10!,
+          [0, 54, 154, 254, 354, 424, 504, 604],
+          [0, 50, 100, 150, 200, 300, 400, 500],
+        ),
+      );
+    }
+
+    // NO2 calculation (ppb) - OWM is µg/m³
+    // Conversion: ppb = µg/m³ * 24.45 / 46.01
+    if (no2 != null) {
+      final no2Ppb = no2! * 24.45 / 46.01;
+      subIndices.add(
+        _calculatePollutantAQI(
+          no2Ppb,
+          [0, 53, 100, 360, 649, 1249, 1649, 2049],
+          [0, 50, 100, 150, 200, 300, 400, 500],
+        ),
+      );
+    }
+
+    // O3 calculation (ppb) - OWM is µg/m³
+    // Conversion: ppb = µg/m³ * 24.45 / 48.00
+    if (o3 != null) {
+      final o3Ppb = o3! * 24.45 / 48.00;
+      subIndices.add(
+        _calculatePollutantAQI(
+          o3Ppb,
+          [
+            0,
+            54,
+            70,
+            85,
+            105,
+            200, // Approximate 8-hour and 1-hour combined simple scale
+          ],
+          [0, 50, 100, 150, 200, 300],
+        ),
+      );
+    }
+
+    // CO calculation (ppm) - OWM is µg/m³
+    // Conversion: ppm = µg/m³ * 24.45 / 28010
+    if (co != null) {
+      final coPpm = co! * 24.45 / 28010;
+      subIndices.add(
+        _calculatePollutantAQI(
+          coPpm,
+          [0, 4.4, 9.4, 12.4, 15.4, 30.4, 40.4, 50.4],
+          [0, 50, 100, 150, 200, 300, 400, 500],
+        ),
+      );
+    }
+
+    if (subIndices.isEmpty) return 0;
+    return subIndices.reduce((a, b) => a > b ? a : b);
+  }
+
+  int _calculatePollutantAQI(
+    double val,
+    List<double> concBoundaries,
+    List<int> aqiBoundaries,
+  ) {
+    for (int i = 0; i < concBoundaries.length - 1; i++) {
+      if (val <= concBoundaries[i + 1]) {
+        final cLow = concBoundaries[i];
+        final cHigh = concBoundaries[i + 1];
+        final iLow = aqiBoundaries[i];
+        final iHigh = aqiBoundaries[i + 1];
+        return ((iHigh - iLow) / (cHigh - cLow) * (val - cLow) + iLow).round();
+      }
+    }
+    return aqiBoundaries.last;
   }
 
   Future<void> fetchByDefaultCity() async {

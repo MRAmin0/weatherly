@@ -12,4 +12,8 @@ abstract class ConfigReader {
   static String get openWeatherApiKey {
     return _config['open_weather_api_key'] as String;
   }
+
+  static String get accuWeatherApiKey {
+    return _config['accu_weather_api_key'] ?? '';
+  }
 }

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 
@@ -78,6 +79,11 @@ class _HomeSearchSectionState extends State<HomeSearchSection> {
                     focusNode: widget.searchFocusNode,
                     maxLength: 30,
                     textInputAction: TextInputAction.search,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'[a-zA-Z\s\u0600-\u06FF]'),
+                      ),
+                    ],
                     onSubmitted: (_) => widget.onSearchPressed(),
                     onChanged: widget.viewModel.searchChanged,
                     style: const TextStyle(

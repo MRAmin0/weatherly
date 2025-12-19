@@ -12,6 +12,7 @@ import 'package:weatherly_app/presentation/widgets/home/details_row.dart';
 import 'package:weatherly_app/presentation/widgets/home/weather_drawer.dart';
 import 'package:weatherly_app/presentation/widgets/animations/searching_radar.dart';
 import 'package:weatherly_app/presentation/widgets/home/recent_cities_slider.dart';
+import 'package:weatherly_app/presentation/widgets/home/pollutant_breakdown.dart';
 
 class HomePage extends StatefulWidget {
   final Function(bool) onSearchFocusChange;
@@ -315,6 +316,10 @@ class _HomePageState extends State<HomePage> {
               Divider(color: Colors.white.withValues(alpha: 0.2)),
               const SizedBox(height: 24),
               DetailsRow(viewModel: vm, l10n: l10n),
+              const SizedBox(height: 24),
+              Divider(color: Colors.white.withValues(alpha: 0.2)),
+              const SizedBox(height: 16),
+              PollutantBreakdown(viewModel: vm),
             ],
           ),
         ),

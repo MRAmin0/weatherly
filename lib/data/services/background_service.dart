@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weatherly_app/config/config_reader.dart';
 import 'package:weatherly_app/core/utils/weather_tips.dart';
 import 'package:weatherly_app/data/models/current_weather.dart';
+import 'package:weatherly_app/data/services/accuweather_service.dart';
+import 'package:weatherly_app/data/services/base_weather_service.dart';
 import 'package:weatherly_app/data/services/notification_service.dart';
 import 'package:weatherly_app/data/services/weather_api_service.dart';
 import 'package:workmanager/workmanager.dart';
@@ -31,11 +33,10 @@ void callbackDispatcher() {
         }
 
         // 2. Fetch weather
-        final apiService = WeatherApiService();
-        if (!apiService.isConfigured) {
-          debugPrint('API key not configured. Aborting background task.');
-          return true;
-        }
+        final providerStr = prefs.getString('weatherProvider') ?? 'openWeather';
+        final BaseWeatherService apiService = providerStr == 'accuWeather'
+            ? AccuWeatherService()
+            : WeatherApiService();
 
         final lang = prefs.getString('lang') ?? 'fa';
         final weatherData = await apiService.fetchCurrentWeather(
@@ -120,7 +121,6 @@ Future<void> cancelBackgroundWeatherCheck() async {
   debugPrint('Background weather check cancelled');
 }
 
-
 /// Tries to get the current location, with a fallback to the last known one.
 /// Returns null if location services are disabled or permissions are denied.
 Future<Position?> _determinePosition() async {
@@ -140,7 +140,9 @@ Future<Position?> _determinePosition() async {
   }
 
   if (permission == LocationPermission.deniedForever) {
-    debugPrint('Location permissions are permanently denied. Cannot run background task.');
+    debugPrint(
+      'Location permissions are permanently denied. Cannot run background task.',
+    );
     return null;
   }
 

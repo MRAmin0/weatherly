@@ -139,6 +139,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final vm = context.watch<WeatherViewModel>();
+    final theme = Theme.of(context);
+    final isAppDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -173,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
 
                     // LANGUAGE
-                    _buildSectionTitle(l10n.language),
+                    _buildSectionTitle(l10n.language, isDark: isAppDark),
                     GlassContainer(
                       isDark: true,
                       padding: EdgeInsets.zero,
@@ -199,16 +201,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 24),
 
                     // THEME
-                    _buildSectionTitle(l10n.displayMode),
+                    _buildSectionTitle(l10n.displayMode, isDark: isAppDark),
                     GlassContainer(
                       isDark: true,
                       borderRadius: 25,
-                      child: _buildThemeModeSelector(l10n, vm),
+                      child: _buildThemeModeSelector(l10n, vm, isAppDark),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // WEATHER SOURCE
+                    _buildSectionTitle(l10n.weatherSource, isDark: isAppDark),
+                    GlassContainer(
+                      isDark: true,
+                      borderRadius: 25,
+                      child: _buildWeatherProviderSelector(l10n, vm, isAppDark),
                     ),
                     const SizedBox(height: 24),
 
                     // UNITS
-                    _buildSectionTitle(l10n.temperatureUnitCelsius),
+                    _buildSectionTitle(
+                      l10n.temperatureUnitCelsius,
+                      isDark: isAppDark,
+                    ),
                     GlassContainer(
                       isDark: true,
                       padding: EdgeInsets.zero,
@@ -232,7 +246,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 24),
 
                     // NOTIFICATIONS
-                    _buildSectionTitle(l10n.smartNotifications),
+                    _buildSectionTitle(
+                      l10n.smartNotifications,
+                      isDark: isAppDark,
+                    ),
                     GlassContainer(
                       isDark: true,
                       padding: EdgeInsets.zero,
@@ -317,7 +334,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 24),
 
                     // ABOUT
-                    _buildSectionTitle(l10n.aboutApp),
+                    _buildSectionTitle(l10n.aboutApp, isDark: isAppDark),
                     GlassContainer(
                       isDark: true,
                       padding: EdgeInsets.zero,
@@ -357,7 +374,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildThemeModeSelector(AppLocalizations l10n, WeatherViewModel vm) {
+  Widget _buildThemeModeSelector(
+    AppLocalizations l10n,
+    WeatherViewModel vm,
+    bool isAppDark,
+  ) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -368,6 +389,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             l10n.system,
             Icons.brightness_auto_rounded,
             vm,
+            isAppDark,
           ),
           const SizedBox(width: 8),
           _buildThemeChip(
@@ -375,6 +397,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             l10n.light,
             Icons.wb_sunny_rounded,
             vm,
+            isAppDark,
           ),
           const SizedBox(width: 8),
           _buildThemeChip(
@@ -382,9 +405,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
             l10n.dark,
             Icons.nightlight_round,
             vm,
+            isAppDark,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildWeatherProviderSelector(
+    AppLocalizations l10n,
+    WeatherViewModel vm,
+    bool isAppDark,
+  ) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildProviderChip(
+            WeatherProvider.openWeather,
+            'OpenWeather',
+            Icons.cloud_queue_rounded,
+            vm,
+            isAppDark,
+          ),
+          const SizedBox(width: 8),
+          _buildProviderChip(
+            WeatherProvider.accuWeather,
+            'AccuWeather',
+            Icons.wb_sunny_outlined,
+            vm,
+            isAppDark,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProviderChip(
+    WeatherProvider targetProvider,
+    String label,
+    IconData icon,
+    WeatherViewModel vm,
+    bool isAppDark,
+  ) {
+    final isSelected = vm.provider == targetProvider;
+
+    final unselectedBg = isAppDark
+        ? Colors.black.withValues(alpha: 0.25)
+        : Colors.black.withValues(alpha: 0.15);
+
+    final unselectedContent = isAppDark
+        ? Colors.white.withValues(alpha: 0.9)
+        : Colors.black.withValues(alpha: 0.7);
+
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (val) {
+        if (val) {
+          vm.setWeatherProvider(targetProvider);
+        }
+      },
+      avatar: Icon(
+        icon,
+        color: isSelected ? Colors.black : unselectedContent,
+        size: 18,
+      ),
+      backgroundColor: unselectedBg,
+      selectedColor: Colors.white,
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.black : unselectedContent,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected
+              ? Colors.white
+              : Colors.white.withValues(alpha: 0.15),
+          width: 1,
+        ),
+      ),
+      showCheckmark: false,
     );
   }
 
@@ -393,8 +496,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String label,
     IconData icon,
     WeatherViewModel vm,
+    bool isAppDark,
   ) {
     final isSelected = vm.themeMode == mode;
+
+    // 🎨 Dynamic colors for visibility
+    final unselectedBg = isAppDark
+        ? Colors.black.withValues(alpha: 0.25)
+        : Colors.black.withValues(alpha: 0.15); // Better contrast in light mode
+
+    final unselectedContent = isAppDark
+        ? Colors.white.withValues(alpha: 0.9)
+        : Colors.black.withValues(alpha: 0.7);
+
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
@@ -406,27 +520,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       avatar: Icon(
         icon,
-        color: isSelected ? Colors.black : Colors.white,
+        color: isSelected ? Colors.black : unselectedContent,
         size: 18,
       ),
-      backgroundColor: Colors.white.withValues(alpha: 0.05),
+      backgroundColor: unselectedBg,
       selectedColor: Colors.white,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.black : Colors.white,
+        color: isSelected ? Colors.black : unselectedContent,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected
+              ? Colors.white
+              : Colors.white.withValues(alpha: 0.15),
+          width: 1,
+        ),
+      ),
       showCheckmark: false,
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, {bool isDark = true}) {
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, bottom: 12),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.8),
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),
