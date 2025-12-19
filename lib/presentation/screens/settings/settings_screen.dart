@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -47,49 +48,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.2),
       builder: (context) {
-        return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: AlertDialog(
-            backgroundColor: Colors.black.withValues(alpha: 0.7),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-              side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
-            ),
-            title: Text(
-              l10n.language,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LanguageOptionTile(
-                  flag: '🇮🇷',
-                  label: l10n.persian,
-                  isSelected: vm.lang == 'fa',
-                  textColor: Colors.white,
-                  onTap: () {
-                    vm.setLang('fa');
-                    Navigator.pop(context);
-                  },
-                ),
-                Divider(color: Colors.white.withValues(alpha: 0.2)),
-                _LanguageOptionTile(
-                  flag: '🇬🇧',
-                  label: l10n.english,
-                  isSelected: vm.lang == 'en',
-                  textColor: Colors.white,
-                  onTap: () {
-                    vm.setLang('en');
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+        final dialogContent = AlertDialog(
+          backgroundColor: Colors.black.withValues(alpha: 0.7),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+          ),
+          title: Text(
+            l10n.language,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _LanguageOptionTile(
+                flag: '🇮🇷',
+                label: l10n.persian,
+                isSelected: vm.lang == 'fa',
+                textColor: Colors.white,
+                onTap: () {
+                  vm.setLang('fa');
+                  Navigator.pop(context);
+                },
+              ),
+              Divider(color: Colors.white.withValues(alpha: 0.2)),
+              _LanguageOptionTile(
+                flag: '🇬🇧',
+                label: l10n.english,
+                isSelected: vm.lang == 'en',
+                textColor: Colors.white,
+                onTap: () {
+                  vm.setLang('en');
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+
+        if (kIsWeb) return dialogContent;
+
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: dialogContent,
         );
       },
     );

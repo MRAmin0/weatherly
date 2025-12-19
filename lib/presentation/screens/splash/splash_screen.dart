@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -158,12 +159,17 @@ class _SplashScreenState extends State<SplashScreen>
           ),
 
           // 🔹 Fullscreen Glass Blur
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
-              child: Container(color: Colors.white.op(0.06)),
+          if (!kIsWeb)
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
+                child: Container(color: Colors.white.op(0.06)),
+              ),
+            )
+          else
+            Positioned.fill(
+              child: Container(color: Colors.white.withValues(alpha: 0.1)),
             ),
-          ),
 
           // 🔹 Logo + App Name
           Center(

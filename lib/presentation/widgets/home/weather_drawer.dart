@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
@@ -15,169 +17,173 @@ class WeatherDrawer extends StatelessWidget {
     final theme = Theme.of(context);
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    return Drawer(
-      backgroundColor: Colors.transparent,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.15),
-                Colors.white.withValues(alpha: 0.05),
-              ],
-            ),
-            border: Border(
-              left: isRtl
-                  ? BorderSide.none
-                  : BorderSide(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-              right: isRtl
-                  ? BorderSide(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 1,
-                    )
-                  : BorderSide.none,
-            ),
-          ),
-          child: Column(
-            children: [
-              // --- GLASSMORPHIC HEADER ---
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.fromLTRB(
-                  24,
-                  MediaQuery.of(context).padding.top + 20,
-                  24,
-                  20,
+    final drawerContent = Container(
+      decoration: BoxDecoration(
+        color: kIsWeb ? Colors.black.withValues(alpha: 0.8) : null,
+        gradient: kIsWeb
+            ? null
+            : LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.15),
+                  Colors.white.withValues(alpha: 0.05),
+                ],
+              ),
+        border: Border(
+          left: isRtl
+              ? BorderSide.none
+              : BorderSide(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1,
                 ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      theme.colorScheme.primary.withValues(alpha: 0.3),
-                      theme.colorScheme.primary.withValues(alpha: 0.1),
+          right: isRtl
+              ? BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 1)
+              : BorderSide.none,
+        ),
+      ),
+      child: Column(
+        children: [
+          // --- GLASSMORPHIC HEADER ---
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(
+              24,
+              MediaQuery.of(context).padding.top + 20,
+              24,
+              20,
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  theme.colorScheme.primary.withValues(alpha: 0.3),
+                  theme.colorScheme.primary.withValues(alpha: 0.1),
+                ],
+              ),
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GlassContainer(
+                  isDark: false, // Always light/white glass for header icon
+                  padding: const EdgeInsets.all(12),
+                  borderRadius: 16,
+                  child: Icon(
+                    Icons.cloud_circle_rounded,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.weatherly,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
+                      ),
                     ],
                   ),
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 1,
+                ),
+              ],
+            ),
+          ),
+
+          // --- LIST ---
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                // ---------------- 1. PINNED SECTION ----------------
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(28, 24, 28, 12),
+                  child: Text(
+                    l10n.pinnedLocations,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
                     ),
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GlassContainer(
-                      isDark: false, // Always light/white glass for header icon
-                      padding: const EdgeInsets.all(12),
-                      borderRadius: 16,
-                      child: Icon(
-                        Icons.cloud_circle_rounded,
-                        size: 40,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.weatherly,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            offset: const Offset(0, 2),
-                            blurRadius: 4,
-                          ),
+
+                _buildLocationTile(
+                  context: context,
+                  city: vm.defaultCity,
+                  isPinnedSection: true,
+                  isRtl: isRtl,
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 16,
+                  ),
+                  child: Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Colors.white.withValues(alpha: 0.3),
+                          Colors.transparent,
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
 
-              // --- LIST ---
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    // ---------------- 1. PINNED SECTION ----------------
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(28, 24, 28, 12),
-                      child: Text(
-                        l10n.pinnedLocations,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
+                // ---------------- 2. RECENT SECTION ----------------
+                if (vm.recent.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(28, 0, 28, 12),
+                    child: Text(
+                      l10n.recentLocations,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
                       ),
                     ),
+                  ),
 
-                    _buildLocationTile(
+                  ...vm.recent.map((city) {
+                    return _buildLocationTile(
                       context: context,
-                      city: vm.defaultCity,
-                      isPinnedSection: true,
+                      city: city,
+                      isPinnedSection: false,
                       isRtl: isRtl,
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 16,
-                      ),
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.transparent,
-                              Colors.white.withValues(alpha: 0.3),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // ---------------- 2. RECENT SECTION ----------------
-                    if (vm.recent.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(28, 0, 28, 12),
-                        child: Text(
-                          l10n.recentLocations,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ),
-
-                      ...vm.recent.map((city) {
-                        return _buildLocationTile(
-                          context: context,
-                          city: city,
-                          isPinnedSection: false,
-                          isRtl: isRtl,
-                        );
-                      }),
-                    ],
-                  ],
-                ),
-              ),
-            ],
+                    );
+                  }),
+                ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
+    );
+
+    return Drawer(
+      backgroundColor: Colors.transparent,
+      child: kIsWeb
+          ? drawerContent
+          : BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: drawerContent,
+            ),
     );
   }
 

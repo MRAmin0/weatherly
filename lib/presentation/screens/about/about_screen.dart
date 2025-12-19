@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -318,30 +319,28 @@ ISSUE DESCRIPTION
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.22),
       builder: (context) {
-        return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: AlertDialog(
-            backgroundColor: isDark
-                ? Colors.black.withValues(alpha: 0.65)
-                : theme.colorScheme.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-              side: BorderSide(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.20)
-                    : theme.colorScheme.outlineVariant,
-              ),
+        final dialog = AlertDialog(
+          backgroundColor: isDark
+              ? Colors.black.withValues(alpha: 0.65)
+              : theme.colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.20)
+                  : theme.colorScheme.outlineVariant,
             ),
-            title: Text(
-              l10n.versionHistory,
-              style: TextStyle(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
+          ),
+          title: Text(
+            l10n.versionHistory,
+            style: TextStyle(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
             ),
-            content: SingleChildScrollView(
-              child: Text(
-                '''
+          ),
+          content: SingleChildScrollView(
+            child: Text(
+              '''
 🔔 نسخه 2.0.0 (آخرین نسخه)
 • نوتیفیکیشن هوشمند آب‌وهوا
 • هشدار صبحگاهی با ساعت دلخواه
@@ -359,25 +358,31 @@ ISSUE DESCRIPTION
 ⭐ نسخه 1.7.0
 • رفع باگ‌ها و بهبود پایداری
 ''',
+              style: TextStyle(
+                color: theme.colorScheme.onSurfaceVariant,
+                height: 1.4,
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                l10n.close,
                 style: TextStyle(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  height: 1.4,
+                  color: theme.colorScheme.primary,
+                  fontSize: 16,
                 ),
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  l10n.close,
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          ],
+        );
+
+        if (kIsWeb) return dialog;
+
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: dialog,
         );
       },
     );
