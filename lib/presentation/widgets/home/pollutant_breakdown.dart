@@ -9,8 +9,9 @@ class PollutantBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (viewModel.pm2_5 == null && viewModel.pm10 == null)
+    if (viewModel.pm2_5 == null && viewModel.pm10 == null) {
       return const SizedBox.shrink();
+    }
 
     final isPersian = viewModel.lang == 'fa';
 

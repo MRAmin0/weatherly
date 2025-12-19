@@ -8,7 +8,6 @@ import 'package:weatherly_app/presentation/widgets/charts/temperature_chart.dart
 
 import 'widgets/location_header.dart';
 import 'widgets/daily_list.dart';
-import 'widgets/hourly_list.dart';
 
 class ForecastScreen extends StatefulWidget {
   const ForecastScreen({super.key});
@@ -117,38 +116,6 @@ class _ForecastScreenState extends State<ForecastScreen> {
                         ),
 
                         if (vm.hourly.isNotEmpty) ...[
-                          const SizedBox(height: 32),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Align(
-                              alignment: isPersian
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
-                              child: Text(
-                                l10n.localeName == 'fa'
-                                    ? "ساعات آینده"
-                                    : "Hourly Forecast",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: HourlyList(
-                              items: vm.hourly,
-                              isPersian: isPersian,
-                              useCelsius: vm.useCelsius,
-                              isDark: true,
-                              textColor: Colors.white,
-                              subTextColor: Colors.white.withValues(alpha: 0.7),
-                              offset: 0, // Or appropriate offset if available
-                            ),
-                          ),
                           const SizedBox(height: 32),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),

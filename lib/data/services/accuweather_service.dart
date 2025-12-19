@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherly_app/config/config_reader.dart';
 import 'base_weather_service.dart';
@@ -23,10 +24,17 @@ class AccuWeatherService implements BaseWeatherService {
 
     try {
       final response = await _httpClient.get(uri);
-      if (response.statusCode != 200) return null;
+      if (response.statusCode != 200) {
+        if (kDebugMode) {
+          print('AccuWeather _getLocationKey error: ${response.statusCode}');
+          print(response.body);
+        }
+        return null;
+      }
       final data = json.decode(response.body) as Map<String, dynamic>;
       return data['Key'] as String?;
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) print('AccuWeather _getLocationKey exception: $e');
       return null;
     }
   }
@@ -36,15 +44,22 @@ class AccuWeatherService implements BaseWeatherService {
     String query, {
     String lang = 'en',
   }) async {
+    final accuLang = lang == 'fa' ? 'fa-ir' : (lang == 'en' ? 'en-us' : lang);
     final uri = Uri.https(
       'dataservice.accuweather.com',
       '/locations/v1/cities/search',
-      {'apikey': _apiKey, 'q': query, 'language': lang},
+      {'apikey': _apiKey, 'q': query, 'language': accuLang},
     );
 
     try {
       final response = await _httpClient.get(uri);
-      if (response.statusCode != 200) return null;
+      if (response.statusCode != 200) {
+        if (kDebugMode) {
+          print('AccuWeather resolveCity error: ${response.statusCode}');
+          print(response.body);
+        }
+        return null;
+      }
       final data = json.decode(response.body) as List<dynamic>;
       if (data.isEmpty) return null;
       final first = data.first as Map<String, dynamic>;
@@ -57,7 +72,8 @@ class AccuWeatherService implements BaseWeatherService {
         'state': first['AdministrativeArea']['ID'],
         'key': first['Key'], // AccuWeather specific
       };
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) print('AccuWeather resolveCity exception: $e');
       return null;
     }
   }
@@ -268,14 +284,27 @@ class AccuWeatherService implements BaseWeatherService {
   String _mapAccuIconToMain(int? iconCode) {
     if (iconCode == null) return 'Clear';
     // Mapping table: https://developer.accuweather.com/weather-icons
-    if (iconCode <= 5) return 'Clear';
+    if (iconCode <= 4) return 'Clear';
+    if (iconCode == 5) return 'Haze';
     if (iconCode <= 11) return 'Clouds';
-    if (iconCode <= 18) return 'Rain';
-    if (iconCode <= 21) return 'Storm';
-    if (iconCode <= 29) return 'Snow';
-    if (iconCode <= 32) return 'Clear'; // Hot/Cold/Windy
-    if (iconCode <= 36) return 'Clear'; // Night versions
-    if (iconCode <= 44) return 'Clouds'; // Night versions
+    if (iconCode == 11) return 'Fog';
+    if (iconCode <= 14) return 'Rain'; // Showers
+    if (iconCode <= 17) return 'Thunderstorm';
+    if (iconCode == 18) return 'Rain';
+    if (iconCode <= 21) return 'Rain'; // Flurries/Snow/Ice
+    if (iconCode <= 23) return 'Snow';
+    if (iconCode == 24) return 'Snow'; // Ice
+    if (iconCode == 25) return 'Rain'; // Sleet
+    if (iconCode == 26) return 'Rain'; // Freezing Rain
+    if (iconCode == 29) return 'Rain'; // Rain and Snow
+    if (iconCode == 30) return 'Clear'; // Hot
+    if (iconCode == 31) return 'Clear'; // Cold
+    if (iconCode == 32) return 'Squall'; // Windy
+    if (iconCode <= 35) return 'Clear'; // Night versions
+    if (iconCode == 36) return 'Haze';
+    if (iconCode <= 42) return 'Clouds';
+    if (iconCode == 43) return 'Snow';
+    if (iconCode == 44) return 'Snow';
     return 'Clear';
   }
 }

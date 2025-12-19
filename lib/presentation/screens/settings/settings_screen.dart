@@ -437,6 +437,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             vm,
             isAppDark,
           ),
+          const SizedBox(width: 8),
+          _buildProviderChip(
+            WeatherProvider.weatherCom,
+            'Weather.com',
+            Icons.language_rounded,
+            vm,
+            isAppDark,
+            isComingSoon: true,
+          ),
         ],
       ),
     );
@@ -447,8 +456,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String label,
     IconData icon,
     WeatherViewModel vm,
-    bool isAppDark,
-  ) {
+    bool isAppDark, {
+    bool isComingSoon = false,
+  }) {
     final isSelected = vm.provider == targetProvider;
 
     final unselectedBg = isAppDark
@@ -460,28 +470,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
         : Colors.black.withValues(alpha: 0.7);
 
     return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (val) {
-        if (val) {
-          vm.setWeatherProvider(targetProvider);
-        }
-      },
+      label: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          if (isComingSoon)
+            Text(
+              vm.lang == 'fa' ? 'به زودی' : 'Soon',
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+        ],
+      ),
+      selected: isSelected && !isComingSoon,
+      onSelected: isComingSoon
+          ? null
+          : (val) {
+              if (val) {
+                vm.setWeatherProvider(targetProvider);
+              }
+            },
       avatar: Icon(
         icon,
-        color: isSelected ? Colors.black : unselectedContent,
+        color: (isSelected && !isComingSoon) ? Colors.black : unselectedContent,
         size: 18,
       ),
       backgroundColor: unselectedBg,
       selectedColor: Colors.white,
+      disabledColor: unselectedBg.withValues(alpha: 0.5),
       labelStyle: TextStyle(
-        color: isSelected ? Colors.black : unselectedContent,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: (isSelected && !isComingSoon) ? Colors.black : unselectedContent,
+        fontWeight: (isSelected && !isComingSoon)
+            ? FontWeight.bold
+            : FontWeight.normal,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected
+          color: (isSelected && !isComingSoon)
               ? Colors.white
               : Colors.white.withValues(alpha: 0.15),
           width: 1,

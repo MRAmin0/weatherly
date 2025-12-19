@@ -24,6 +24,7 @@ class WeatherApiService implements BaseWeatherService {
   // ---------------------------------------------------------------------------
   // ۱. جستجوی شهر (Geocoding - OpenWeatherMap)
   // ---------------------------------------------------------------------------
+  @override
   Future<Map<String, dynamic>?> resolveCity(
     String query, {
     String lang = 'en',
@@ -33,6 +34,7 @@ class WeatherApiService implements BaseWeatherService {
     return results.first;
   }
 
+  @override
   Future<List<Map<String, dynamic>>> fetchCitySuggestions(
     String query, {
     int limit = 10,
@@ -89,6 +91,7 @@ class WeatherApiService implements BaseWeatherService {
   // ---------------------------------------------------------------------------
   // ۲. آب‌وهوای فعلی (Current Weather - /data/2.5/weather)
   // ---------------------------------------------------------------------------
+  @override
   Future<Map<String, dynamic>?> fetchCurrentWeather({
     double? lat,
     double? lon,
@@ -133,6 +136,7 @@ class WeatherApiService implements BaseWeatherService {
   // ---------------------------------------------------------------------------
   // ۳. پیش‌بینی ۵ روزه / ساعتی (5 day / 3h forecast - /data/2.5/forecast)
   // ---------------------------------------------------------------------------
+  @override
   Future<List<dynamic>> fetchForecast({
     required double lat,
     required double lon,
@@ -171,6 +175,7 @@ class WeatherApiService implements BaseWeatherService {
   // ---------------------------------------------------------------------------
   // ۴. پیش‌بینی ساعتی برای View جدید
   // ---------------------------------------------------------------------------
+  @override
   Future<HourlyForecastResponse?> fetchHourlyForecast({
     required double lat,
     required double lon,
@@ -222,6 +227,7 @@ class WeatherApiService implements BaseWeatherService {
   // ---------------------------------------------------------------------------
   // ۵. کیفیت هوا (Air Quality) - اصلاح شده
   // ---------------------------------------------------------------------------
+  @override
   Future<Map<String, dynamic>?> fetchAirQuality({
     required double lat,
     required double lon,

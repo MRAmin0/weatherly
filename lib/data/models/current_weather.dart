@@ -9,6 +9,8 @@ class CurrentWeather {
   final int humidity;
   final String main;
   final double feelsLike;
+  final double lat;
+  final double lon;
 
   CurrentWeather({
     required this.cityName,
@@ -18,6 +20,8 @@ class CurrentWeather {
     required this.humidity,
     required this.main,
     required this.feelsLike,
+    required this.lat,
+    required this.lon,
   });
 
   // Getters for UI compatibility
@@ -31,6 +35,14 @@ class CurrentWeather {
     final mainData = json['main'];
     final wind = json['wind'];
 
+    // Extract coordinates safely
+    double lat = 0.0;
+    double lon = 0.0;
+    if (json['coord'] != null) {
+      lat = (json['coord']['lat'] as num).toDouble();
+      lon = (json['coord']['lon'] as num).toDouble();
+    }
+
     return CurrentWeather(
       cityName: json['name'] ?? '',
       description: weather['description'] ?? '',
@@ -39,6 +51,8 @@ class CurrentWeather {
       feelsLike: (mainData['feels_like'] as num).toDouble(),
       humidity: (mainData['humidity'] as num).toInt(),
       windSpeed: (wind['speed'] as num).toDouble(),
+      lat: lat,
+      lon: lon,
     );
   }
 }

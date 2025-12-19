@@ -23,6 +23,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -30,12 +31,16 @@ class _SplashScreenState extends State<SplashScreen>
 
     _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 800),
     );
 
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeOutQuart,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOutQuart),
     );
 
     _fadeController.forward();
@@ -46,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _initializeApp() async {
     // 1. Minimum Splash Delay (to show logo)
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 1000));
 
     if (!mounted) return;
 
@@ -165,8 +170,8 @@ class _SplashScreenState extends State<SplashScreen>
           if (!kIsWeb)
             Positioned.fill(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
-                child: Container(color: Colors.white.op(0.06)),
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: Container(color: Colors.white.op(0.04)),
               ),
             )
           else
@@ -178,65 +183,71 @@ class _SplashScreenState extends State<SplashScreen>
           Center(
             child: FadeTransition(
               opacity: _fadeAnimation,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Glass Circle
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [Colors.white.op(0.22), Colors.white.op(0.10)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      border: Border.all(
-                        color: Colors.white.op(0.18),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.op(0.25),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Glass Circle
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.op(0.22),
+                            Colors.white.op(0.10),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                      ],
+                        border: Border.all(
+                          color: Colors.white.op(0.18),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.op(0.25),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.cloud_rounded,
+                        size: 60,
+                        color: Colors.white,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.cloud_rounded,
-                      size: 60,
-                      color: Colors.white,
+
+                    const SizedBox(height: 22),
+
+                    Text(
+                      "Weatherly",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 34,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                        shadows: [
+                          Shadow(color: Colors.black.op(0.32), blurRadius: 10),
+                        ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 22),
+                    const SizedBox(height: 8),
 
-                  Text(
-                    "Weatherly",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 34,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                      shadows: [
-                        Shadow(color: Colors.black.op(0.32), blurRadius: 10),
-                      ],
+                    Text(
+                      "Forecast • Air Quality • Live Weather",
+                      style: TextStyle(
+                        color: Colors.white.op(0.85),
+                        fontSize: 14,
+                        letterSpacing: 0.6,
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Text(
-                    "Forecast • Air Quality • Live Weather",
-                    style: TextStyle(
-                      color: Colors.white.op(0.85),
-                      fontSize: 14,
-                      letterSpacing: 0.6,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

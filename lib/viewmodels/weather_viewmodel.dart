@@ -14,7 +14,7 @@ import 'package:weatherly_app/data/services/background_service_export.dart';
 import 'package:weatherly_app/data/services/base_weather_service.dart';
 import 'package:weatherly_app/data/services/accuweather_service.dart';
 
-enum WeatherProvider { openWeather, accuWeather }
+enum WeatherProvider { openWeather, accuWeather, weatherCom }
 
 class WeatherViewModel extends ChangeNotifier {
   BaseWeatherService _api;
@@ -91,9 +91,10 @@ class WeatherViewModel extends ChangeNotifier {
     dailyNotificationMinute = prefs.getInt('dailyNotificationMinute') ?? 0;
 
     final providerStr = prefs.getString('weatherProvider') ?? 'openWeather';
-    provider = providerStr == 'accuWeather'
-        ? WeatherProvider.accuWeather
-        : WeatherProvider.openWeather;
+    provider = WeatherProvider.values.firstWhere(
+      (e) => e.name == providerStr,
+      orElse: () => WeatherProvider.openWeather,
+    );
 
     _updateApiService();
 
@@ -198,10 +199,20 @@ class WeatherViewModel extends ChangeNotifier {
 
   Future<void> setWeatherProvider(WeatherProvider newProvider) async {
     if (provider == newProvider) return;
+
+    // Save previous coordinates if available to ensure smooth transition
+    double? lastLat = currentWeather?.lat;
+    double? lastLon = currentWeather?.lon;
+
     provider = newProvider;
     await _savePref('weatherProvider', provider.name);
     _updateApiService();
-    await refresh();
+
+    if (lastLat != null && lastLon != null) {
+      await fetchWeatherByCoordinates(lastLat, lastLon);
+    } else {
+      await refresh();
+    }
   }
 
   void _updateApiService() {
@@ -370,11 +381,14 @@ class WeatherViewModel extends ChangeNotifier {
     error = null;
     _addRecent(location).ignore();
 
-    final coord = data['coord'];
-    final lat = (coord['lat'] as num).toDouble();
-    final lon = (coord['lon'] as num).toDouble();
+    final lat = data['coord']?['lat'] ?? 0.0;
+    final lon = data['coord']?['lon'] ?? 0.0;
 
-    await Future.wait([fetchAqi(lat, lon), fetchHourlyAndDaily(lat, lon)]);
+    await Future.wait([
+      fetchAqi(lat, lon),
+      fetchHourly(lat, lon),
+      fetchDaily(lat, lon),
+    ]);
 
     // Show smart notification after successful weather fetch
     await showSmartNotification();
@@ -382,61 +396,173 @@ class WeatherViewModel extends ChangeNotifier {
     _setLoading(false);
   }
 
-  Future<void> fetchHourlyAndDaily(double lat, double lon) async {
+  Future<void> fetchHourly(double lat, double lon) async {
+    try {
+      final response = await _api.fetchHourlyForecast(
+        lat: lat,
+        lon: lon,
+        lang: lang,
+      );
+      if (response == null || response.entries.isEmpty) {
+        hourly = [];
+        return;
+      }
+
+      hourlyOffset = response.timezoneOffsetSeconds;
+      final rawEntries = response.entries.map((item) {
+        return HourlyForecastEntry(
+          time: DateTime.parse(item['dt_txt'] as String),
+          temperature: (item['main']['temp'] as num?)?.toDouble() ?? 0.0,
+          weatherType: mapWeatherType(item['weather'][0]['main'] as String),
+        );
+      }).toList();
+
+      hourly = _interpolateHourlyData(rawEntries);
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) print('Hourly fetch error: $e');
+    }
+  }
+
+  List<HourlyForecastEntry> _interpolateHourlyData(
+    List<HourlyForecastEntry> raw,
+  ) {
+    if (raw.isEmpty) return [];
+    if (raw.length < 2) return raw;
+
+    final List<HourlyForecastEntry> interpolated = [];
+    final startTime = raw.first.time;
+
+    // We want exactly 24 points, one for each hour
+    for (int i = 0; i < 24; i++) {
+      final targetTime = startTime.add(Duration(hours: i));
+
+      // Find the two raw points between which targetTime falls
+      HourlyForecastEntry? before;
+      HourlyForecastEntry? after;
+
+      for (int j = 0; j < raw.length - 1; j++) {
+        if ((raw[j].time.isBefore(targetTime) ||
+                raw[j].time.isAtSameMomentAs(targetTime)) &&
+            (raw[j + 1].time.isAfter(targetTime))) {
+          before = raw[j];
+          after = raw[j + 1];
+          break;
+        }
+      }
+
+      if (targetTime.isAtSameMomentAs(raw.last.time)) {
+        interpolated.add(raw.last);
+      } else if (before != null && after != null) {
+        // Linear interpolation: y = y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+        final totalMinutes = after.time.difference(before.time).inMinutes;
+        final elapsedMinutes = targetTime.difference(before.time).inMinutes;
+        final ratio = elapsedMinutes / totalMinutes;
+
+        final interpolatedTemp =
+            before.temperature +
+            (after.temperature - before.temperature) * ratio;
+
+        interpolated.add(
+          HourlyForecastEntry(
+            time: targetTime,
+            temperature: interpolatedTemp,
+            weatherType: ratio < 0.5 ? before.weatherType : after.weatherType,
+          ),
+        );
+      } else if (targetTime.isBefore(raw.first.time)) {
+        interpolated.add(raw.first);
+      } else if (targetTime.isAfter(raw.last.time)) {
+        // If we need more hours than provided, just repeat last known (or we could extrapolate)
+        interpolated.add(
+          HourlyForecastEntry(
+            time: targetTime,
+            temperature: raw.last.temperature,
+            weatherType: raw.last.weatherType,
+          ),
+        );
+      } else {
+        // Exact match found or something else
+        final exact = raw.firstWhere(
+          (e) => e.time.isAtSameMomentAs(targetTime),
+          orElse: () => raw.last,
+        );
+        interpolated.add(exact);
+      }
+    }
+
+    return interpolated;
+  }
+
+  Future<void> fetchDaily(double lat, double lon) async {
     try {
       final rawList = await _api.fetchForecast(lat: lat, lon: lon, lang: lang);
 
       if (rawList.isEmpty) {
-        hourly = [];
         daily5 = [];
         notifyListeners();
         return;
       }
 
-      hourlyOffset = 0;
-      hourly = rawList.take(8).map((item) {
-        final map = item as Map<String, dynamic>;
-        return HourlyForecastEntry(
-          time: DateTime.parse(map['dt_txt'] as String),
-          temperature: (map['main']['temp'] as num?)?.toDouble() ?? 0.0,
-          weatherType: mapWeatherType(map['weather'][0]['main'] as String),
-        );
-      }).toList();
+      // If it's a long list (like OWM), we filter it.
+      // If it's already a daily list (like AccuWeather), we take it as is.
+      final bool isAlreadyDaily = rawList.length <= 7;
 
-      final Map<String, Map<String, dynamic>> dailyMap = {};
-      for (var item in rawList) {
-        final map = item as Map<String, dynamic>;
-        final dateStr = map['dt_txt'] as String;
-        final dayKey = dateStr.split(' ')[0];
+      if (isAlreadyDaily) {
+        daily5 = rawList.map((item) {
+          final m = item as Map<String, dynamic>;
+          return DailyForecastEntry(
+            date: DateTime.parse(m['dt_txt'] as String),
+            minTemp: (m['main']['temp_min'] as num?)?.toDouble() ?? 0.0,
+            maxTemp: (m['main']['temp_max'] as num?)?.toDouble() ?? 0.0,
+            humidity: (m['main']['humidity'] as num?)?.toInt() ?? 0,
+            windSpeed: (m['wind']['speed'] as num?)?.toDouble() ?? 0.0,
+            main: m['weather'][0]['main'] ?? 'Clear',
+            weatherType: mapWeatherType(m['weather'][0]['main'] as String),
+          );
+        }).toList();
+      } else {
+        final Map<String, Map<String, dynamic>> dailyMap = {};
+        for (var item in rawList) {
+          final map = item as Map<String, dynamic>;
+          final dateStr = map['dt_txt'] as String;
+          final dayKey = dateStr.split(' ')[0];
 
-        if (!dailyMap.containsKey(dayKey)) {
-          dailyMap[dayKey] = map;
-        } else if (dateStr.contains('12:00:00')) {
-          dailyMap[dayKey] = map;
+          if (!dailyMap.containsKey(dayKey)) {
+            dailyMap[dayKey] = map;
+          } else if (dateStr.contains('12:00:00')) {
+            dailyMap[dayKey] = map;
+          }
         }
-      }
 
-      daily5 = dailyMap.values.take(5).map((item) {
-        return DailyForecastEntry(
-          date: DateTime.parse(item['dt_txt'] as String),
-          minTemp: (item['main']['temp_min'] as num?)?.toDouble() ?? 0.0,
-          maxTemp: (item['main']['temp_max'] as num?)?.toDouble() ?? 0.0,
-          humidity: (item['main']['humidity'] as num?)?.toInt() ?? 0,
-          windSpeed: (item['wind']['speed'] as num?)?.toDouble() ?? 0.0,
-          main: item['weather'][0]['main'] ?? 'Clear',
-          weatherType: mapWeatherType(item['weather'][0]['main'] as String),
-        );
-      }).toList();
+        daily5 = dailyMap.values.take(5).map((item) {
+          return DailyForecastEntry(
+            date: DateTime.parse(item['dt_txt'] as String),
+            minTemp: (item['main']['temp_min'] as num?)?.toDouble() ?? 0.0,
+            maxTemp: (item['main']['temp_max'] as num?)?.toDouble() ?? 0.0,
+            humidity: (item['main']['humidity'] as num?)?.toInt() ?? 0,
+            windSpeed: (item['wind']['speed'] as num?)?.toDouble() ?? 0.0,
+            main: item['weather'][0]['main'] ?? 'Clear',
+            weatherType: mapWeatherType(item['weather'][0]['main'] as String),
+          );
+        }).toList();
+      }
 
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) print('Forecast fetch error: $e');
+      if (kDebugMode) print('Daily fetch error: $e');
     }
   }
 
   Future<void> fetchAqi(double lat, double lon) async {
     try {
-      final result = await _api.fetchAirQuality(lat: lat, lon: lon);
+      var result = await _api.fetchAirQuality(lat: lat, lon: lon);
+
+      // Fallback to OpenWeatherMap for AQI if current provider fails/returns null
+      if (result == null && provider != WeatherProvider.openWeather) {
+        result = await WeatherApiService().fetchAirQuality(lat: lat, lon: lon);
+      }
+
       if (result != null &&
           result['list'] is List &&
           (result['list'] as List).isNotEmpty) {
@@ -562,10 +688,10 @@ class WeatherViewModel extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
-    if (location.isEmpty) {
-      await fetchByDefaultCity();
+    if (currentWeather != null) {
+      await fetchWeatherByCoordinates(currentWeather!.lat, currentWeather!.lon);
     } else {
-      await fetchWeatherByCity(location);
+      await fetchWeatherByCity(defaultCity);
     }
   }
 
