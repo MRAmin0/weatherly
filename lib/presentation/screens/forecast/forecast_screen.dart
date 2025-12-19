@@ -1,13 +1,14 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
 import 'package:weatherly_app/presentation/widgets/charts/temperature_chart.dart';
-import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
 
 import 'widgets/location_header.dart';
 import 'widgets/daily_list.dart';
+import 'widgets/hourly_list.dart';
 
 class ForecastScreen extends StatefulWidget {
   const ForecastScreen({super.key});
@@ -28,23 +29,17 @@ class _ForecastScreenState extends State<ForecastScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     return Consumer<WeatherViewModel>(
       builder: (context, vm, _) {
-        final isDark = theme.brightness == Brightness.dark;
-
-        final textColor = isDark ? Colors.white : Colors.black87;
-        final subTextColor = isDark
-            ? Colors.white.withAlpha(179)
-            : Colors.black.withAlpha(153);
-
         final isPersian = vm.lang == 'fa';
 
         Widget content;
 
         if (vm.isLoading && vm.location.isEmpty) {
-          content = Center(child: CircularProgressIndicator(color: textColor));
+          content = const Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          );
         } else if (vm.error != null) {
           content = Center(
             child: Padding(
@@ -52,8 +47,8 @@ class _ForecastScreenState extends State<ForecastScreen> {
               child: Text(
                 vm.error!,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: theme.colorScheme.error,
+                style: const TextStyle(
+                  color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -67,14 +62,18 @@ class _ForecastScreenState extends State<ForecastScreen> {
               child: Text(
                 l10n.forecastSearchPrompt,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: textColor),
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           );
         } else {
           content = RefreshIndicator(
-            color: textColor,
-            backgroundColor: textColor.withAlpha(40),
+            color: Colors.white,
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
             onRefresh: vm.refresh,
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -85,82 +84,168 @@ class _ForecastScreenState extends State<ForecastScreen> {
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Custom AppBar area matching HomePage
-                          SafeArea(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Center(
-                                child: Text(
-                                  l10n.forecast,
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 22,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SafeArea(
+                          bottom: false,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              l10n.forecast,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: LocationHeader(
+                            city: vm.location,
+                            subtitle: l10n.localeName == 'fa'
+                                ? "پیش‌بینی ۵ روز آینده"
+                                : "Next 5 Days Forecast",
+                            isDark: true,
+                            textColor: Colors.white,
+                            subTextColor: Colors.white.withValues(alpha: 0.7),
+                          ),
+                        ),
+
+                        if (vm.hourly.isNotEmpty) ...[
+                          const SizedBox(height: 32),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Align(
+                              alignment: isPersian
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: Text(
+                                l10n.localeName == 'fa'
+                                    ? "ساعات آینده"
+                                    : "Hourly Forecast",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: HourlyList(
+                              items: vm.hourly,
+                              isPersian: isPersian,
+                              useCelsius: vm.useCelsius,
+                              isDark: true,
+                              textColor: Colors.white,
+                              subTextColor: Colors.white.withValues(alpha: 0.7),
+                              offset: 0, // Or appropriate offset if available
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(35),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: 10,
+                                  sigmaY: 10,
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    24,
+                                    16,
+                                    16,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(35),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 8,
+                                          right: 8,
+                                          bottom: 16,
+                                        ),
+                                        child: Text(
+                                          l10n.localeName == 'fa'
+                                              ? "نمودار دما"
+                                              : "Temperature Chart",
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.8,
+                                            ),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      TemperatureChart(
+                                        hourlyData: vm.hourly,
+                                        useCelsius: vm.useCelsius,
+                                        isPersian: isPersian,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-
-                          LocationHeader(
-                            city: vm.location,
-                            subtitle: l10n.localeName == 'fa'
-                                ? "پیش‌بینی ۵ روز آینده"
-                                : "Next 5 Days Forecast",
-                            isDark: isDark,
-                            textColor: textColor,
-                            subTextColor: subTextColor,
-                          ),
-                          const SizedBox(height: 24),
-
-                          if (vm.hourly.isNotEmpty) ...[
-                            TemperatureChart(
-                              hourlyData: vm.hourly,
-                              useCelsius: vm.useCelsius,
-                              isPersian: isPersian,
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-
-                          if (vm.daily5.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.dailyForecastTitle,
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: textColor,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  DailyList(
-                                    items: vm.daily5,
-                                    isPersian: isPersian,
-                                    useCelsius: vm.useCelsius,
-                                    isDark: isDark,
-                                    textColor: textColor,
-                                    subTextColor: subTextColor,
-                                    langCode: vm.lang,
-                                    aqiScore: vm.calculatedAqiScore,
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                          const SizedBox(height: 20),
                         ],
-                      ),
+
+                        if (vm.daily5.isNotEmpty) ...[
+                          const SizedBox(height: 32),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.dailyForecastTitle,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                DailyList(
+                                  items: vm.daily5,
+                                  isPersian: isPersian,
+                                  useCelsius: vm.useCelsius,
+                                  isDark: true,
+                                  textColor: Colors.white,
+                                  subTextColor: Colors.white.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                  langCode: vm.lang,
+                                  aqiScore: vm.calculatedAqiScore,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        const SizedBox(height: 48),
+                      ],
                     ),
                   ),
                 );
@@ -169,10 +254,7 @@ class _ForecastScreenState extends State<ForecastScreen> {
           );
         }
 
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Stack(children: [const AppBackground(), content]),
-        );
+        return Scaffold(backgroundColor: Colors.transparent, body: content);
       },
     );
   }

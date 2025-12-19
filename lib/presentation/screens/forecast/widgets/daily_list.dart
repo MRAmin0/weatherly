@@ -8,7 +8,6 @@ import '../../../../presentation/widgets/common/glass_container.dart';
 import 'day_detail_sheet.dart';
 
 class DailyList extends StatelessWidget {
-  /// vm.daily5 را همین‌طور پاس بده
   final List<dynamic> items;
   final bool isPersian;
   final bool useCelsius;
@@ -35,9 +34,10 @@ class DailyList extends StatelessWidget {
     final formatter = DateFormat('EEEE', langCode);
 
     return SizedBox(
-      height: 170,
+      height: 180,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         itemCount: items.length,
         itemBuilder: (context, i) {
           final day = items[i];
@@ -61,15 +61,16 @@ class DailyList extends StatelessWidget {
           final minText = '${minDisplayed.toStringAsFixed(0)}$unitSymbol';
 
           final description = translateWeatherDescription(main, lang: langCode);
-
           final iconPath = weatherIconAsset(main);
 
           return Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),
             child: SizedBox(
-              width: 115,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
+              width: 125,
+              child: GlassContainer(
+                isDark: true, // Force white styles
+                borderRadius: 25,
+                padding: EdgeInsets.zero,
                 onTap: () {
                   showDayDetailSheet(
                     context: context,
@@ -81,11 +82,9 @@ class DailyList extends StatelessWidget {
                     isPersian: isPersian,
                   );
                 },
-                child: GlassContainer(
-                  isDark: isDark,
-                  borderRadius: 20,
+                child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 14,
+                    vertical: 16,
                     horizontal: 8,
                   ),
                   child: Column(
@@ -94,50 +93,62 @@ class DailyList extends StatelessWidget {
                       Text(
                         titleText,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: textColor,
+                          color: Colors.white,
+                          fontSize: 14,
                         ),
                       ),
-                      SvgPicture.asset(iconPath, width: 42, height: 42),
+                      SvgPicture.asset(iconPath, width: 48, height: 48),
                       Text(
                         description,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: subTextColor, fontSize: 12),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Column(
                         children: [
-                          const Icon(
-                            Icons.arrow_upward_rounded,
-                            size: 16,
-                            color: Colors.orangeAccent,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.arrow_upward_rounded,
+                                size: 14,
+                                color: Colors.orangeAccent,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isPersian ? toPersianDigits(maxText) : maxText,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isPersian ? toPersianDigits(maxText) : maxText,
-                            style: TextStyle(
-                              color: textColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.arrow_downward_rounded,
-                            size: 16,
-                            color: Colors.lightBlueAccent,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isPersian ? toPersianDigits(minText) : minText,
-                            style: TextStyle(color: subTextColor, fontSize: 13),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.arrow_downward_rounded,
+                                size: 14,
+                                color: Colors.lightBlueAccent,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isPersian ? toPersianDigits(minText) : minText,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

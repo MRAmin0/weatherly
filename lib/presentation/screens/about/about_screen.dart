@@ -8,8 +8,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
-import 'package:weatherly_app/presentation/widgets/common/app_background.dart';
+import 'package:weatherly_app/presentation/widgets/home/weather_background_wrapper.dart';
 import 'package:weatherly_app/presentation/widgets/common/glass_container.dart';
+import 'package:weatherly_app/data/models/weather_type.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -98,243 +99,222 @@ ISSUE DESCRIPTION
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final vm = context.watch<WeatherViewModel>();
     final l10n = AppLocalizations.of(context)!;
-    context.watch<WeatherViewModel>();
 
-    final isDark = theme.brightness == Brightness.dark;
-    final textColor = theme.colorScheme.onSurface;
-    final subTextColor = theme.colorScheme.onSurfaceVariant;
+    final weatherType = vm.currentWeather?.weatherType ?? WeatherType.unknown;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: Text(
-          l10n.aboutApp,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
+    return WeatherBackgroundWrapper(
+      weatherType: weatherType,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Text(
+            l10n.aboutApp,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
+          centerTitle: true,
+          backgroundColor: Colors.black.withValues(alpha: 0.1),
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        centerTitle: true,
-        backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(
-          alpha: 0.8,
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const SizedBox(height: 16),
+
+            Center(
+              child: GlassContainer(
+                isDark: true,
+                borderRadius: 100,
+                padding: const EdgeInsets.all(24),
+                child: const Icon(
+                  Icons.cloud_circle_rounded,
+                  size: 60,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            GlassContainer(
+              isDark: true,
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                l10n.appDescription,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  height: 1.4,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            GlassContainer(
+              isDark: true,
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(
+                      Icons.info_outline,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      l10n.appVersion,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    subtitle: FutureBuilder<String>(
+                      future: _loadVersion(l10n),
+                      builder: (context, snap) {
+                        return Text(
+                          snap.data ?? l10n.readingVersion,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  _divider(),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.history_outlined,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      l10n.changelog,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                    onTap: () => _showChangelogDialog(context, l10n, theme),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            GlassContainer(
+              isDark: true,
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(
+                      Icons.person_outline,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      l10n.developer,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    subtitle: Text(
+                      l10n.developerName,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    onTap: () => _openUrl(githubProfile),
+                  ),
+                  _divider(),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.email_outlined,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      l10n.contactViaEmail,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    onTap: () => _sendEmail(developerEmail),
+                  ),
+                  _divider(),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.code_outlined,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      l10n.projectOnGithub,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    onTap: () => _openUrl(githubProject),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            GlassContainer(
+              isDark: true,
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                leading: const Icon(
+                  Icons.bug_report_outlined,
+                  color: Colors.orangeAccent,
+                ),
+                title: Text(
+                  l10n.reportAnIssue,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                onTap: () => _reportIssue(context),
+              ),
+            ),
+
+            const SizedBox(height: 28),
+            Center(
+              child: Text(
+                "Made with ❤️ in Flutter",
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
-        elevation: 0,
-        iconTheme: IconThemeData(color: theme.colorScheme.primary),
-      ),
-      body: Stack(
-        children: [
-          const AppBackground(),
-
-          ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              const SizedBox(height: 16),
-
-              Center(
-                child: GlassContainer(
-                  isDark: isDark,
-                  borderRadius: 100,
-                  padding: const EdgeInsets.all(24),
-                  child: Icon(
-                    Icons.cloud_circle_rounded,
-                    size: 60,
-                    color: isDark ? Colors.white : theme.colorScheme.primary,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              GlassContainer(
-                isDark: isDark,
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  l10n.appDescription,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: textColor,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              GlassContainer(
-                isDark: isDark,
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        Icons.info_outline,
-                        color: isDark
-                            ? Colors.white
-                            : theme.colorScheme.primary,
-                      ),
-                      title: Text(
-                        l10n.appVersion,
-                        style: TextStyle(color: textColor),
-                      ),
-                      subtitle: FutureBuilder<String>(
-                        future: _loadVersion(l10n),
-                        builder: (context, snap) {
-                          return Text(
-                            snap.data ?? l10n.readingVersion,
-                            style: TextStyle(color: subTextColor),
-                          );
-                        },
-                      ),
-                    ),
-                    _divider(theme, isDark),
-                    ListTile(
-                      leading: Icon(
-                        Icons.history_outlined,
-                        color: isDark
-                            ? Colors.white
-                            : theme.colorScheme.primary,
-                      ),
-                      title: Text(
-                        l10n.changelog,
-                        style: TextStyle(color: textColor),
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: subTextColor,
-                      ),
-                      onTap: () =>
-                          _showChangelogDialog(context, l10n, theme, isDark),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              GlassContainer(
-                isDark: isDark,
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        Icons.person_outline,
-                        color: isDark
-                            ? Colors.white
-                            : theme.colorScheme.primary,
-                      ),
-                      title: Text(
-                        l10n.developer,
-                        style: TextStyle(color: textColor),
-                      ),
-                      subtitle: Text(
-                        l10n.developerName,
-                        style: TextStyle(color: subTextColor),
-                      ),
-                      onTap: () => _openUrl(githubProfile),
-                    ),
-                    _divider(theme, isDark),
-                    ListTile(
-                      leading: Icon(
-                        Icons.email_outlined,
-                        color: isDark
-                            ? Colors.white
-                            : theme.colorScheme.primary,
-                      ),
-                      title: Text(
-                        l10n.contactViaEmail,
-                        style: TextStyle(color: textColor),
-                      ),
-                      onTap: () => _sendEmail(developerEmail),
-                    ),
-                    _divider(theme, isDark),
-                    ListTile(
-                      leading: Icon(
-                        Icons.code_outlined,
-                        color: isDark
-                            ? Colors.white
-                            : theme.colorScheme.primary,
-                      ),
-                      title: Text(
-                        l10n.projectOnGithub,
-                        style: TextStyle(color: textColor),
-                      ),
-                      onTap: () => _openUrl(githubProject),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              GlassContainer(
-                isDark: isDark,
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.bug_report_outlined,
-                    color: Colors.orangeAccent,
-                  ),
-                  title: Text(
-                    l10n.reportAnIssue,
-                    style: TextStyle(color: textColor),
-                  ),
-                  onTap: () => _reportIssue(context),
-                ),
-              ),
-
-              const SizedBox(height: 28),
-              Center(
-                child: Text(
-                  "Made with ❤️ in Flutter",
-                  style: TextStyle(color: subTextColor, fontSize: 12),
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ],
       ),
     );
   }
 
-  Widget _divider(ThemeData theme, bool isDark) {
-    return Divider(
-      height: 1,
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.16)
-          : theme.colorScheme.outlineVariant,
-    );
+  Widget _divider() {
+    return Divider(height: 1, color: Colors.white.withValues(alpha: 0.16));
   }
 
   void _showChangelogDialog(
     BuildContext context,
     AppLocalizations l10n,
     ThemeData theme,
-    bool isDark,
   ) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.22),
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (context) {
         final dialog = AlertDialog(
-          backgroundColor: isDark
-              ? Colors.black.withValues(alpha: 0.65)
-              : theme.colorScheme.surface,
+          backgroundColor: Colors.black.withValues(alpha: 0.8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.20)
-                  : theme.colorScheme.outlineVariant,
-            ),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.20)),
           ),
           title: Text(
             l10n.versionHistory,
-            style: TextStyle(
-              color: theme.colorScheme.onSurface,
+            style: const TextStyle(
+              color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -359,7 +339,7 @@ ISSUE DESCRIPTION
 • رفع باگ‌ها و بهبود پایداری
 ''',
               style: TextStyle(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: Colors.white.withValues(alpha: 0.7),
                 height: 1.4,
               ),
             ),
@@ -372,6 +352,7 @@ ISSUE DESCRIPTION
                 style: TextStyle(
                   color: theme.colorScheme.primary,
                   fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

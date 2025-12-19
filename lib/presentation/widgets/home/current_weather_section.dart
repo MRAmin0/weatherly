@@ -36,19 +36,19 @@ class CurrentWeatherSection extends StatelessWidget {
     return Column(
       children: [
         MainWeatherIcon(weatherType: current.weatherType, size: 160),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         Text(
           "$tempString$unit",
           style: theme.textTheme.displayLarge?.copyWith(
             fontWeight: FontWeight.w900,
-            fontSize: 90,
+            fontSize: 96,
             height: 1.0,
-            color: theme.colorScheme.onSurface,
+            color: Colors.white,
             shadows: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 15,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
@@ -64,38 +64,21 @@ class CurrentWeatherSection extends StatelessWidget {
           unit,
         ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
           current.cityName,
           style: theme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
+            color: Colors.white.withValues(alpha: 0.95),
+            letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.2),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Text(
-            translateWeatherDescription(current.main, lang: viewModel.lang),
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurface,
-              fontWeight: FontWeight.w500,
-            ),
+        const SizedBox(height: 8),
+        Text(
+          translateWeatherDescription(current.main, lang: viewModel.lang),
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: Colors.white.withValues(alpha: 0.8),
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -109,8 +92,6 @@ class CurrentWeatherSection extends StatelessWidget {
     bool isPersian,
     String unit,
   ) {
-    final theme = Theme.of(context);
-
     final realFeelVal = useCelsius ? feelsLike : (feelsLike * 9 / 5) + 32;
     final realFeelStr = isPersian
         ? toPersianDigits(realFeelVal.toStringAsFixed(0))
@@ -118,17 +99,16 @@ class CurrentWeatherSection extends StatelessWidget {
 
     final label = isPersian ? "حس واقعی" : "Real Feel";
 
-    // Use LTR Mark (\u200E) to force the number and unit to display correctly in RTL
     final formattedStr = isPersian
         ? "\u200E$realFeelStr$unit"
         : "$realFeelStr$unit";
 
     return Text(
       "$label: $formattedStr",
-      style: theme.textTheme.bodyLarge?.copyWith(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w500,
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+        color: Colors.white.withValues(alpha: 0.7),
       ),
     );
   }

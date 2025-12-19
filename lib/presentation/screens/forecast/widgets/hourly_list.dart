@@ -6,7 +6,6 @@ import '../../../../core/utils/weather_formatters.dart';
 import '../../../../core/utils/city_utils.dart';
 
 class HourlyList extends StatelessWidget {
-  /// vm.hourly را همین‌طور پاس بده (لیست هر مدلی که هست)
   final List<dynamic> items;
   final bool isPersian;
   final bool useCelsius;
@@ -29,9 +28,10 @@ class HourlyList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 130,
+      height: 140,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         itemCount: items.length,
         itemBuilder: (context, i) {
           final hour = items[i];
@@ -49,30 +49,31 @@ class HourlyList extends StatelessWidget {
           return Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),
             child: GlassContainer(
-              isDark: isDark,
-              borderRadius: 16,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              isDark: true, // Force white styles
+              borderRadius: 25,
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
               child: SizedBox(
-                width:
-                    60, // Keep fixed width for alignment within the glass container
+                width: 65,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       isPersian ? toPersianDigits(time) : time,
-                      style: TextStyle(
-                        color: textColor,
+                      style: const TextStyle(
+                        color: Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SvgPicture.asset(iconPath, width: 32, height: 32),
+                    const SizedBox(height: 8),
+                    SvgPicture.asset(iconPath, width: 36, height: 36),
+                    const SizedBox(height: 8),
                     Text(
                       isPersian ? toPersianDigits(tempText) : tempText,
-                      style: TextStyle(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
                       ),
                     ),
                   ],

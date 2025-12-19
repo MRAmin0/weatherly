@@ -1,5 +1,3 @@
-// lib/widgets/charts/temperature_chart.dart
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -35,24 +33,9 @@ class TemperatureChart extends StatelessWidget {
     final minY = spots.map((e) => e.y).reduce((a, b) => a < b ? a : b);
     final maxY = spots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
 
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final textColor = Theme.of(context).colorScheme.onSurface;
-
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
-      height: 300,
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
+      height: 280,
       width: double.infinity,
       child: LineChart(
         LineChartData(
@@ -74,7 +57,7 @@ class TemperatureChart extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 90,
+                reservedSize: 85,
                 interval: 1,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
@@ -91,10 +74,9 @@ class TemperatureChart extends StatelessWidget {
                     weatherTypeToApiName(item.weatherType),
                   );
 
-                  // Temperature with unit
                   final rawTemp = item.temperature;
                   final temp = useCelsius ? rawTemp : (rawTemp * 9 / 5) + 32;
-                  final unit = useCelsius ? '°C' : '°F';
+                  final unit = useCelsius ? '°' : '°';
                   final tempText = "${temp.toStringAsFixed(0)}$unit";
                   final tempLabel = isPersian
                       ? toPersianDigits(tempText)
@@ -109,18 +91,18 @@ class TemperatureChart extends StatelessWidget {
                         Text(
                           timeLabel,
                           style: TextStyle(
-                            color: textColor.withValues(alpha: 0.8),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                            color: Colors.white.withValues(alpha: 0.6),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        SvgPicture.asset(iconPath, width: 28, height: 28),
-                        const SizedBox(height: 2),
+                        SvgPicture.asset(iconPath, width: 24, height: 24),
+                        const SizedBox(height: 4),
                         Text(
                           tempLabel,
-                          style: TextStyle(
-                            color: textColor,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
                           ),
@@ -134,26 +116,12 @@ class TemperatureChart extends StatelessWidget {
           ),
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
-          betweenBarsData: [
-            BetweenBarsData(
-              fromIndex: 0,
-              toIndex: 0,
-              gradient: LinearGradient(
-                colors: [
-                  primaryColor.withValues(alpha: 0.5),
-                  primaryColor.withValues(alpha: 0.0),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ],
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
               getTooltipColor: (touchedSpot) =>
-                  Colors.black.withValues(alpha: 0.8),
-              tooltipRoundedRadius: 12,
-              tooltipPadding: const EdgeInsets.all(10),
+                  Colors.white.withValues(alpha: 0.2),
+              tooltipRoundedRadius: 15,
+              tooltipPadding: const EdgeInsets.all(12),
               tooltipMargin: 8,
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((LineBarSpot touchedSpot) {
@@ -161,8 +129,10 @@ class TemperatureChart extends StatelessWidget {
                   final time = formatLocalHour(item.time, 0);
                   final timeStr = isPersian ? toPersianDigits(time) : time;
 
-                  final temp = touchedSpot.y.toStringAsFixed(0);
-                  final tempStr = isPersian ? toPersianDigits(temp) : temp;
+                  final tempValue = touchedSpot.y.toStringAsFixed(0);
+                  final tempStr = isPersian
+                      ? toPersianDigits(tempValue)
+                      : tempValue;
                   final unit = useCelsius ? '°C' : '°F';
 
                   return LineTooltipItem(
@@ -170,7 +140,7 @@ class TemperatureChart extends StatelessWidget {
                     const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 14,
                     ),
                   );
                 }).toList();
@@ -181,6 +151,7 @@ class TemperatureChart extends StatelessWidget {
             LineChartBarData(
               spots: spots,
               isCurved: true,
+              barWidth: 3,
               dotData: FlDotData(
                 show: true,
                 getDotPainter: (spot, percent, barData, index) {
@@ -188,14 +159,24 @@ class TemperatureChart extends StatelessWidget {
                     radius: 4,
                     color: Colors.white,
                     strokeWidth: 2,
-                    strokeColor: primaryColor,
+                    strokeColor: Colors.blueAccent,
                   );
                 },
               ),
               gradient: const LinearGradient(
                 colors: [Colors.white, Colors.white],
               ),
-              barWidth: 3,
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.2),
+                    Colors.white.withValues(alpha: 0.0),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
             ),
           ],
         ),

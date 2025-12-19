@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -29,7 +30,6 @@ class _HomePageState extends State<HomePage> {
   late final FocusNode _searchFocusNode;
 
   bool _showSearchOverlay = false;
-  double _titleOpacity = 1.0;
 
   late final VoidCallback _focusListener;
 
@@ -40,8 +40,6 @@ class _HomePageState extends State<HomePage> {
     _scrollController = ScrollController();
     _searchController = TextEditingController();
     _searchFocusNode = FocusNode();
-
-    _scrollController.addListener(_onScroll);
 
     _focusListener = () {
       widget.onSearchFocusChange(_searchFocusNode.hasFocus);
@@ -55,20 +53,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onScroll() {
-    final offset = _scrollController.offset;
-    // Fade out from 0 to 100 pixels of scroll
-    final newOpacity = (1.0 - (offset / 100)).clamp(0.0, 1.0);
-    if (newOpacity != _titleOpacity) {
-      setState(() {
-        _titleOpacity = newOpacity;
-      });
-    }
-  }
-
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _searchController.dispose();
     _searchFocusNode.removeListener(_focusListener);
@@ -81,11 +67,20 @@ class _HomePageState extends State<HomePage> {
     if (!online && mounted) {
       showDialog(
         context: context,
-        builder: (context) => const AlertDialog(
-          title: Text("عدم اتصال به اینترنت"),
-          content: Text(
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text("عدم اتصال به اینترنت"),
+          content: const Text(
             "برای استفاده از برنامه، اتصال اینترنت خود را بررسی کنید.",
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("باشه"),
+            ),
+          ],
         ),
       );
     }
@@ -120,12 +115,13 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: Colors.transparent, // Important for parent background
       drawer: WeatherDrawer(vm: vm, l10n: l10n),
       body: Stack(
         children: [
           RefreshIndicator(
-            color: Theme.of(context).colorScheme.primary,
-            backgroundColor: Theme.of(context).colorScheme.surface,
+            color: Colors.white,
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
             onRefresh: vm.refresh,
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -139,44 +135,34 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Column(
                         children: [
-                          // Custom AppBar area (formerly SliverAppBar)
                           SafeArea(
+                            bottom: false,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Row(
                                 children: [
-                                  // --- تغییر: دکمه منو اومد اول (سمت راست در فارسی) ---
                                   IconButton(
                                     icon: const Icon(Icons.menu),
+                                    color: Colors.white,
                                     onPressed: () {
                                       _scaffoldKey.currentState?.openDrawer();
                                     },
                                   ),
-
                                   Expanded(
                                     child: Center(
-                                      child: AnimatedOpacity(
-                                        duration: const Duration(
-                                          milliseconds: 150,
-                                        ),
-                                        opacity: 1.0, // Always visible now
-                                        child: Text(
-                                          l10n.localeName == 'fa'
-                                              ? 'خانه'
-                                              : 'Home',
-                                          style: TextStyle(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 22,
-                                          ),
+                                      child: Text(
+                                        l10n.localeName == 'fa'
+                                            ? 'خانه'
+                                            : 'Home',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 22,
+                                          letterSpacing: 1.2,
                                         ),
                                       ),
                                     ),
                                   ),
-
-                                  // --- تغییر: فضای خالی رفت آخر (برای قرینه شدن) ---
                                   const SizedBox(width: 48),
                                 ],
                               ),
@@ -202,18 +188,15 @@ class _HomePageState extends State<HomePage> {
                               const SizedBox(
                                 height: 400,
                                 child: Center(
-                                  child: CircularProgressIndicator(),
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
                                 ),
                               )
                             else
-                              // Use simple container, logic matches original but no Expanded needed if content is small
-                              // or use Spacer to balance?
-                              // The user wants it to "Fit in one page".
-                              // We will let it take natural size.
                               _buildWeatherContent(context, vm, l10n),
                           ],
-                          // Add some bottom padding for safety but not 120
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 40),
                         ],
                       ),
                     ),
@@ -225,13 +208,14 @@ class _HomePageState extends State<HomePage> {
           if (_showSearchOverlay)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(
-                  0.7,
-                ), // Slightly darker for better contrast
-                child: SearchingRadar(
-                  message: l10n.localeName == 'fa'
-                      ? 'در حال پیدا کردن ${vm.location.isEmpty ? 'شهر' : vm.location}...'
-                      : 'Finding ${vm.location.isEmpty ? 'City' : vm.location}...',
+                color: Colors.black.withValues(alpha: 0.4),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: SearchingRadar(
+                    message: l10n.localeName == 'fa'
+                        ? 'در حال پیدا کردن ${vm.location.isEmpty ? 'شهر' : vm.location}...'
+                        : 'Finding ${vm.location.isEmpty ? 'City' : vm.location}...',
+                  ),
                 ),
               ),
             ),
@@ -249,10 +233,20 @@ class _HomePageState extends State<HomePage> {
       return Padding(
         padding: const EdgeInsets.only(top: 60),
         child: Center(
-          child: Text(
-            vm.error!,
-            style: const TextStyle(color: Colors.redAccent),
-            textAlign: TextAlign.center,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.redAccent.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              vm.error!,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       );
@@ -261,15 +255,24 @@ class _HomePageState extends State<HomePage> {
     if (vm.location.isEmpty && vm.currentWeather == null) {
       return Padding(
         padding: const EdgeInsets.only(top: 60),
-        child: Center(
-          child: Text(
-            l10n.startBySearching,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 16,
+        child: Column(
+          children: [
+            Icon(
+              Icons.wb_sunny_outlined,
+              size: 80,
+              color: Colors.white.withValues(alpha: 0.4),
             ),
-            textAlign: TextAlign.center,
-          ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.startBySearching,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       );
     }
@@ -278,41 +281,44 @@ class _HomePageState extends State<HomePage> {
       return const Center(
         child: Padding(
           padding: EdgeInsets.only(top: 80),
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(color: Colors.white),
         ),
       );
     }
 
-    final theme = Theme.of(context);
-    final child = Column(
-      children: [
-        CurrentWeatherSection(viewModel: vm, l10n: l10n),
-        const SizedBox(height: 18),
-        Divider(color: theme.colorScheme.outline.withOpacity(0.2)),
-        const SizedBox(height: 18),
-        DetailsRow(viewModel: vm, l10n: l10n),
-      ],
-    );
-
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.2),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(35),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(35),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.2),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-        ],
+          child: Column(
+            children: [
+              CurrentWeatherSection(viewModel: vm, l10n: l10n),
+              const SizedBox(height: 24),
+              Divider(color: Colors.white.withValues(alpha: 0.2)),
+              const SizedBox(height: 24),
+              DetailsRow(viewModel: vm, l10n: l10n),
+            ],
+          ),
+        ),
       ),
-      child: child,
     );
   }
 }

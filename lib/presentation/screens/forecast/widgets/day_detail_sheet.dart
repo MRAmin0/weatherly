@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:weatherly_app/l10n/app_localizations.dart';
@@ -18,9 +18,7 @@ Future<void> showDayDetailSheet({
   required int aqi,
   required bool isPersian,
 }) async {
-  final theme = Theme.of(context);
   final l10n = AppLocalizations.of(context)!;
-  final isDark = theme.brightness == Brightness.dark;
 
   final humidityText = isPersian ? toPersianDigits("$humidity%") : "$humidity%";
 
@@ -33,72 +31,80 @@ Future<void> showDayDetailSheet({
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (context) {
       final content = DraggableScrollableSheet(
         initialChildSize: 0.6,
         minChildSize: 0.4,
-        maxChildSize: 0.9,
+        maxChildSize: 0.85,
+        expand: false,
         builder: (_, controller) {
-          final baseColor = isDark
-              ? Colors.black.withAlpha(200)
-              : theme.colorScheme.surface.withAlpha(235);
-
           return Container(
             decoration: BoxDecoration(
-              color: kIsWeb
-                  ? (isDark ? Colors.black : theme.colorScheme.surface)
-                  : baseColor,
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
+                top: Radius.circular(40),
               ),
               border: Border.all(
-                color: isDark
-                    ? Colors.white.withAlpha(40)
-                    : theme.dividerColor.withAlpha(60),
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1.5,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 30,
+                  offset: const Offset(0, -10),
+                ),
+              ],
             ),
             child: ListView(
               controller: controller,
               padding: const EdgeInsets.all(24),
               children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: theme.dividerColor.withAlpha(120),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                Center(
+                  child: Container(
+                    width: 50,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(3),
                     ),
-                    Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: theme.dividerColor.withAlpha(30),
-                          ),
-                          child: const Icon(Icons.close_rounded, size: 20),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        dayTitle,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
                 Text(
-                  "$dayTitle - $description",
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                  description,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
+
+                // Wrap legacy AirQualityCard or similar in glassy UI if needed,
+                // but let's assume it looks okay or we'll update it later.
                 AirQualityCard(aqi: aqi),
-                const SizedBox(height: 16),
+
+                const SizedBox(height: 24),
                 Row(
                   children: [
                     Expanded(
@@ -118,21 +124,31 @@ Future<void> showDayDetailSheet({
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
+
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
-                  child: OutlinedButton(
+                  height: 60,
+                  child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      side: BorderSide(
-                        color: theme.dividerColor.withAlpha(100),
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
                       ),
                     ),
-                    child: Text(l10n.localeName == 'fa' ? "بستن" : "Close"),
+                    child: Text(
+                      l10n.localeName == 'fa' ? "بستن" : "Close",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -141,10 +157,8 @@ Future<void> showDayDetailSheet({
         },
       );
 
-      if (kIsWeb) return content;
-
       return BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: content,
       );
     },

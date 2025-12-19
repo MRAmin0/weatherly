@@ -29,7 +29,7 @@ class DetailsRow extends StatelessWidget {
         : windSpeed.toStringAsFixed(1);
 
     final windVal = isPersian ? toPersianDigits(windValString) : windValString;
-    final windUnit = isPersian ? "km/h" : "km/h";
+    final windUnit = "km/h";
 
     // --- 3. تنظیمات کیفیت هوا ---
     final int aqiScore = viewModel.calculatedAqiScore;
@@ -43,15 +43,13 @@ class DetailsRow extends StatelessWidget {
       aqiStatusText = isPersian ? "سالم" : "Moderate";
       aqiColor = const Color(0xFFFFEB3B);
     } else if (aqiScore <= 150) {
-      aqiStatusText = isPersian
-          ? "ناسالم برای گروه‌های حساس"
-          : "Unhealthy for Sensitive Groups";
+      aqiStatusText = isPersian ? "ناسالم" : "Sensitive";
       aqiColor = const Color(0xFFFF9800);
     } else if (aqiScore <= 200) {
       aqiStatusText = isPersian ? "ناسالم" : "Unhealthy";
       aqiColor = const Color(0xFFF44336);
     } else if (aqiScore <= 300) {
-      aqiStatusText = isPersian ? "خیلی ناسالم" : "Very Unhealthy";
+      aqiStatusText = isPersian ? "خیلی ناسالم" : "V. Unhealthy";
       aqiColor = const Color(0xFF9C27B0);
     } else {
       aqiStatusText = isPersian ? "خطرناک" : "Hazardous";
@@ -76,7 +74,7 @@ class DetailsRow extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
 
         // --- کارت باد ---
         Expanded(
@@ -89,7 +87,7 @@ class DetailsRow extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
 
         // --- کارت کیفیت هوا ---
         Expanded(
@@ -116,82 +114,61 @@ class DetailsRow extends StatelessWidget {
     Color? subValueColor,
     bool isAqi = false,
   }) {
-    final theme = Theme.of(context);
-
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
+        color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-          width: 1.5,
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(height: 28, width: 28, child: Center(child: icon)),
+          const SizedBox(height: 12),
+
+          Text(
+            title,
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withValues(alpha: 0.6),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              mainValue,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 22,
+                height: 1.0,
+                color: isAqi ? subValueColor : Colors.white,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            subValue,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 10,
+              color: subValueColor ?? Colors.white.withValues(alpha: 0.5),
+            ),
           ),
         ],
-      ),
-      child: SizedBox(
-        height: 140,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 32, width: 32, child: Center(child: icon)),
-            const SizedBox(height: 8),
-
-            Text(
-              title,
-              maxLines: 1,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 12,
-                color: theme.textTheme.bodyMedium?.color?.withValues(
-                  alpha: 0.6,
-                ),
-              ),
-            ),
-
-            const Spacer(),
-
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                mainValue,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontSize: isAqi ? 22 : 24,
-                  height: 1.0,
-                  color: isAqi ? subValueColor : null,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 4),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2.0),
-              child: Text(
-                subValue,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: isAqi ? 10 : 12,
-                  height: 1.1,
-                  color:
-                      subValueColor ??
-                      theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
-                ),
-              ),
-            ),
-
-            const Spacer(),
-          ],
-        ),
       ),
     );
   }

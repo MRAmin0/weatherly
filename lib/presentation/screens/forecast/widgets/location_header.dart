@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'glass_box.dart';
+import '../../../../presentation/widgets/common/glass_container.dart';
 
 class LocationHeader extends StatelessWidget {
   final String city;
@@ -19,35 +19,44 @@ class LocationHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: GlassBox(
-          isDark: isDark,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const Icon(Icons.location_on, color: Colors.redAccent, size: 36),
-              const SizedBox(height: 8),
-              Text(
-                city,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: subTextColor),
+    return GlassContainer(
+      isDark: true, // Force white styles
+      borderRadius: 30,
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.location_on_rounded,
+            color: Colors.redAccent,
+            size: 40,
+            shadows: [
+              Shadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: Offset(0, 4),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 12),
+          Text(
+            city,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              fontSize: 28,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

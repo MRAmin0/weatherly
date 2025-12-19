@@ -1,10 +1,8 @@
 import 'dart:ui';
-import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
-import 'package:weatherly_app/presentation/widgets/common/glass_container.dart';
 
 class WeatherDrawer extends StatelessWidget {
   final WeatherViewModel vm;
@@ -14,88 +12,66 @@ class WeatherDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     final drawerContent = Container(
       decoration: BoxDecoration(
-        color: kIsWeb ? Colors.black.withValues(alpha: 0.8) : null,
-        gradient: kIsWeb
-            ? null
-            : LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.15),
-                  Colors.white.withValues(alpha: 0.05),
-                ],
-              ),
+        color: Colors.black.withValues(alpha: 0.2), // Darker base for drawer
         border: Border(
           left: isRtl
               ? BorderSide.none
               : BorderSide(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withValues(alpha: 0.1),
                   width: 1,
                 ),
           right: isRtl
-              ? BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 1)
+              ? BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 1)
               : BorderSide.none,
         ),
       ),
       child: Column(
         children: [
-          // --- GLASSMORPHIC HEADER ---
+          // --- HEADER ---
           Container(
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(
               24,
-              MediaQuery.of(context).padding.top + 20,
+              MediaQuery.of(context).padding.top + 24,
               24,
-              20,
+              24,
             ),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  theme.colorScheme.primary.withValues(alpha: 0.3),
-                  theme.colorScheme.primary.withValues(alpha: 0.1),
-                ],
-              ),
+              color: Colors.white.withValues(alpha: 0.05),
               border: Border(
                 bottom: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                GlassContainer(
-                  isDark: false, // Always light/white glass for header icon
+                Container(
                   padding: const EdgeInsets.all(12),
-                  borderRadius: 16,
-                  child: Icon(
-                    Icons.cloud_circle_rounded,
-                    size: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.cloud_queue_rounded,
+                    size: 32,
                     color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   l10n.weatherly,
-                  style: theme.textTheme.headlineMedium?.copyWith(
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.0,
                   ),
                 ),
               ],
@@ -105,21 +81,9 @@ class WeatherDrawer extends StatelessWidget {
           // --- LIST ---
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(vertical: 16),
               children: [
-                // ---------------- 1. PINNED SECTION ----------------
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(28, 24, 28, 12),
-                  child: Text(
-                    l10n.pinnedLocations,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
-
+                _buildSectionHeader(l10n.pinnedLocations),
                 _buildLocationTile(
                   context: context,
                   city: vm.defaultCity,
@@ -127,39 +91,13 @@ class WeatherDrawer extends StatelessWidget {
                   isRtl: isRtl,
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 28,
-                    vertical: 16,
-                  ),
-                  child: Container(
-                    height: 1,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Colors.white.withValues(alpha: 0.3),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Divider(color: Colors.white10),
                 ),
 
-                // ---------------- 2. RECENT SECTION ----------------
                 if (vm.recent.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(28, 0, 28, 12),
-                    child: Text(
-                      l10n.recentLocations,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-
+                  _buildSectionHeader(l10n.recentLocations),
                   ...vm.recent.map((city) {
                     return _buildLocationTile(
                       context: context,
@@ -178,12 +116,26 @@ class WeatherDrawer extends StatelessWidget {
 
     return Drawer(
       backgroundColor: Colors.transparent,
-      child: kIsWeb
-          ? drawerContent
-          : BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-              child: drawerContent,
-            ),
+      elevation: 0,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: drawerContent,
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(28, 8, 28, 12),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.5),
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
+          letterSpacing: 1.5,
+        ),
+      ),
     );
   }
 
@@ -193,134 +145,54 @@ class WeatherDrawer extends StatelessWidget {
     required bool isPinnedSection,
     required bool isRtl,
   }) {
-    final theme = Theme.of(context);
-
     final isSelected = vm.location.toLowerCase() == city.toLowerCase();
-    final isPinned = city.toLowerCase() == vm.defaultCity.toLowerCase();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Colors.white.withValues(alpha: 0.2)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected
-                ? Colors.white.withValues(alpha: 0.3)
-                : Colors.transparent,
-            width: 1,
-          ),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Material(
+        color: isSelected
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
         child: ListTile(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
-          contentPadding: const EdgeInsetsDirectional.only(start: 16, end: 8),
-          leading: GlassContainer(
-            isDark: false,
-            padding: const EdgeInsets.all(8),
-            borderRadius: 10,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.white24 : Colors.white10,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Icon(
-              isPinnedSection ? Icons.push_pin : Icons.history,
+              isPinnedSection ? Icons.push_pin_rounded : Icons.history_rounded,
               size: 20,
-              color: isSelected
-                  ? Colors.white
-                  : Colors.white.withValues(alpha: 0.7),
+              color: Colors.white,
             ),
           ),
           title: Text(
             city,
-            style: theme.textTheme.labelLarge?.copyWith(
+            style: TextStyle(
               color: Colors.white,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+              fontSize: 16,
             ),
           ),
           onTap: () {
             vm.fetchWeatherByCity(city);
             Navigator.pop(context);
           },
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!isPinnedSection)
-                Container(
-                  decoration: BoxDecoration(
-                    color: isPinned
-                        ? Colors.white.withValues(alpha: 0.15)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                      size: 20,
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                    tooltip: 'سنجاق کردن',
-                    onPressed: () {
-                      vm.setDefaultCity(city);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: Colors.white.withValues(alpha: 0.15),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
-                          ),
-                          content: Text(
-                            '$city پین شد',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          duration: const Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    size: 20,
-                    color: Colors.red.withValues(alpha: 0.7),
-                  ),
-                  tooltip: isPinnedSection ? 'حذف پین' : 'حذف از تاریخچه',
-                  onPressed: () {
-                    if (isPinnedSection) {
-                      vm.setDefaultCity('Tehran');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: Colors.white.withValues(alpha: 0.15),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
-                          ),
-                          content: const Text(
-                            'مکان پیش‌فرض بازنشانی شد',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    } else {
-                      vm.removeRecent(city);
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
+          trailing: isSelected
+              ? const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.white,
+                  size: 20,
+                )
+              : null,
         ),
       ),
     );

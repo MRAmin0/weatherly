@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:weatherly_app/l10n/app_localizations.dart';
 import 'package:weatherly_app/viewmodels/weather_viewmodel.dart';
@@ -42,8 +43,6 @@ class _HomeSearchSectionState extends State<HomeSearchSection> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final inputColor = theme.colorScheme.onSurface;
-    final hintColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
     final hasFocus = widget.searchFocusNode.hasFocus;
 
     return TapRegion(
@@ -55,80 +54,75 @@ class _HomeSearchSectionState extends State<HomeSearchSection> {
       child: Column(
         children: [
           // Search TextField
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
+          Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(30),
-              boxShadow: hasFocus
-                  ? [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(
+                      alpha: hasFocus ? 0.25 : 0.15,
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: Colors.white.withValues(
+                        alpha: hasFocus ? 0.3 : 0.1,
                       ),
-                    ]
-                  : [],
-            ),
-            child: TextField(
-              controller: widget.searchController,
-              focusNode: widget.searchFocusNode,
-              maxLength: 30,
-              textInputAction: TextInputAction.search,
-              onSubmitted: (_) => widget.onSearchPressed(),
-              onChanged: widget.viewModel.searchChanged,
-              style: TextStyle(color: inputColor, fontWeight: FontWeight.w600),
-              decoration: InputDecoration(
-                hintText: widget.l10n.enterCityName,
-                counterText: "",
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.4,
-                ),
-                prefixIcon: hasFocus
-                    ? IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () {
-                          widget.searchFocusNode.unfocus();
-                          widget.searchController.clear();
-                          widget.viewModel.searchChanged('');
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide(
-                    color: inputColor.withValues(alpha: 0.2),
-                    width: 1.0,
+                    ),
                   ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide(
-                    color: inputColor.withValues(alpha: 0.2),
-                    width: 1.0,
+                  child: TextField(
+                    controller: widget.searchController,
+                    focusNode: widget.searchFocusNode,
+                    maxLength: 30,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (_) => widget.onSearchPressed(),
+                    onChanged: widget.viewModel.searchChanged,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: widget.l10n.enterCityName,
+                      counterText: "",
+                      hintStyle: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontWeight: FontWeight.normal,
+                      ),
+                      prefixIcon: hasFocus
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                widget.searchFocusNode.unfocus();
+                                widget.searchController.clear();
+                                widget.viewModel.searchChanged('');
+                              },
+                            )
+                          : const Icon(Icons.search, color: Colors.white70),
+                      suffixIcon: widget.searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                widget.searchController.clear();
+                                widget.viewModel.searchChanged('');
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 15,
+                      ),
+                    ),
                   ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide(
-                    color: theme.colorScheme.primary,
-                    width: 2.0,
-                  ),
-                ),
-                hintStyle: TextStyle(
-                  color: hintColor,
-                  fontWeight: FontWeight.normal,
-                ),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search),
-                  color: inputColor,
-                  onPressed: widget.onSearchPressed,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
                 ),
               ),
             ),
@@ -139,16 +133,15 @@ class _HomeSearchSectionState extends State<HomeSearchSection> {
             Container(
               margin: const EdgeInsets.only(top: 8, left: 16, right: 16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainer,
+                color: theme.brightness == Brightness.dark
+                    ? Colors.grey[900]?.withValues(alpha: 0.9)
+                    : Colors.white.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.1),
-                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
                   ),
                 ],
               ),
@@ -176,19 +169,14 @@ class _HomeSearchSectionState extends State<HomeSearchSection> {
                       title: Text(
                         displayText,
                         style: TextStyle(
-                          color: theme.colorScheme.onSurface,
+                          color: theme.brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black87,
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
                         ),
                       ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        color: theme.colorScheme.onSurfaceVariant,
-                        size: 14,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                       onTap: () {
                         widget.viewModel.selectCitySuggestion(suggestion);
                         widget.searchFocusNode.unfocus();
